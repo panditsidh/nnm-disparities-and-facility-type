@@ -1,0 +1,38 @@
+﻿state_unique_5,nfhs5_statename,statecode_nfhs5,state_unique_4,nfhs4_statename,statecode_nfhs4,nfhs4_notes,state_unique_3,nfhs3_statename,statecode_nfhs3,state_unique_2,nfhs2_statename,statecode_nfhs2,state_unique_1,nfhs1_statename,statecode_nfhs1
+101,jammu & kashmir,1,101,jammu and kashmi,14,j&k split into j&k and ladakh ,101,[jm] jammu and k,1,101,jammu,9,101,jammu,9
+102,himachal pradesh,2,102,himachal pradesh,13,,102,[hp] himachal pr,2,102,himachal pradesh,8,102,himachal pradesh,8
+103,punjab,3,103,punjab,28,,103,[pj] punjab,3,103,punjab,19,103,punjab,19
+104,chandigarh,4,104,chandigarh,6,,,,,,,,,,
+109,uttarakhand,5,109,uttarakhand,34,,109,[uc] uttaranchal,5,,,,,,
+106,haryana,6,106,haryana,12,,106,[hr] haryana,6,106,haryana,7,106,haryana,7
+107,nct of delhi,7,107,delhi,25,,107,[dl] delhi,7,107,new delhi,30,107,new delhi,30
+108,rajasthan,8,108,rajasthan,29,,108,[rj] rajasthan,8,108,rajasthan,20,108,rajasthan,20
+109,uttar pradesh,9,109,uttar pradesh,33,,109,[up] uttar prade,9,109,uttar pradesh,24,109,uttar pradesh,24
+110,bihar,10,110,bihar,5,,110,[bh] bihar,10,110,bihar,4,110,bihar,4
+111,sikkim,11,111,sikkim,30,,111,[sk] sikkim,11,111,sikkim,21,,,
+112,arunachal pradesh,12,112,arunachal pradesh,3,,112,[ar] arunachal p,12,112,arunachalpradesh,34,112,arunachalpradesh,34
+113,nagaland,13,113,nagaland,24,,113,[na] nagaland,13,113,nagaland,17,113,nagaland,17
+114,manipur,14,114,manipur,21,,114,[mn] manipur,14,114,manipur,14,114,manipur,14
+115,mizoram,15,115,mizoram,23,,115,[mz] mizoram,15,115,mizoram,16,115,mizoram,16
+116,tripura,16,116,tripura,32,,116,[tr] tripura,16,116,tripura,35,116,tripura,35
+117,meghalaya,17,117,meghalaya,22,,117,[mg] meghalaya,17,117,meghalaya,15,117,meghalaya,15
+118,assam,18,118,assam,4,,118,[as] assam,18,118,assam,3,118,assam,3
+119,west bengal,19,119,west bengal,35,,119,[wb] west bengal,19,119,west bengal,23,119,west bengal,23
+110,jharkhand,20,110,jharkhand,15,,110,[jh] jharkhand,20,,,,,,
+121,odisha,21,121,odisha,26,,121,[or] orissa,21,121,orissa,18,121,orissa,18
+123,chhattisgarh,22,123,chhattisgarh,7,,123,[ch] chhattisgarh,22,,,,,,
+123,madhya pradesh,23,123,madhya pradesh,19,,123,[mp] madhya prad,23,123,madhya pradesh,12,123,madhya pradesh,12
+124,gujarat,24,124,gujarat,11,,124,[gj] gujarat,24,124,gujarat,6,124,gujarat,6
+125,dadra & nagar ha,25,125,dadra and nagar,8,daman and diu and dadra and nagar haveli combined in nfhs5,,,,,,,,,
+127,maharashtra,27,127,maharashtra,20,,127,[mh] maharashtra,27,127,maharashtra,13,127,maharashtra,13
+128,andhra pradesh,28,128,andhra pradesh,2,,128,[ap] andhra prad,28,128,andhra pradesh,2,128,andhra pradesh,2
+129,karnataka,29,129,karnataka,16,,129,[ka] karnataka,29,129,karnataka,10,129,karnataka,10
+130,goa,30,130,goa,10,,130,[go] goa,30,130,goa,5,130,goa,5
+131,lakshadweep,31,131,lakshadweep,18,,,,,,,,,,
+132,kerala,32,132,kerala,17,,132,[ke] kerala,32,132,kerala,11,132,kerala,11
+133,tamil nadu,33,133,tamil nadu,31,,133,[tn] tamil nadu,33,133,tamil nadu,22,133,tamil nadu,22
+134,puducherry,34,134,puducherry,27,,,,,,,,,,
+135,andaman & nicobar,35,135,andaman and nicobar,1,,,,,,,,,,
+128,telangana,36,128,telangana,36,,,,,,,,,,
+101,ladakh,37,101,jammu and kashmi,14,j&k split into j&k and ladakh ,,,,,,,,,
+,,,125,daman and diu,9,daman and diu and dadra and nagar haveli combined in nfhs5,,,,,,,,,
