@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} %package to manage images
+\graphicspath{ {./figures/} }
+\usepackage{caption}
+\usepackage[font=scriptsize]{subcaption}
+\captionsetup[figure]{labelsep=none}
+\captionsetup[table]{labelsep=none}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{import}
+\usepackage{array}
+\usepackage{booktabs}     % no extra vertical space between paragraphs
+\usepackage{indentfirst}
+\usepackage{afterpage}
+\usepackage{floatrow}
+\usepackage{pdflscape}
+\usepackage{soul}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{afterpage}
+\usepackage[margin=1in]{geometry}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{threeparttable}
+\usepackage{setspace}
+\usepackage{float}
+\floatstyle{plaintop}
+\restylefloat{table}
+\usepackage{rotating}
+\usepackage{ragged2e}
+\usepackage{authblk}
+
+
+\begin{document}
+% \RaggedRight
+ 
+\begin{table}[H]
+    \centering
+
+    \begin{threeparttable}
+            
+    \caption{: Distribution of gestational ages suggests under-reporting of early pregnancy}
+    \label{gestdur_distribution}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    
+        \input{tables/tableA2 distribution of gestational duration}
+    
+    \small
+    \begin{tablenotes}
+        \item  
+    \end{tablenotes}
+
+    \begin{tablenotes}
+    \footnotesize
+    \item 
+        NFHS-5 data. Observations are married women interviewed who are in one of the five social groups we study and report being currently pregnant.
+    \end{tablenotes}
+    
+    \end{threeparttable}
+\end{table}
+
+
+
+
+
+
+
+\end{document}
