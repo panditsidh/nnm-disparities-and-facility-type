@@ -1,5 +1,9 @@
 
 
+
+************************************ Neonatal mortality ************************************
+
+
 gen child_age_mo = v008-b3 
 gen nnm = 0 if child_age_mo > 0
 replace nnm = 1000 if nnm == 0 & b7 == 0
@@ -10,22 +14,8 @@ replace nnm =. if child_age_mo>60
 drop if missing(nnm)
 
 
+************************************ Facility type ************************************
 
-
-
-egen strata = group(v000 state_nfhs5 v025)
-
-
-* cluster number, state, urban/rural
-egen psu    = group(v000 v001 state_nfhs5 v025)
-
-bysort v000: egen totalwt = total(v005)
-gen wt = v005 / totalwt
-
-svyset psu [pw=v005], strata(strata) vce(linearized) singleunit(centered)
-
-
-* facility type
 gen home = inrange(m15, 10, 13)
 gen public = inrange(m15, 20, 29)
 gen private = inrange(m15, 30, 39)
@@ -46,24 +36,30 @@ label define facility_lbl ///
 label values facility_type facility_lbl
 
 
+
+************************************ Regions ************************************
+
 gen focus = inlist(state_nfhs5, 104, 107, 108, 109, 119, 120, 121, 122)
+label var focus "EAG States"
 
 gen up_bihar = inlist(state_nfhs5, 108, 109)
+label var up_bihar "UP & Bihar"
+
+
+gen non_upbihar_focus = focus==1 & up_bihar==0
+label var non_upbihar_focus "EAG states besides UP & Bihar"
 
 
 gen up = state_nfhs5==108
-
 gen bihar = state_nfhs5==109
 
 label var up    "Uttar Pradesh"
 label var bihar "Bihar"
 
 
+gen nonfocus = !focus
+label var nonfocus "Non EAG states"
 
-*------------------------------------------------------------
-* Region indicators based on harmonized state_nfhs5
-* using state5_lbl coding
-*------------------------------------------------------------
 
 gen rest_india = !inlist(state_nfhs5, 108, 109) if !missing(state_nfhs5)
 label var rest_india "Rest of India (excluding UP and Bihar)"
@@ -113,6 +109,21 @@ label val region regionlbl
 
 
 
+
+
+
+gen urban = v025==1
+gen rural = v025==2
+
+gen India = 1
+gen EAG = focus
+
+
+
+gen nonEAG = !focus
+
+
+************************************ Social Groups ************************************
 
 *------------------------------------------------------------
 * Social group coding directly from round-specific variables
@@ -181,10 +192,6 @@ replace group = 4 if inlist(v000, "IA6", "IA7") ///
     & (s116 == 4 | s116 == 8 | missing(s116))                               // Forward caste Hindu
 
 
-*-------------------------
-* Labels
-*-------------------------
-
 label define group_lbl ///
     1 "Adivasi" ///
     2 "Dalit" ///
@@ -197,16 +204,22 @@ label values group group_lbl
 label var group "Social group"
 
 
-
-gen urban = v025==1
-gen rural = v025==2
-
-gen India = 1
-gen EAG = focus
+************************************ Weights ************************************
 
 
+egen strata = group(v000 state_nfhs5 v025)
 
-gen nonEAG = !focus
+* cluster number, state, urban/rural
+egen psu    = group(v000 v001 state_nfhs5 v025)
+
+bysort v000: egen totalwt = total(v005)
+gen wt = v005 / totalwt
+
+svyset psu [pw=v005], strata(strata) vce(linearized) singleunit(centered)
+
+
+
+
 
 save "$dataset", replace
 
