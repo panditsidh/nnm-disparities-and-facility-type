@@ -43,11 +43,11 @@ gen focus = inlist(state_nfhs5, 104, 107, 108, 109, 119, 120, 121, 122)
 label var focus "EAG States"
 
 gen up_bihar = inlist(state_nfhs5, 108, 109)
-label var up_bihar "UP & Bihar"
+label var up_bihar "UP and Bihar"
 
 
 gen non_upbihar_focus = focus==1 & up_bihar==0
-label var non_upbihar_focus "EAG states besides UP & Bihar"
+label var non_upbihar_focus "EAG states besides UP and Bihar"
 
 
 gen up = state_nfhs5==108
