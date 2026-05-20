@@ -32,8 +32,8 @@ drop if group==6 | missing(group)
 
 
 local round = 5
-local residence_type urban
-local states EAG
+local residence_type rural
+local states nonfocus
 
 
 keep if round==`round'
