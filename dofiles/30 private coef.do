@@ -17,12 +17,12 @@ local groupname4 "Forward Hindu"
 local groupname5 "Muslim"
 
 local residence rural
-local r =  5
+local r  4,5
 
 
 
 * Regression controls
-local controls i.prior i.underweight_projected i.male i.momunder20 i.b0 i.v190 i.illiterate
+local controls i.prior i.underweight_projected i.male i.momunder20 i.b0 i.v190 i.illiterate i.round
 
 
 * Suppression / flag thresholds
@@ -43,10 +43,14 @@ use "$dataset", clear
 
 do "$paths"
 
-do "dofiles/nfhs5 other vars"
+
+
+replace prior = 0 if missing(prior)
+
+
 
 drop if home==1
-keep if round==`r'
+keep if inlist(round, `r')
 keep if `residence'==1
 
 
@@ -82,10 +86,10 @@ postfile handle ///
 * Loop over regions
 *------------------------------------------------------------
 
-foreach r of local regions {
+foreach region in `regions' {
 
     * Use variable label as row name; fall back to variable name
-    local reglabel : variable label `r'
+    local reglabel : variable label `region'
     if "`reglabel'" == "" local reglabel "`r'"
 
     * Initialize cells
@@ -111,7 +115,7 @@ foreach r of local regions {
 
         * Run regression
         reghdfe `outcome' i.private `controls' [aw = v005] ///
-            if `r' == 1 & group == `g', cluster(psu) absorb(sdist)
+            if `region' == 1 & group == `g', cluster(psu) absorb(sdist)
 
         * Suppression / flag logic using actual regression sample
         quietly count if e(sample) & private == 1

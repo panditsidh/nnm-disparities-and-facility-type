@@ -53,9 +53,9 @@ local groupname5 "Muslim"
 
 
 
-local residence urban
+local residence rural
 local facility private
-local r =  5
+local r  4,5
 
 
 * Suppression / flag thresholds
@@ -93,7 +93,7 @@ drop if group == 6 | group == .
 
 
 
-keep if round==`r'
+keep if inlist(round,`r')
 keep if `residence'==1
 keep if `facility'==1
 
