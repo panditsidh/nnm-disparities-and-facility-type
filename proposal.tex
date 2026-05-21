@@ -9,6 +9,7 @@
 \usepackage{amsmath}
 \usepackage{import}
 \usepackage{array}
+\usepackage{enumitem}
 \usepackage{booktabs}     % no extra vertical space between paragraphs
 \usepackage{indentfirst}
 \usepackage{afterpage}
@@ -148,22 +149,27 @@
         {\input{tables/table private coef rural NFHS4,5}}
 
         \begin{tablenotes}
-            \item Each cell reports $\beta$ from a separate region-by-social-group regression of neonatal mortality on private facility birth:
+            \item 
+            \item - Each cell reports $\beta$ from a separate region-by-social-group regression of neonatal mortality on private facility birth:
             \[
             NNM_i = \alpha + \beta Private_i + X_i'\gamma + \delta_d + \alpha_r +\varepsilon_i,
             \]
-            where $\delta_d$ are district fixed effects, and $\alpha_r$ are survey round fixed effects. Controls include prior neonatal death, projected maternal underweight, child sex, maternal age under 20, birth order, twins, wealth quintile, and maternal illiteracy.
-            \item The sample in each regression is restricted to public and private facility births only.
-            \item *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
-            \item -- indicates that the regression has fewer than 300 private births or fewer than 10 private neonatal deaths.
-            \item ! indicates that the regression is flagged for having 300--500 private births or 10--20 private neonatal deaths.
+            where $\delta_d$ are district fixed effects, and $\alpha_r$ are survey round fixed effects. Controls include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, birth order, multiples, wealth quintile, and maternal illiteracy.
+            \item
+            \item - The sample in each regression is restricted to public and private facility births only.
+            \item 
+            \item - *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
+            \item 
+            \item - "--" indicates that the regression has fewer than 300 private births or fewer than 10 private neonatal deaths.
+            \item - "!" indicates that the regression is flagged for having 300--500 private births or 10--20 private neonatal deaths.
+
         \end{tablenotes}
     \end{threeparttable}
 \end{table}
 
 
 \begin{itemize}
-    \item There is no excess private neonatal mortality for forward caste Hindu births. 
+    \item There is no statistically significant excess private neonatal mortality for forward caste Hindu births. 
     \item Excess private neonatal mortality is most for Dalit births, then Muslim births, then OBC births.
 \end{itemize}
 
