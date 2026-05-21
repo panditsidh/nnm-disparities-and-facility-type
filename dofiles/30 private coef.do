@@ -22,7 +22,7 @@ local r  4,5
 
 
 * Regression controls
-local controls i.prior i.underweight_projected i.male i.momunder20 i.b0 i.v190 i.illiterate i.round
+local controls i.prior i.underweight_projected i.male i.momunder20 i.multiples i.v190 i.birth_order i.illiterate i.round
 
 
 * Suppression / flag thresholds

@@ -341,6 +341,17 @@ gen vaginal = (csection==0) if !missing(csection)
 
 
 
+
+
+
+gen birth_order = bord 
+replace birth_order = 5 if bord>=5
+
+
+
+gen multiples = b0!=0
+
+
 ************************************ Wealth variables ************************************
 
 
@@ -392,6 +403,10 @@ bysort v000: egen totalwt = total(v005)
 gen wt = v005 / totalwt
 
 svyset psu [pw=v005], strata(strata) vce(linearized) singleunit(centered)
+
+
+
+
 
 
 
