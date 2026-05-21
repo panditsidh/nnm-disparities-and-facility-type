@@ -132,12 +132,12 @@
 
 
 
-\newpage
+
 
 \begin{table}[H]
     \centering
     \begin{threeparttable}
-        \caption{: Rural private sample - neonatal mortality disparities in NFHS-5}
+        \caption{: Rural sample - excess private neonatal mortality (after controlling for selection) in the NFHS-4 and 5 pooled.}
         \label{tab:regression}
 
         \scriptsize
@@ -145,14 +145,14 @@
         \renewcommand{\arraystretch}{2}
 
         % {\input{tables/predictor_regression}}
-        {\input{tables/table private coef rural NFHS5}}
+        {\input{tables/table private coef rural NFHS4,5}}
 
         \begin{tablenotes}
             \item Each cell reports $\beta$ from a separate region-by-social-group regression of neonatal mortality on private facility birth:
             \[
-            NNM_i = \alpha + \beta Private_i + X_i'\gamma + \delta_d + \varepsilon_i,
+            NNM_i = \alpha + \beta Private_i + X_i'\gamma + \delta_d + \alpha_r +\varepsilon_i,
             \]
-            where $\delta_d$ are district fixed effects. Controls include prior neonatal death, projected maternal underweight, child sex, maternal age under 20, birth order, wealth quintile, and maternal illiteracy.
+            where $\delta_d$ are district fixed effects, and $\alpha_r$ are survey round fixed effects. Controls include prior neonatal death, projected maternal underweight, child sex, maternal age under 20, birth order, twins, wealth quintile, and maternal illiteracy.
             \item The sample in each regression is restricted to public and private facility births only.
             \item *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
             \item -- indicates that the regression has fewer than 300 private births or fewer than 10 private neonatal deaths.
@@ -160,6 +160,14 @@
         \end{tablenotes}
     \end{threeparttable}
 \end{table}
+
+
+\begin{itemize}
+    \item There is no excess private neonatal mortality for forward caste Hindu births. 
+    \item Excess private neonatal mortality is most for Dalit births, then Muslim births, then OBC births.
+\end{itemize}
+
+
 
 
 
