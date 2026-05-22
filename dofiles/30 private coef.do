@@ -4,7 +4,7 @@
 * User settings
 *------------------------------------------------------------
 
-local outcome nnm
+local outcome deliv_oop_cost
 
 
 local regions up_bihar non_upbihar_focus nonfocus
@@ -22,7 +22,9 @@ local r  4,5
 
 
 * Regression controls
-local controls i.prior i.underweight_projected i.male i.momunder20 i.multiples i.v190 i.birth_order i.illiterate i.round
+// local controls i.prior i.underweight_projected i.male i.momunder20 i.multiples i.v190 i.birth_order i.illiterate i.round
+
+local controls i.round
 
 
 * Suppression / flag thresholds
@@ -41,6 +43,11 @@ local outfile "tables/table private coef `residence' NFHS`r'.tex"
 
 use "$dataset", clear
 
+
+
+
+// replace `outcome'=`outcome'*100
+
 do "$paths"
 
 
@@ -56,9 +63,7 @@ keep if `residence'==1
 
 * Neonatal death indicator from nnm coded 0/1000
 capture drop nd
-gen nd = .
-replace nd = 1 if `outcome' == 1000
-replace nd = 0 if `outcome' == 0
+gen nd = nnm/1000 if !missing(nnm)
 
 drop if group == 6 | missing(group)
 

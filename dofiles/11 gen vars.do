@@ -316,8 +316,8 @@ gen bmi = v445/100 if v445 < 7000
 gen bmi_projected = .
 
 
-rename state_nfhs5 state
-levelsof state
+rename state_nfhs5
+levelsof state_nfhs5
 foreach i of numlist `r(levels)' {
 reg bmi momagesurvey [aweight = v005] if state== `i'& v025==1 & v213==0
 replace bmi_projected = bmi + (momageb4birth-momagesurvey)*_b[momagesurvey] if state==`i' & v025==1
@@ -390,14 +390,86 @@ label val roof roof
 gen illiterate = (v155 == 0)
 
 
+************************************ Care at birth variables ************************************
+
+cap drop prelac
+    gen prelac = .
+
+capture confirm variable m55a
+if !_rc {
+	foreach v in m55a m55b m55c m55d m55e m55f m55g m55h m55i m55j m55x {
+		capture replace `v' = . if `v' >= 8
+	}
+
+	egen prelac_any = rowmax(m55a m55b m55c m55d m55e m55f m55g m55h m55i m55j m55x)
+	replace prelac = 1 if prelac_any==1
+	replace prelac = 0 if prelac_any==0
+	drop prelac_any
+	
+	
+
+}
+
+
+cap drop skin
+gen skin = .
+replace skin = 1 if m77==1
+replace skin = 0 if inlist(m77,0,2)
+label var skin "Skin-to-skin contact after birth"
+
+
+
+
+
+
+
+
+* total OOP delivery cost
+
+
+*------------------------------------------------------------
+* Harmonize out-of-pocket delivery cost
+*
+* NFHS-5: s454
+*   0       Did not pay
+*   1-99995 Cost in Rs
+*   99998   Don't know
+*
+* NFHS-4: s449
+*   0       Did not pay
+*   1-99990 Cost in Rs
+*   99998   Don't know
+*
+* Harmonized variable:
+*   deliv_oop_cost = total out-of-pocket delivery cost in Rs
+*------------------------------------------------------------
+
+cap drop deliv_oop_cost_raw
+cap drop deliv_oop_cost
+* Raw harmonized delivery OOP cost
+gen deliv_oop_cost_raw = .
+
+replace deliv_oop_cost_raw = s449 if round == 4 & inrange(s449, 0, 99989)
+replace deliv_oop_cost_raw = s454 if round == 5 & inrange(s454, 0, 99994)
+
+label var deliv_oop_cost_raw "Total out-of-pocket delivery cost, Rs, raw"
+
+
+* Cleaned analytic version: drop values above round-specific p99
+gen deliv_oop_cost = deliv_oop_cost_raw
+
+replace deliv_oop_cost = . if round == 4 & deliv_oop_cost > 50000
+replace deliv_oop_cost = . if round == 5 & deliv_oop_cost > 60000
+
+label var deliv_oop_cost "Total out-of-pocket delivery cost, Rs, top 1% excluded"
 
 ************************************ Weights ************************************
 
 
-egen strata = group(v000 statecode_nfhs5 v025)
+egen strata = group(v000 state_nfhs5 v025)
 
 * cluster number, state, urban/rural
-egen psu    = group(v000 v001 statecode_nfhs5 v025)
+egen psu    = group(v000 v001 state_nfhs5 v025)
 
 bysort v000: egen totalwt = total(v005)
 gen wt = v005 / totalwt

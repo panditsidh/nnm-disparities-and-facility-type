@@ -1,12 +1,9 @@
-
-
-
 *------------------------------------------------------------
 * User settings
 *------------------------------------------------------------
 
-local outcome nnm
-local mult 1
+local outcome deliv_oop_cost
+local mult 100
 
 local regions up_bihar non_upbihar_focus nonfocus
 
@@ -17,52 +14,39 @@ local groupname2 "Dalit"
 local groupname3 "OBC"
 local groupname5 "Muslim"
 
-
-
-local residence rural
-local facility all
-local r  3
+local residence all
+local facility private
+local r 4,5
 
 
 * Suppression / flag thresholds
+* For breastfeeding, use sample-size thresholds only.
 local min_births_show 300
-local min_deaths_show 10
-
 local min_births_clean 500
-local min_deaths_clean 20
 
 
-local outfile "tables/table nnm disparities `residence' `facility' NFHS`r'.tex"
-
-
+local outfile "tables/table bf24hr disparities `residence' `facility' NFHS`r'.tex"
 
 
 *------------------------------------------------------------
 * Load data and set survey design
 *------------------------------------------------------------
 
-
 do "$paths"
 use "$dataset", clear
 
-gen india = 1 
+gen india = 1
 label var india "All India"
 
 gen all = 1
-
-gen nd = nnm/1000
 
 svyset psu [pw = v005], strata(strata) vce(linearized) singleunit(centered)
 
 drop if group == 6 | group == .
 
-
-
-
-keep if inlist(round,`r')
-keep if `residence'==1
-keep if `facility'==1
-
+keep if inlist(round, `r')
+keep if `residence' == 1
+keep if `facility' == 1
 
 
 *------------------------------------------------------------
@@ -90,7 +74,7 @@ capture postclose handle
 
 postfile handle ///
     str40 region ///
-    str20 forward_nnm ///
+    str20 forward_mean ///
     str20 adivasi_gap ///
     str20 dalit_gap ///
     str20 obc_gap ///
@@ -102,44 +86,42 @@ postfile handle ///
 * Loop over regions
 *------------------------------------------------------------
 
-foreach r of local regions {
+foreach reg of local regions {
 
     * Use variable label as row name; fall back to variable name if unlabeled
-    local reglabel : variable label `r'
-    if "`reglabel'" == "" local reglabel "`r'"
+    local reglabel : variable label `reg'
+    if "`reglabel'" == "" local reglabel "`reg'"
 
     *--------------------------------------------------------
-    * Get  Forward Hindu sample size and deaths
+    * Get Forward Hindu sample size
     *--------------------------------------------------------
 
-    quietly count if `r' == 1 & group == 4 & !missing(`outcome')
+    quietly count if `reg' == 1 & group == 4 & !missing(`outcome')
     local n_fwd = r(N)
-
-    quietly summarize `outcome' if `r' == 1 & group == 4 & !missing(`outcome'), meanonly
-    local deaths_fwd = r(sum)
 
     * display policy
     local fwd_s "--"
     local fwd_ok = 0
     local fwd_flag = 0
 
-    if `n_fwd' >= `min_births_show' & `deaths_fwd' >= `min_deaths_show' {
+    if `n_fwd' >= `min_births_show' {
         local fwd_ok = 1
 
-        if `n_fwd' < `min_births_clean' | `deaths_fwd' < `min_deaths_clean' {
+        if `n_fwd' < `min_births_clean' {
             local fwd_flag = 1
         }
     }
 
+
     *--------------------------------------------------------
-    * Run survey regression only if Forward Hindu has usable observations in region
+    * Run survey regression only if Forward Hindu has usable observations
     *--------------------------------------------------------
 
     capture noisily svy: regress `outcome' ib4.group ///
-        if `r' == 1 & inlist(group, 1, 2, 3, 4, 5) & !missing(`outcome')
+        if `reg' == 1 & inlist(group, 1, 2, 3, 4, 5) & !missing(`outcome')
 
     if _rc != 0 {
-        local forward_nnm "--"
+        local forward_mean "--"
         local adivasi_gap "--"
         local dalit_gap "--"
         local obc_gap "--"
@@ -147,7 +129,7 @@ foreach r of local regions {
 
         post handle ///
             ("`reglabel'") ///
-            ("`forward_nnm'") ///
+            ("`forward_mean'") ///
             ("`adivasi_gap'") ///
             ("`dalit_gap'") ///
             ("`obc_gap'") ///
@@ -156,12 +138,13 @@ foreach r of local regions {
         continue
     }
 
+
     *--------------------------------------------------------
-    * Forward Hindu NNM
+    * Forward Hindu mean
     *--------------------------------------------------------
 
     if `fwd_ok' == 1 {
-        local fwd = _b[_cons] 
+        local fwd = _b[_cons] * `mult'
         local fwd_s : display %9.1f `fwd'
         local fwd_s = strtrim("`fwd_s'")
 
@@ -170,7 +153,7 @@ foreach r of local regions {
         }
     }
 
-    local forward_nnm "`fwd_s'"
+    local forward_mean "`fwd_s'"
 
 
     *--------------------------------------------------------
@@ -182,26 +165,21 @@ foreach r of local regions {
         * Default is suppressed
         local gap_s "--"
 
-        * Check comparison group unweighted births and deaths
-        quietly count if `r' == 1 & group == `g' & !missing(`outcome')
+        * Check comparison group unweighted births
+        quietly count if `reg' == 1 & group == `g' & !missing(`outcome')
         local n_g = r(N)
-
-        quietly summarize nd if `r' == 1 & group == `g' & !missing(`outcome'), meanonly
-        local deaths_g = r(sum)
 
         * Apply suppression rule
         local show_gap = 0
         local flag_gap = 0
 
         if `n_fwd' >= `min_births_show' & ///
-           `n_g'   >= `min_births_show' & ///
-           `deaths_g' >= `min_deaths_show' {
+           `n_g'   >= `min_births_show' {
 
             local show_gap = 1
 
             if `n_fwd' < `min_births_clean' | ///
-               `n_g'   < `min_births_clean' | ///
-               `deaths_g' < `min_deaths_clean' {
+               `n_g'   < `min_births_clean' {
 
                 local flag_gap = 1
             }
@@ -212,7 +190,7 @@ foreach r of local regions {
 
             capture confirm matrix e(b)
 
-            capture local gap = _b[`g'.group] 
+            capture local gap = _b[`g'.group] * `mult'
 
             if _rc == 0 {
 
@@ -255,7 +233,7 @@ foreach r of local regions {
 
     post handle ///
         ("`reglabel'") ///
-        ("`forward_nnm'") ///
+        ("`forward_mean'") ///
         ("`adivasi_gap'") ///
         ("`dalit_gap'") ///
         ("`obc_gap'") ///
@@ -275,38 +253,19 @@ list, noobs clean abbreviate(20)
 
 
 *------------------------------------------------------------
-* Export options
+* Optional LaTeX export
 *------------------------------------------------------------
 
-
-
-
-* Optional LaTeX export using listtex, if installed
 capture which listtex
+
 if _rc == 0 {
-    listtex region forward_nnm adivasi_gap dalit_gap obc_gap muslim_gap ///
+    listtex region forward_mean adivasi_gap dalit_gap obc_gap muslim_gap ///
         using "`outfile'", replace ///
         rstyle(tabular) ///
         head("\begin{tabular}{lccccc}" ///
              "\hline" ///
-             "Region & Forward Hindu NNM & Adivasi gap & Dalit gap & OBC gap & Muslim gap \\" ///
+             "Region & Forward Hindu mean & Adivasi gap & Dalit gap & OBC gap & Muslim gap \\" ///
              "\hline") ///
         foot("\hline" ///
              "\end{tabular}")
 }
-
-
-/********************************************************************
-Suggested table note:
-
-Forward Hindu NNM reports the survey-weighted neonatal mortality rate
-for Forward Hindus in deaths per 1,000 births. Gaps report the
-difference between each group's NNM and Forward Hindu NNM in the same
-region. Cells are suppressed with "--" if either the Forward Hindu or
-comparison group has fewer than 50 unweighted births, or if the
-comparison group has fewer than 5 neonatal deaths. Estimates marked
-with "!" are based on 50-99 unweighted births in either group or 5-9
-neonatal deaths in the comparison group. Stars denote significance of
-the group gap relative to Forward Hindus: * p<0.10, ** p<0.05,
-*** p<0.01.
-********************************************************************/
