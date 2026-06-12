@@ -355,3 +355,4 @@ if _rc == 0 {
         foot("\hline" ///
              "\end{tabular}")
 }
+]
