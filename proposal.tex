@@ -38,11 +38,13 @@
 
 \begin{document}
 % \RaggedRight
- 
+
+% \textbf{Social group disparities in neonatal mortality are much larger among rural private births than public births, especially those in UP and Bihar.}
+
 % \begin{table}[H]
 %     \centering
 %     \begin{threeparttable}
-%         \caption{: Rural sample - neonatal mortality disparities in NFHS-5}
+%         \caption{: Rural public sample - neonatal mortality disparities in NFHS-5}
 %         \label{tab:regression}
 
 %         \scriptsize
@@ -50,7 +52,7 @@
 %         \renewcommand{\arraystretch}{1.5}
 
 %         % {\input{tables/predictor_regression}}
-%         {\input{tables/table nnm disparities rural all NFHS5}}
+%         {\input{tables/table nnm disparities rural public NFHS5}}
 
 %         \begin{tablenotes}
 %             \item * $p<0.5$, ** $p<0.01$ *** $p<0.001$ 
@@ -61,11 +63,10 @@
 
 
 
-
 % \begin{table}[H]
 %     \centering
 %     \begin{threeparttable}
-%         \caption{: Urban sample - neonatal mortality disparities in NFHS-5}
+%         \caption{: Rural private sample - neonatal mortality disparities in NFHS-5}
 %         \label{tab:regression}
 
 %         \scriptsize
@@ -73,7 +74,7 @@
 %         \renewcommand{\arraystretch}{1.5}
 
 %         % {\input{tables/predictor_regression}}
-%         {\input{tables/table nnm disparities urban all NFHS5}}
+%         {\input{tables/table nnm disparities rural private NFHS5}}
 
 %         \begin{tablenotes}
 %             \item * $p<0.5$, ** $p<0.01$ *** $p<0.001$ 
@@ -81,58 +82,15 @@
 %     \end{threeparttable}
 % \end{table}
 
-
-
-\begin{table}[H]
+\begin{figure}
     \centering
-    \begin{threeparttable}
-        \caption{: Rural public sample - neonatal mortality disparities in NFHS-5}
-        \label{tab:regression}
-
-        \scriptsize
-        \setlength{\tabcolsep}{9pt}
-        \renewcommand{\arraystretch}{1.5}
-
-        % {\input{tables/predictor_regression}}
-        {\input{tables/table nnm disparities rural public NFHS5}}
-
-        \begin{tablenotes}
-            \item * $p<0.5$, ** $p<0.01$ *** $p<0.001$ 
-        \end{tablenotes}
-    \end{threeparttable}
-\end{table}
+    \includegraphics[width=0.5\linewidth]{figures/}
+    \caption{Caption}
+    \label{fig:placeholder}
+\end{figure}
 
 
-\begin{table}[H]
-    \centering
-    \begin{threeparttable}
-        \caption{: Rural private sample - neonatal mortality disparities in NFHS-5}
-        \label{tab:regression}
-
-        \scriptsize
-        \setlength{\tabcolsep}{9pt}
-        \renewcommand{\arraystretch}{1.5}
-
-        % {\input{tables/predictor_regression}}
-        {\input{tables/table nnm disparities rural private NFHS5}}
-
-        \begin{tablenotes}
-            \item * $p<0.5$, ** $p<0.01$ *** $p<0.001$ 
-        \end{tablenotes}
-    \end{threeparttable}
-\end{table}
-
-
-\begin{itemize}
-    \item Disparities in neonatal mortality are much larger for rural private births, especially those in UP and Bihar.
-\end{itemize}
-
-
-
-
-
-
-
+\textbf{Large social group disparities in excess private neonatal mortality in UP and Bihar but not other states.} 
 
 
 \begin{table}[H]
@@ -168,10 +126,13 @@
 \end{table}
 
 
+
 \begin{itemize}
-    \item There is no statistically significant excess private neonatal mortality for forward caste Hindu births. 
-    \item Excess private neonatal mortality is most for Dalit births, then Muslim births, then OBC births.
+    \item If I do this table without controls and using care at birth indicators (early initiation of breastfeeding, skin to skin, prelacteal feeding), for all regions and all social groups the coefficient is large, negative, and *** significant. Those variables, at least in the NFHS, don't seem to be explaining why the excess private NNM is worse for disadvantaged social groups.
 \end{itemize}
+
+
+
 
 
 
