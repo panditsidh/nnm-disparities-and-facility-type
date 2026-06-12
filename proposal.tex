@@ -82,21 +82,27 @@
 %     \end{threeparttable}
 % \end{table}
 
-\begin{figure}
+In UP and Bihar, the neonatal mortality rate among public facility births is relatively similar across social groups. But, disparities are much wider among private facility births. Also, among Dalit/OBC/Muslim births, the gap between public and private neonatal mortality is much larger than among other social groups. There are no clear gaps between public and private neonatal mortality in other states for any social groups. 
+
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{figures/}
-    \caption{Caption}
+    \includegraphics[width=\linewidth]{figures/nnm facility type x social group (4panel).pdf}
+    \caption{: The public-private NNM gap is wider among Dalit/OBC/Muslim births in UP and Bihar but not other states.}
     \label{fig:placeholder}
 \end{figure}
 
 
-\textbf{Large social group disparities in excess private neonatal mortality in UP and Bihar but not other states.} 
+
+
+
+To check if it is the case that more higher-risk births are sorting into private facilities among Dalit/OBC/Muslim but not other social groups in UP and Bihar, this table controls for risk factors and reports the remaining private--public gap, which is still large among Dalit/OBC/Muslim but not forward caste Hindu births. The results are similar when controlling for care at birth indicators (early initiation of breastfeeding, skin to skin, prelacteal feeding) as well. These variables, at least in the NFHS, don't seem to be explaining why the excess private NNM is worse for disadvantaged social groups.
 
 
 \begin{table}[H]
     \centering
     \begin{threeparttable}
-        \caption{: Rural sample - excess private neonatal mortality (after controlling for selection) in the NFHS-4 and 5 pooled.}
+        \caption{: Rural sample within-group excess private neonatal mortality (after controlling for observed risk factors) in the NFHS-4 and 5 pooled.}
         \label{tab:regression}
 
         \scriptsize
@@ -126,9 +132,14 @@
 \end{table}
 
 
-
+If this result of higher excess neonatal mortality among Dalit/OBC/Muslim births in UP and Bihar is not due to selection, it may reflect:
 \begin{itemize}
-    \item If I do this table without controls and using care at birth indicators (early initiation of breastfeeding, skin to skin, prelacteal feeding), for all regions and all social groups the coefficient is large, negative, and *** significant. Those variables, at least in the NFHS, don't seem to be explaining why the excess private NNM is worse for disadvantaged social groups.
+    \item Dalit/OBC/Muslim births happening in worse private facilities. There is especially poor regulatory capacity which allows for low-quality private practices to exist in UP and Bihar. Births among disadvantaged social groups may sort into these facilities if they are lower cost -- but I did not see big differences in average OOPE for private births across social groups in the data. Besides sorting by cost, Dalit/OBC/Muslim families may be more likely to use facilities that are more accessible through social networks, but which may be lower quality, less equipped, or worse at handling complications.
+    
+    \item Dalit/OBC/Muslim mothers entering private facilities after more severe complications. If a case is referred out of a CHC into a district hospital the family may choose to go to a local private facility instead. On the other hand, private births among forward caste mothers may be a planned first choice.
+    
+    \item The same private providers offering lower-quality or less accountable care to socially disadvantaged families if they have weaker social connections to the provider and less ability to demand timely or respectful treatment.
+
 \end{itemize}
 
 
