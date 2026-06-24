@@ -90,6 +90,7 @@ In UP and Bihar, the neonatal mortality rate among public facility births is rel
     \includegraphics[width=\linewidth]{figures/nnm facility type x social group (4panel).pdf}
     \caption{: The public-private NNM gap is wider among Dalit/OBC/Muslim births in UP and Bihar but not other states.}
     \label{fig:placeholder}
+    \parbox{1\linewidth}{\footnotesize NFHS-5 rural births in the five years preceding the survey. Panels show neonatal mortality (per 1,000 live births) by social group and delivery facility type across subgroups. The public–private gap differs sharply by social group in UP \& Bihar, with Dalit births experiencing substantially higher mortality in private facilities relative to public facilities. This pattern does not hold in other social groups or subgroups.}
 \end{figure}
 
 
@@ -120,7 +121,7 @@ To check if it is the case that more higher-risk births are sorting into private
             \]
             where $\delta_d$ are district fixed effects, and $\alpha_r$ are survey round fixed effects. Controls include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, birth order, multiples, wealth quintile, and maternal illiteracy.
             \item
-            \item - The sample in each regression is restricted to public and private facility births only.
+            \item - The sample in each regression is restricted to rural public and private facility births only.
             \item 
             \item - *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
             \item 
@@ -145,6 +146,36 @@ If this result of higher excess neonatal mortality among Dalit/OBC/Muslim births
 
 
 
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+
+        \caption{: Difference in the private-public neonatal mortality gap relative to Forward Hindus, by region and social group (rural sample, pooled NFHS-4 and 5)}
+
+        \label{tab:regression}
+
+        \scriptsize
+        \setlength{\tabcolsep}{9pt}
+        \renewcommand{\arraystretch}{2}
+
+        % {\input{tables/predictor_regression}}
+        {\input{tables/table private interaction relative to forward rural NFHS4,5}}
+
+    \begin{tablenotes}
+        \item 
+        \item - Each cell reports the interaction coefficient for the listed social group and private facility birth from a region-specific regression (reg nnm i.group**i.private within each region). Forward Hindus are the omitted social group, so the coefficient compares the private-public neonatal mortality gap for the listed group to the private-public neonatal mortality gap for Forward Hindus.
+        \item
+        \item - Controls include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, birth order, multiples, wealth quintile, maternal illiteracy, survey round, and district fixed effects. Standard errors are clustered at the PSU level.
+        \item 
+        \item - The sample in each region is restricted to rural public and private births only. 
+        \item
+        \item - *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
+        \item 
+    \end{tablenotes}
+    
+    \end{threeparttable}
+\end{table}
 
 
 
