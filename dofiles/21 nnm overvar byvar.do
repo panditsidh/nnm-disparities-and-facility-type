@@ -23,7 +23,7 @@ Example - overvar is social group, outcome is neonatal mortality, byvar is facil
 
 use "$dataset", clear
 
-
+gen india = 1
 *******************************************************
 * Do your sample restrictions and stuff here
 *******************************************************
@@ -42,6 +42,8 @@ keep if `residence_type'==1
 
 
 keep if `states'==1
+
+
 
 
 *******************************************************
@@ -209,6 +211,7 @@ di `"`xlabels'"'
 * Marker/line colors: no yellow
 local colors navy maroon forest_green dkorange purple teal cranberry brown black gs8
 
+
 * Open marker symbols
 local symbols Oh Th Sh Dh O T S X
 
@@ -266,6 +269,8 @@ twoway `plots', ///
     legend(order(`legend') rows(1) pos(6)) ///
     graphregion(color(white)) ///
     plotregion(color(white))
+
+
 
 
 
