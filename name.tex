@@ -1,0 +1,61 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} %package to manage images
+\graphicspath{ {./figures/} }
+\usepackage{caption}
+\usepackage[font=scriptsize]{subcaption}
+\captionsetup[figure]{labelsep=none}
+\captionsetup[table]{labelsep=none}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{import}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{booktabs}     % no extra vertical space between paragraphs
+\usepackage{indentfirst}
+\usepackage{afterpage}
+\usepackage{floatrow}
+\usepackage{pdflscape}
+\usepackage{soul}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{afterpage}
+\usepackage[margin=1in]{geometry}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{threeparttable}
+\usepackage{setspace}
+\usepackage{float}
+\floatstyle{plaintop}
+\restylefloat{table}
+\usepackage{rotating}
+\usepackage{ragged2e}
+\usepackage{authblk}
+
+
+\begin{document}
+
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{: Rural private sample - neonatal mortality disparities in NFHS-5}
+        \label{tab:regression}
+
+        \scriptsize
+        \setlength{\tabcolsep}{9pt}
+        \renewcommand{\arraystretch}{1.5}
+
+        % {\input{tables/predictor_regression}}
+        {\input{tables/levels}}
+
+        \begin{tablenotes}
+            \item * $p<0.5$, ** $p<0.01$ *** $p<0.001$ 
+        \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+\end{document}
