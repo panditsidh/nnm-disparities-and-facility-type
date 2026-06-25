@@ -316,8 +316,8 @@ gen bmi = v445/100 if v445 < 7000
 gen bmi_projected = .
 
 
-rename state_nfhs5
-levelsof state_nfhs5
+rename state_nfhs5 state
+levelsof state
 foreach i of numlist `r(levels)' {
 reg bmi momagesurvey [aweight = v005] if state== `i'& v025==1 & v213==0
 replace bmi_projected = bmi + (momageb4birth-momagesurvey)*_b[momagesurvey] if state==`i' & v025==1
@@ -350,6 +350,74 @@ replace birth_order = 5 if bord>=5
 
 
 gen multiples = b0!=0
+
+
+************************************ Pregnancy complications ************************************
+
+capture drop vision_preg convulsion_preg swelling_preg any_preg_complication
+
+* Vision difficulty during pregnancy
+gen vision_preg = (m47 == 1) if inlist(round, 4, 5) & !missing(m47)
+replace vision_preg = . if inlist(round, 4, 5) & m47 > 1
+
+* Convulsions not from fever
+gen convulsion_preg = .
+replace convulsion_preg = (s432 == 1) if round == 4 & !missing(s432)
+replace convulsion_preg = . if round == 4 & s432 > 1
+
+replace convulsion_preg = (s434 == 1) if round == 5 & !missing(s434)
+replace convulsion_preg = . if round == 5 & s434 > 1
+
+* Swelling during pregnancy
+gen swelling_preg = .
+replace swelling_preg = (s433 == 1) if round == 4 & !missing(s433)
+replace swelling_preg = . if round == 4 & s433 > 1
+
+replace swelling_preg = (s435 == 1) if round == 5 & !missing(s435)
+replace swelling_preg = . if round == 5 & s435 > 1
+
+* Any pregnancy complication
+gen any_preg_complication = inlist(1, swelling_preg, vision_preg, convulsion_preg)
+replace any_preg_complication = . if ///
+    missing(swelling_preg) | missing(vision_preg) | missing(convulsion_preg)
+
+label var vision_preg "Vision difficulty during pregnancy"
+label var convulsion_preg "Convulsions during pregnancy"
+label var swelling_preg "Swelling during pregnancy"
+label var any_preg_complication "Any pregnancy problem"
+
+
+************************************ Delivery complications ************************************
+
+
+* indicator for breech presentation, asked of only last birth
+* This coding assumes that people who do not know if they had a breech birth did not have one.  
+tab s439
+gen breech = s439 if round==4
+replace breech = s441 if round==5
+recode breech 8=0
+
+* indicator for prolonged labor, asked of only last birth
+* This coding assumes that people who do not know if they had a prolonged labor did not have one.  
+tab s440
+gen prolongedlabour = s440 if round==4
+replace prolongedlabour = s442 if round==5
+recode prolongedlabour 8=0
+
+* indicator for excessive bleeding during labor, asked of only last birth
+tab s441 
+gen excessivebleed = s441 if round==4
+replace excessivebleed = s443 if round==5
+recode excessivebleed 8=0
+
+
+* indicator for whether the birth was the last birth, 
+*    based on whether breech question has a recorded answer
+gen last_birth_sample = !missing(breech)
+
+* indicators for any and none of the delivery complications
+gen any_delivery_complication = inlist(1, breech, prolong, excessive) if !missing(prol)
+gen no_delivery_complication = (breech==0 & prolong==0 & excessive==0) if !missing(prol)
 
 
 ************************************ Wealth variables ************************************
@@ -466,10 +534,10 @@ label var deliv_oop_cost "Total out-of-pocket delivery cost, Rs, top 1% excluded
 ************************************ Weights ************************************
 
 
-egen strata = group(v000 state_nfhs5 v025)
+egen strata = group(v000 state v025)
 
 * cluster number, state, urban/rural
-egen psu    = group(v000 v001 state_nfhs5 v025)
+egen psu    = group(v000 v001 state v025)
 
 bysort v000: egen totalwt = total(v005)
 gen wt = v005 / totalwt
