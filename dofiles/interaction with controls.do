@@ -7,13 +7,18 @@
          + beta_p Private_i
          + beta_gp Group_i x Private_i
          + X_i gamma
+         + round FE
          + error_i
 
  Forward Hindu is the omitted social group.
  Public facility birth is the omitted facility category.
 
+ Sample:
+   Rural public/private facility births
+   NFHS-4 and NFHS-5 pooled
+
  Output:
-   tables/table controlled private interaction all coefs NFHS5.tex
+   tables/table controlled private interaction all coefs rural NFHS4,5.tex
 ********************************************************************/
 
 
@@ -22,9 +27,9 @@
 *------------------------------------------------------------
 
 local outcome nnm
-local round 5
+local rounds 4,5
 
-local outfile "tables/table controlled private interaction all coefs NFHS`round'.tex"
+local outfile "tables/table controlled private interaction all coefs rural NFHS4,5.tex"
 
 local controls ///
     i.prior ///
@@ -40,7 +45,8 @@ local controls ///
     i.prolongedlabour ///
     i.excessivebleed ///
     i.any_delivery_complication ///
-    i.any_preg_complication
+    i.any_preg_complication ///
+    i.round
 
 
 *------------------------------------------------------------
@@ -52,7 +58,10 @@ use "$dataset", clear
 
 capture mkdir tables
 
-keep if round == `round'
+keep if inlist(round, `rounds')
+
+* Rural only
+keep if rural == 1
 
 * Public and private facility births only
 keep if home != 1

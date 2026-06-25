@@ -26,8 +26,12 @@
    group#private coef     = additional private-public gap for group,
                             relative to Forward Hindu
 
+ Sample:
+   Rural public/private facility births
+   NFHS-4 and NFHS-5 pooled
+
  Output:
-   tables/table uncontrolled private interaction all coefs NFHS5.tex
+   tables/table uncontrolled private interaction all coefs rural NFHS4,5.tex
 ********************************************************************/
 
 
@@ -36,9 +40,9 @@
 *------------------------------------------------------------
 
 local outcome nnm
-local round 5
+local rounds 4,5
 
-local outfile "tables/table uncontrolled private interaction all coefs NFHS`round'.tex"
+local outfile "tables/table uncontrolled private interaction all coefs rural NFHS4,5.tex"
 
 
 *------------------------------------------------------------
@@ -50,7 +54,10 @@ use "$dataset", clear
 
 capture mkdir tables
 
-keep if round == `round'
+keep if inlist(round, `rounds')
+
+* Rural only
+keep if rural == 1
 
 * Public and private facility births only
 keep if home != 1
