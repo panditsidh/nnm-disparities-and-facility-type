@@ -85,7 +85,7 @@
 \begin{table}[H]
     \centering
     \begin{threeparttable}
-        \caption{Characteristics of public and private facility births by social group in Uttar Pradesh and Bihar, NFHS-5.}
+        \caption{: Characteristics of public and private facility births by social group in Uttar Pradesh and Bihar, NFHS-5.}
         \label{tab:summary_stats_up_bihar}
 
         \scriptsize
@@ -100,13 +100,38 @@
             \item 
             \item - The sample is restricted to NFHS-5 public and private facility births in Uttar Pradesh and Bihar.
             \item 
-            \item - Social groups are coded as in the main analysis. Wealth quintile rows are based on NFHS variable \texttt{v190}.
             \item 
             \item - Pregnancy problems include reported vision difficulty, convulsions not from fever, or swelling during pregnancy.
             \item 
             \item - Labor problems include breech presentation, prolonged labor, or excessive bleeding during labor.
-            \item 
-            \item - All estimates are weighted using NFHS sampling weights.
+            
+        \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Uncontrolled relationship between private facility birth, social group, and neonatal mortality, NFHS-5.}
+        \label{tab:uncontrolled_private_group_interaction}
+
+        \scriptsize
+        \setlength{\tabcolsep}{8pt}
+        \renewcommand{\arraystretch}{1.25}
+
+        {\input{tables/table uncontrolled private interaction all coefs NFHS5}}
+
+        \begin{tablenotes}
+            \item
+            \item - Each column reports an uncontrolled regression of neonatal mortality on social group, private facility birth, and their interaction.
+            \item
+            \item - Forward Hindu public facility births are the omitted category. The intercept is therefore the Forward Hindu public neonatal mortality rate.
+            \item
+            \item - Group coefficients report differences from Forward Hindu public births among public facility births. The private coefficient reports the private-public difference among Forward Hindu births. Interaction coefficients report each group’s additional private-public difference relative to Forward Hindus.
+            \item
+            \item - The sample is restricted to NFHS-5 public and private facility births. Neonatal mortality is measured as deaths per 1,000 live births.
+            \item
+            \item - *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
         \end{tablenotes}
     \end{threeparttable}
 \end{table}
