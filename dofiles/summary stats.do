@@ -208,13 +208,12 @@ if _rc == 0 {
         cellobc_public cellobc_private ///
         cellfh_public cellfh_private ///
         cellmuslim_public cellmuslim_private ///
-        cellcsj_public cellcsj_private ///
         using "`outfile'", replace ///
         rstyle(tabular) ///
         head("\begin{tabular}{lcccccccccccc}" ///
              "\hline" ///
-             " & \multicolumn{2}{c}{Adivasi} & \multicolumn{2}{c}{Dalit} & \multicolumn{2}{c}{OBC} & \multicolumn{2}{c}{Forward Hindu} & \multicolumn{2}{c}{Muslim} & \multicolumn{2}{c}{Christian, Sikh, Jain} \\" ///
-             " & Public & Private & Public & Private & Public & Private & Public & Private & Public & Private & Public & Private \\" ///
+             " & \multicolumn{2}{c}{Adivasi} & \multicolumn{2}{c}{Dalit} & \multicolumn{2}{c}{OBC} & \multicolumn{2}{c}{Forward Hindu} & \multicolumn{2}{c}{Muslim} \\" ///
+             " & Public & Private & Public & Private & Public & Private & Public & Private & Public & Private \\" ///
              "\hline") ///
         foot("\hline" ///
              "\end{tabular}")
