@@ -112,7 +112,7 @@
 \begin{table}[H]
     \centering
     \begin{threeparttable}
-        \caption{Uncontrolled relationship between private facility birth, social group, and neonatal mortality, NFHS-5.}
+        \caption{: Uncontrolled relationship between private facility birth, social group, and neonatal mortality, NFHS-5.}
         \label{tab:uncontrolled_private_group_interaction}
 
         \scriptsize
@@ -128,6 +128,34 @@
             \item - Forward Hindu public facility births are the omitted category. The intercept is therefore the Forward Hindu public neonatal mortality rate.
             \item
             \item - Group coefficients report differences from Forward Hindu public births among public facility births. The private coefficient reports the private-public difference among Forward Hindu births. Interaction coefficients report each group’s additional private-public difference relative to Forward Hindus.
+            \item
+            \item - The sample is restricted to NFHS-5 public and private facility births. Neonatal mortality is measured as deaths per 1,000 live births.
+            \item
+            \item - *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively. Standard errors are clustered by PSU.
+        \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Controlled relationship between private facility birth, social group, and neonatal mortality, NFHS-5.}
+        \label{tab:controlled_private_group_interaction}
+
+        \scriptsize
+        \setlength{\tabcolsep}{8pt}
+        \renewcommand{\arraystretch}{1.25}
+
+        {\input{tables/table controlled private interaction all coefs NFHS5}}
+
+        \begin{tablenotes}
+            \item
+            \item - Each column reports a regression of neonatal mortality on social group, private facility birth, their interaction, and observed controls.
+            \item
+            \item - Forward Hindu public facility births are the omitted category. The intercept is therefore the adjusted Forward Hindu public neonatal mortality rate evaluated at the omitted/reference categories of the controls.
+            \item
+            \item - Controls include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, multiple birth, wealth quintile, birth order, maternal illiteracy, vaginal birth, breech presentation, prolonged labor, excessive bleeding, any labor problem, and any pregnancy problem.
             \item
             \item - The sample is restricted to NFHS-5 public and private facility births. Neonatal mortality is measured as deaths per 1,000 live births.
             \item
