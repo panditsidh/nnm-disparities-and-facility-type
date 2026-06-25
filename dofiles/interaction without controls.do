@@ -99,21 +99,21 @@ label var nonEAG    "Non-EAG states"
 
 eststo clear
 
-reg `outcome' ib4.group##i.private [pw = v005] ///
+reg `outcome' ib4.group##i.private i.round [pw = v005] ///
     if up_bihar == 1, ///
     vce(cluster psu)
 
 eststo up_bihar
 
 
-reg `outcome' ib4.group##i.private [pw = v005] ///
+reg `outcome' ib4.group##i.private i.round [pw = v005] ///
     if other_eag == 1, ///
     vce(cluster psu)
 
 eststo other_eag
 
 
-reg `outcome' ib4.group##i.private [pw = v005] ///
+reg `outcome' ib4.group##i.private i.round [pw = v005] ///
     if nonEAG == 1, ///
     vce(cluster psu)
 

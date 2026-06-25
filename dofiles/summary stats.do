@@ -26,6 +26,7 @@ local outfile "tables/summary_stats_up_bihar_nfhs5.tex"
 *------------------------------------------------------------
 
 keep if round == 5
+keep if rural==1
 keep if up_bihar == 1
 keep if inlist(group, 1, 2, 3, 4, 5)
 keep if public == 1 | private == 1
