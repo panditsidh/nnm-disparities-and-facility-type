@@ -82,7 +82,9 @@
 %     \end{threeparttable}
 % \end{table}
 
-In UP and Bihar, the neonatal mortality rate among public facility births is relatively similar across social groups. But, disparities are much wider among private facility births. Also, among Dalit/OBC/Muslim births, the gap between public and private neonatal mortality is much larger than among other social groups. There are no clear gaps between public and private neonatal mortality in other states for any social groups. 
+In Uttar Pradesh and Bihar, the neonatal mortality rate among public facility births is relatively similar across social groups whereas disparities are much wider among private facility births. 
+
+Also, only among Dalit, OBC, and Muslim births in Uttar Pradesh and Bihar is there a clear gap between public and private neonatal mortality. There are no clear gaps between public and private neonatal mortality in other states for any social groups. 
 
 
 \begin{figure}[H]
@@ -179,11 +181,12 @@ If this result of higher excess neonatal mortality among Dalit/OBC/Muslim births
 
 This is similar to the previous table, but it's showing the interaction -- how much larger the excess private neonatal mortality (relative to public) is for each group relative to forward caste.
 
+A good first step could be to see how far we can get with the NFHS and work on this as a paper for a journal like Social Science \& Medicine? I think before getting into the stuff about public-private, it would be good to structure it around social group disparities in NNM, since there don't seem to be any papers written about that yet for India. We could show a decomposition like the one below, and then draw attention to how facility type has such a large negative percent explained for the decompositions in rural EAG states to motivate looking into why private facility births have worse outcomes for disadvantaged social groups.
 
 \begin{table}[H]
     \centering
     \begin{threeparttable}
-        \caption{: Oaxaca-Blinder decomposition of NNM gaps}
+        \caption{: Oaxaca-Blinder decomposition of NNM disparities}
         \label{tab:regression}
 
         \scriptsize
@@ -191,10 +194,17 @@ This is similar to the previous table, but it's showing the interaction -- how m
         \renewcommand{\arraystretch}{1.5}
 
         % {\input{tables/predictor_regression}}
-        {\input{tables/oaxaca_nnm_decomposition_resid_sdist_nfhs5}}
-
+        {\input{tables/oaxaca_nnm_decomposition_nfhs5}}
+    \begin{tablenotes}
+    \item *, **, and *** indicate significance at the 10\%, 5\%, and 1\% levels, respectively.
+    \item The remaining rows report the share of the total gap explained by observed differences in covariates. Risk variables include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, birth order, multiple birth, and maternal illiteracy. Wealth is measured using NFHS wealth quintile. Facility type distinguishes public, private, and home births.
+    \item The decomposition uses survey weights and district fixed effects are not included.
+\end{tablenotes}
     \end{threeparttable}
 \end{table}
+
+
+\newpage
 
 
 \end{document}
