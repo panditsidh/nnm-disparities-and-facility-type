@@ -1,4 +1,3 @@
-```latex
 \documentclass[12pt]{article}
 
 \usepackage{graphicx}
@@ -80,7 +79,7 @@
     ]{figure nnm public private by social group NFHS4,5.png}
 
     \caption{
-        \textbf{Neonatal mortality by social group and facility type}
+        \textbf{: Neonatal mortality by social group and facility type}
     }
     \label{fig:nnm_group_facility}
 
@@ -89,12 +88,7 @@
     \begin{minipage}{0.96\textwidth}
         \scriptsize
         \textit{Notes:}
-        The figure shows neonatal mortality rates per 1,000 births and 95\% confidence intervals separately for public- and private-facility births.
         The sample consists of rural births in NFHS-4 and NFHS-5 for which neonatal mortality and facility type are observed.
-        Estimates are survey-weighted.
-        Social groups are Adivasi, Dalit, Other Backward Class (OBC), Muslim, and Forward Hindu.
-        Other EAG states exclude Uttar Pradesh and Bihar.
-        The same vertical scale is used in all panels.
     \end{minipage}
 \end{figure}
 
@@ -104,10 +98,16 @@
 % TABLE 1
 %=====================================================================
 
+
+\begin{landscape}
+
+\renewcommand{\arraystretch}{1.7}
+\setlength{\tabcolsep}{9pt}
+
 \begin{table}[H]
     \centering
     \caption{
-        \textbf{Differences between private- and public-facility births by social group and region}
+        \textbf{: Differences between private and public facility births by social group and region}
     }
     \label{tab:private_public_characteristics}
 
@@ -115,43 +115,54 @@
 
     \begin{threeparttable}
 
-        \begin{adjustbox}{max width=\textwidth}
+        \footnotesize
+
+        \begin{adjustbox}{max width=\linewidth}
             \input{tables/table1 private public differences by social group and region NFHS4,5.tex}
         \end{adjustbox}
 
-        \begin{tablenotes}[flushleft]
-            \scriptsize
-
-            \item
-            \textit{Notes:}
-            Entries report weighted differences between private- and public-facility births
-            (private minus public) within each social group and region.
-            Binary characteristics are reported in percentage points; birth order and mean wealth quintile are reported in their original units.
-            Statistical significance is based on regressions of each characteristic on an indicator for private-facility birth, with standard errors accounting for the survey sampling design.
-            * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
-
-            \item
-            The sample consists of rural public- and private-facility births in NFHS-4 and NFHS-5.
-            Percent private is the survey-weighted share of facility births occurring in private facilities.
-            Sample sizes are unweighted.
-            Wealth quintile ranges from 1 (poorest) to 5 (richest).
-            Other EAG states exclude Uttar Pradesh and Bihar.
-
-        \end{tablenotes}
-
     \end{threeparttable}
+
+    \vspace{0.5em}
+
+    \begin{minipage}{0.92\linewidth}
+        \scriptsize
+        \textit{Notes:}
+        Entries report differences between private and public facility births
+        (private minus public) within each social group and region.
+        
+        
+        Each entry is the coefficient on an indicator for private facility birth from a weighted regression of the characteristic in question on private facility birth, with standard errors clustered at the sampling cluster level.
+        Binary characteristics are reported in percentage points. 
+        
+        * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
+        
+        \vspace{0.4em}
+
+        The sample consists of rural public and private facility births in NFHS 4 and NFHS 5. Projected maternal underweight is calculated using the exact same code as the Social Science and Medicine paper. 
+
+    \end{minipage}
+
 \end{table}
 
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+
+\end{landscape}
 
 
 %=====================================================================
 % TABLE 2
 %=====================================================================
 
+```latex
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{8pt}
+
 \begin{table}[H]
     \centering
     \caption{
-        \textbf{Social-group disparities in neonatal mortality by private-facility birth and region}
+        \textbf{Differences in excess private neonatal mortality across social groups and regions}
     }
     \label{tab:nnm_interactions}
 
@@ -169,23 +180,23 @@
             \item
             \textit{Notes:}
             The dependent variable is neonatal mortality, measured as deaths per 1,000 births.
-            Forward Hindu births are the omitted social group and public-facility births are the omitted facility category.
-            The coefficients on the social-group indicators therefore measure differences from Forward Hindu births among public-facility births.
-            The coefficient on Private facility measures the private--public difference among Forward Hindu births.
-            Social group $\times$ Private coefficients measure how much larger or smaller the private--public neonatal mortality difference is for each social group relative to Forward Hindus; equivalently, they measure how much larger or smaller the social-group disparity is among private births than among public births.
+            Forward Hindu births are the omitted social group and public facility births are the omitted facility category.
+            The coefficients on the social group indicators therefore measure differences from Forward Hindu births among public facility births.
+            The coefficient on Private facility measures the private minus public difference among Forward Hindu births.
+            Social group $\times$ Private coefficients measure how much larger or smaller the private minus public neonatal mortality difference is for each social group relative to Forward Hindus; equivalently, they measure how much larger or smaller the social group disparity is among private births than among public births.
 
             \item
-            All specifications include survey-round fixed effects.
-            Risk-adjusted specifications include maternal and birth risk, pregnancy and delivery complications, and socioeconomic characteristics as indicated.
+            All specifications include survey round fixed effects.
+            Risk adjusted specifications include maternal and birth risk, pregnancy and delivery complications, and socioeconomic characteristics as indicated.
             Maternal and birth risk controls include prior neonatal death to the mother, projected maternal prepregnancy underweight, child sex, maternal age under 20 at birth, multiple birth, and birth order.
             Pregnancy and delivery complication controls include mode of delivery, breech presentation, prolonged labor, excessive bleeding, any labor problem, and any pregnancy problem.
             Socioeconomic controls include maternal literacy and household wealth quintile.
-            Cluster fixed-effect specifications absorb sampling-cluster fixed effects.
+            Cluster fixed effect specifications absorb sampling cluster fixed effects.
 
             \item
-            The sample consists of rural public- and private-facility births in NFHS-4 and NFHS-5.
+            The sample consists of rural public and private facility births in NFHS 4 and NFHS 5.
             Regressions are weighted using NFHS sampling weights.
-            Standard errors are clustered at the sampling-cluster level.
+            Standard errors are clustered at the sampling cluster level.
             Other EAG states exclude Uttar Pradesh and Bihar.
             * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
 
@@ -193,6 +204,10 @@
 
     \end{threeparttable}
 \end{table}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+```
 
 
 
