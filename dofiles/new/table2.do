@@ -130,7 +130,7 @@ eststo upb_1
 estadd local maternal     ""
 estadd local complications ""
 estadd local socioeconomic ""
-estadd local roundfe      "✓"
+estadd local roundfe      "\checkmark"
 estadd local clusterfe    ""
 
 
@@ -145,10 +145,10 @@ reg `outcome' ///
 
 eststo upb_2
 
-estadd local maternal     "✓"
-estadd local complications "✓"
-estadd local socioeconomic "✓"
-estadd local roundfe      "✓"
+estadd local maternal     "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe      "\checkmark"
 estadd local clusterfe    ""
 
 
@@ -164,11 +164,11 @@ reghdfe `outcome' ///
 
 eststo upb_3
 
-estadd local maternal     "✓"
-estadd local complications "✓"
-estadd local socioeconomic "✓"
-estadd local roundfe      "✓"
-estadd local clusterfe    "✓"
+estadd local maternal     "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe      "\checkmark"
+estadd local clusterfe    "\checkmark"
 
 
 
@@ -189,7 +189,7 @@ eststo oeag_1
 estadd local maternal     ""
 estadd local complications ""
 estadd local socioeconomic ""
-estadd local roundfe      "✓"
+estadd local roundfe      "\checkmark"
 estadd local clusterfe    ""
 
 
@@ -204,10 +204,10 @@ reg `outcome' ///
 
 eststo oeag_2
 
-estadd local maternal     "✓"
-estadd local complications "✓"
-estadd local socioeconomic "✓"
-estadd local roundfe      "✓"
+estadd local maternal     "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe      "\checkmark"
 estadd local clusterfe    ""
 
 
@@ -223,11 +223,11 @@ reghdfe `outcome' ///
 
 eststo oeag_3
 
-estadd local maternal     "✓"
-estadd local complications "✓"
-estadd local socioeconomic "✓"
-estadd local roundfe      "✓"
-estadd local clusterfe    "✓"
+estadd local maternal     "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe      "\checkmark"
+estadd local clusterfe    "\checkmark"
 
 
 
@@ -248,7 +248,7 @@ eststo noneag_1
 estadd local maternal     ""
 estadd local complications ""
 estadd local socioeconomic ""
-estadd local roundfe      "✓"
+estadd local roundfe      "\checkmark"
 estadd local clusterfe    ""
 
 
@@ -263,10 +263,10 @@ reg `outcome' ///
 
 eststo noneag_2
 
-estadd local maternal     "✓"
-estadd local complications "✓"
-estadd local socioeconomic "✓"
-estadd local roundfe      "✓"
+estadd local maternal     "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe      "\checkmark"
 estadd local clusterfe    ""
 
 
@@ -282,11 +282,11 @@ reghdfe `outcome' ///
 
 eststo noneag_3
 
-estadd local maternal     "✓"
-estadd local complications "✓"
-estadd local socioeconomic "✓"
-estadd local roundfe      "✓"
-estadd local clusterfe    "✓"
+estadd local maternal     "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe      "\checkmark"
+estadd local clusterfe    "\checkmark"
 
 
 
