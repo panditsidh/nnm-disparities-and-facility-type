@@ -166,4 +166,4 @@ twoway ///
 #delimit cr
 
 
-graph export "figures/figure2 nnm public private UP Bihar NFHS4,5.png", replace width(2800)
+graph export "figures/figure2 nnm public private UP Bihar NFHS4,5.png", replace width(2800);
