@@ -24,7 +24,7 @@
 local outcome nnm
 local rounds 4,5
 
-local outfile "tables/table2 group private interactions by region NFHS4,5.tex"
+local outfile "tables/table2 group private interactions UP Bihar and other states NFHS4,5.tex"
 
 
 *------------------------------------------------------------
@@ -43,9 +43,7 @@ local complications ///
     i.vaginal ///
     i.breech ///
     i.prolongedlabour ///
-    i.excessivebleed ///
-    i.any_delivery_complication ///
-    i.any_preg_complication
+    i.excessivebleed
 
 local socioeconomic ///
     i.illiterate ///
@@ -80,12 +78,11 @@ replace prior = 0 if missing(prior) & bord == 1
 * Region definitions
 *------------------------------------------------------------
 
-capture drop other_eag
-gen other_eag = non_upbihar_focus
+capture drop other_states
+gen other_states = up_bihar == 0
 
-label var up_bihar  "Uttar Pradesh and Bihar"
-label var other_eag "Other EAG states"
-label var nonEAG    "Non-EAG states"
+label var up_bihar    "Uttar Pradesh and Bihar"
+label var other_states "All other states"
 
 
 *------------------------------------------------------------
@@ -173,7 +170,7 @@ estadd local clusterfe    "\checkmark"
 
 
 *============================================================
-* Other EAG states
+* All other states
 *============================================================
 
 * (4) No controls
@@ -181,10 +178,10 @@ reg `outcome' ///
     ib4.group##i.private ///
     i.round ///
     [pw = v005] ///
-    if other_eag == 1, ///
+    if other_states == 1, ///
     vce(cluster psu)
 
-eststo oeag_1
+eststo other_1
 
 estadd local maternal     ""
 estadd local complications ""
@@ -199,10 +196,10 @@ reg `outcome' ///
     `controls' ///
     i.round ///
     [pw = v005] ///
-    if other_eag == 1, ///
+    if other_states == 1, ///
     vce(cluster psu)
 
-eststo oeag_2
+eststo other_2
 
 estadd local maternal     "\checkmark"
 estadd local complications "\checkmark"
@@ -217,70 +214,11 @@ reghdfe `outcome' ///
     `controls' ///
     i.round ///
     [pw = v005] ///
-    if other_eag == 1, ///
+    if other_states == 1, ///
     absorb(psu) ///
     vce(cluster psu)
 
-eststo oeag_3
-
-estadd local maternal     "\checkmark"
-estadd local complications "\checkmark"
-estadd local socioeconomic "\checkmark"
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    "\checkmark"
-
-
-
-*============================================================
-* Non-EAG states
-*============================================================
-
-* (7) No controls
-reg `outcome' ///
-    ib4.group##i.private ///
-    i.round ///
-    [pw = v005] ///
-    if nonEAG == 1, ///
-    vce(cluster psu)
-
-eststo noneag_1
-
-estadd local maternal     ""
-estadd local complications ""
-estadd local socioeconomic ""
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    ""
-
-
-* (8) Risk controls
-reg `outcome' ///
-    ib4.group##i.private ///
-    `controls' ///
-    i.round ///
-    [pw = v005] ///
-    if nonEAG == 1, ///
-    vce(cluster psu)
-
-eststo noneag_2
-
-estadd local maternal     "\checkmark"
-estadd local complications "\checkmark"
-estadd local socioeconomic "\checkmark"
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    ""
-
-
-* (9) Risk controls + cluster fixed effects
-reghdfe `outcome' ///
-    ib4.group##i.private ///
-    `controls' ///
-    i.round ///
-    [pw = v005] ///
-    if nonEAG == 1, ///
-    absorb(psu) ///
-    vce(cluster psu)
-
-eststo noneag_3
+eststo other_3
 
 estadd local maternal     "\checkmark"
 estadd local complications "\checkmark"
@@ -296,8 +234,7 @@ estadd local clusterfe    "\checkmark"
 
 esttab ///
     upb_1 upb_2 upb_3 ///
-    oeag_1 oeag_2 oeag_3 ///
-    noneag_1 noneag_2 noneag_3 ///
+    other_1 other_2 other_3 ///
     using "`outfile'", replace ///
     b(%9.1f) se(%9.1f) ///
     star(* 0.10 ** 0.05 *** 0.01) ///
@@ -306,15 +243,13 @@ esttab ///
     collabels(none) ///
     mgroups( ///
         "Uttar Pradesh and Bihar" ///
-        "Other EAG states" ///
-        "Non-EAG states", ///
-        pattern(1 0 0 1 0 0 1 0 0) ///
+        "All other states", ///
+        pattern(1 0 0 1 0 0) ///
         prefix(\multicolumn{@span}{c}{) suffix(}) ///
         span ///
         erepeat(\cmidrule(lr){@span}) ///
     ) ///
     mtitles( ///
-        "No controls" "Risk controls" "+ Cluster FE" ///
         "No controls" "Risk controls" "+ Cluster FE" ///
         "No controls" "Risk controls" "+ Cluster FE" ///
     ) ///
@@ -379,21 +314,18 @@ esttab ///
 
 esttab ///
     upb_1 upb_2 upb_3 ///
-    oeag_1 oeag_2 oeag_3 ///
-    noneag_1 noneag_2 noneag_3, ///
+    other_1 other_2 other_3, ///
     b(%9.1f) se(%9.1f) ///
     star(* 0.10 ** 0.05 *** 0.01) ///
     nonotes ///
     collabels(none) ///
     mgroups( ///
         "Uttar Pradesh and Bihar" ///
-        "Other EAG states" ///
-        "Non-EAG states", ///
-        pattern(1 0 0 1 0 0 1 0 0) ///
+        "All other states", ///
+        pattern(1 0 0 1 0 0) ///
         span ///
     ) ///
     mtitles( ///
-        "No controls" "Risk controls" "+ Cluster FE" ///
         "No controls" "Risk controls" "+ Cluster FE" ///
         "No controls" "Risk controls" "+ Cluster FE" ///
     ) ///

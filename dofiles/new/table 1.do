@@ -38,14 +38,13 @@ svyset psu [pw = v005], strata(strata) vce(linearized) singleunit(centered)
 * 2) Regions and column order
 *------------------------------------------------------------*
 
-capture drop other_eag
-gen other_eag = non_upbihar_focus
+capture drop other_states
+gen other_states = up_bihar == 0
 
-local regions up_bihar other_eag nonfocus
+local regions up_bihar other_states
 
 local regionname1 "Uttar Pradesh and Bihar"
-local regionname2 "Other EAG states"
-local regionname3 "Non-EAG states"
+local regionname2 "All other states"
 
 local groups 1 2 3 4 5
 
@@ -72,8 +71,6 @@ local binaryvars ///
     breech ///
     prolongedlabour ///
     excessivebleed ///
-    any_delivery_complication ///
-    any_preg_complication ///
     csection ///
     illiterate ///
     eibf ///
@@ -113,9 +110,7 @@ post `M' ("birth_order")           ("\hspace*{2em}Birth order")                 
 post `M' ("breech")                    ("\hspace*{2em}Breech presentation")                 ("Pregnancy and delivery complications")       (2) (1) (100)
 post `M' ("prolongedlabour")           ("\hspace*{2em}Prolonged labor")                    ("Pregnancy and delivery complications")       (2) (2) (100)
 post `M' ("excessivebleed")            ("\hspace*{2em}Excessive bleeding")                 ("Pregnancy and delivery complications")       (2) (3) (100)
-post `M' ("any_delivery_complication") ("\hspace*{2em}Any labor problem")                  ("Pregnancy and delivery complications")       (2) (4) (100)
-post `M' ("any_preg_complication")     ("\hspace*{2em}Any pregnancy problem")              ("Pregnancy and delivery complications")       (2) (5) (100)
-post `M' ("csection")                  ("\hspace*{2em}C-section birth")                     ("Pregnancy and delivery complications")       (2) (6) (100)
+post `M' ("csection")                  ("\hspace*{2em}C-section birth")                     ("Pregnancy and delivery complications")       (2) (4) (100)
 
 * Socioeconomic characteristics
 post `M' ("illiterate")            ("\hspace*{2em}Mother illiterate")                     ("Socioeconomic characteristics")              (3) (1) (100)
@@ -285,7 +280,7 @@ preserve
     gen mult = .
     gen final_order = section_order * 100
 
-    foreach i of numlist 1/15 {
+    foreach i of numlist 1/10 {
         gen value`i' = ""
     }
 
@@ -314,21 +309,18 @@ sort final_order
 *------------------------------------------------------------*
 
 gen gap1 = ""
-gen gap2 = ""
 
 keep rows ///
     value1 value2 value3 value4 value5 ///
     gap1 ///
-    value6 value7 value8 value9 value10 ///
-    gap2 ///
-    value11 value12 value13 value14 value15
+    value6 value7 value8 value9 value10
 
 
 *------------------------------------------------------------*
 * 9) Export with listtex
 *------------------------------------------------------------*
 
-local outfile "tables/table1 private public differences by social group and region NFHS4,5.tex"
+local outfile "tables/table1 private public differences UP Bihar and other states NFHS4,5.tex"
 
 #delimit ;
 
@@ -336,17 +328,15 @@ listtex rows ///
     value1 value2 value3 value4 value5 ///
     gap1 ///
     value6 value7 value8 value9 value10 ///
-    gap2 ///
-    value11 value12 value13 value14 value15 ///
     using "`outfile'", replace ///
     rstyle(tabular) ///
     head(
-        "\begin{tabular}{l*{5}{c}@{\hspace{1.4em}}c@{\hspace{1.4em}}*{5}{c}@{\hspace{1.4em}}c@{\hspace{1.4em}}*{5}{c}}"
+        "\begin{tabular}{l*{5}{c}@{\hspace{1.4em}}c@{\hspace{1.4em}}*{5}{c}}"
         "\toprule"
-        "& \multicolumn{5}{c}{Uttar Pradesh and Bihar} & & \multicolumn{5}{c}{Other EAG states} & & \multicolumn{5}{c}{Non-EAG states} \\"
-        "\cmidrule(lr){2-6} \cmidrule(lr){8-12} \cmidrule(lr){14-18}"
+        "& \multicolumn{5}{c}{Uttar Pradesh and Bihar} & & \multicolumn{5}{c}{All other states} \\"
+        "\cmidrule(lr){2-6} \cmidrule(lr){8-12}"
         "\addlinespace[0.25em]"
-        "& \tiny Adivasi & \tiny Dalit & \tiny OBC & \tiny Forward & \tiny Muslim & & \tiny Adivasi & \tiny Dalit & \tiny OBC & \tiny Forward & \tiny Muslim & & \tiny Adivasi & \tiny Dalit & \tiny OBC & \tiny Forward & \tiny Muslim \\"
+        "& \tiny Adivasi & \tiny Dalit & \tiny OBC & \tiny Forward & \tiny Muslim & & \tiny Adivasi & \tiny Dalit & \tiny OBC & \tiny Forward & \tiny Muslim \\"
         "\midrule"
     )
     foot(
