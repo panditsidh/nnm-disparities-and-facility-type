@@ -118,10 +118,10 @@ twoway ///
         3.1 "Muslim" ///
         3.8 "Forward", ///
         labsize(small) nogrid) ///
-    ylabel(0(10)50, ///
+    ylabel(10(10)50, ///
         angle(horizontal) ///
         grid glcolor(gs14) glwidth(vthin)) ///
-    yscale(range(0 50) noextend) ///
+    yscale(range(10 50) noextend) ///
     xtitle("") ///
     ytitle("Neonatal mortality rate (per 1,000 births)") ///
     xscale(range(0.65 4.15)) ///
