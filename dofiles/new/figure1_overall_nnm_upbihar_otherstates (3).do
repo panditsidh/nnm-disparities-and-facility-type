@@ -134,4 +134,4 @@ twoway ///
     ysize(4.5);
 
 
-graph export "figures/figure1 overall nnm.png", replace width(2800)
+graph export "figures/figure1 overall nnm.png", replace width(2800);
