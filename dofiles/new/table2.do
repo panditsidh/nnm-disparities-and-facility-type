@@ -12,6 +12,11 @@
  Sample:
    Rural public/private facility births
    NFHS-4 and NFHS-5 pooled
+   Most recent births with nonmissing complication variables
+
+ IMPORTANT:
+   Within each region, all three specifications use the exact same
+   estimation sample: the sample from specification (3).
 
  Standard errors clustered at PSU.
 ********************************************************************/
@@ -25,7 +30,6 @@ local outcome nnm
 local rounds 4,5
 
 local outfile "tables/table2 group private interactions UP Bihar and other states NFHS4,5.tex"
-
 
 
 *------------------------------------------------------------
@@ -74,9 +78,11 @@ keep if inlist(group, 1, 2, 3, 4, 5)
 * Prior NNM is undefined for first births; code as no prior NNM
 replace prior = 0 if missing(prior) & bord == 1
 
-
-* focus on only last births for which these questions are asked
-keep if !missing(vaginal) & !missing(breech) & !missing(prolongedlabour) & !missing(excessivebleed)
+* Focus on most recent births for which complication questions are available
+keep if !missing(vaginal) ///
+    & !missing(breech) ///
+    & !missing(prolongedlabour) ///
+    & !missing(excessivebleed)
 
 
 *------------------------------------------------------------
@@ -86,7 +92,7 @@ keep if !missing(vaginal) & !missing(breech) & !missing(prolongedlabour) & !miss
 capture drop other_states
 gen other_states = up_bihar == 0
 
-label var up_bihar    "Uttar Pradesh and Bihar"
+label var up_bihar     "Uttar Pradesh and Bihar"
 label var other_states "All other states"
 
 
@@ -119,43 +125,8 @@ eststo clear
 * Uttar Pradesh and Bihar
 *============================================================
 
-* (1) No controls
-reg `outcome' ///
-    ib4.group##i.private ///
-    i.round ///
-    [pw = v005] ///
-    if up_bihar == 1, ///
-    vce(cluster psu)
-
-eststo upb_1
-
-estadd local maternal     ""
-estadd local complications ""
-estadd local socioeconomic ""
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    ""
-
-
-* (2) Risk controls
-reg `outcome' ///
-    ib4.group##i.private ///
-    `controls' ///
-    i.round ///
-    [pw = v005] ///
-    if up_bihar == 1, ///
-    vce(cluster psu)
-
-eststo upb_2
-
-estadd local maternal     "\checkmark"
-estadd local complications "\checkmark"
-estadd local socioeconomic "\checkmark"
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    ""
-
-
-* (3) Risk controls + cluster fixed effects
-reghdfe `outcome' ///
+* Define common sample using the most restrictive specification
+quietly reghdfe `outcome' ///
     ib4.group##i.private ///
     `controls' ///
     i.round ///
@@ -164,57 +135,69 @@ reghdfe `outcome' ///
     absorb(psu) ///
     vce(cluster psu)
 
-eststo upb_3
+gen sample_upb = e(sample)
 
-estadd local maternal     "\checkmark"
+
+* (1) No controls -- common sample
+reg `outcome' ///
+    ib4.group##i.private ///
+    i.round ///
+    [pw = v005] ///
+    if sample_upb == 1, ///
+    vce(cluster psu)
+
+eststo upb_1
+
+estadd local maternal      ""
+estadd local complications ""
+estadd local socioeconomic ""
+estadd local roundfe       "\checkmark"
+estadd local clusterfe     ""
+
+
+* (2) Risk controls -- common sample
+reg `outcome' ///
+    ib4.group##i.private ///
+    `controls' ///
+    i.round ///
+    [pw = v005] ///
+    if sample_upb == 1, ///
+    vce(cluster psu)
+
+eststo upb_2
+
+estadd local maternal      "\checkmark"
 estadd local complications "\checkmark"
 estadd local socioeconomic "\checkmark"
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    "\checkmark"
+estadd local roundfe       "\checkmark"
+estadd local clusterfe     ""
 
+
+* (3) Risk controls + cluster fixed effects -- common sample
+reghdfe `outcome' ///
+    ib4.group##i.private ///
+    `controls' ///
+    i.round ///
+    [pw = v005] ///
+    if sample_upb == 1, ///
+    absorb(psu) ///
+    vce(cluster psu)
+
+eststo upb_3
+
+estadd local maternal      "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe       "\checkmark"
+estadd local clusterfe     "\checkmark"
 
 
 *============================================================
 * All other states
 *============================================================
 
-* (4) No controls
-reg `outcome' ///
-    ib4.group##i.private ///
-    i.round ///
-    [pw = v005] ///
-    if other_states == 1, ///
-    vce(cluster psu)
-
-eststo other_1
-
-estadd local maternal     ""
-estadd local complications ""
-estadd local socioeconomic ""
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    ""
-
-
-* (5) Risk controls
-reg `outcome' ///
-    ib4.group##i.private ///
-    `controls' ///
-    i.round ///
-    [pw = v005] ///
-    if other_states == 1, ///
-    vce(cluster psu)
-
-eststo other_2
-
-estadd local maternal     "\checkmark"
-estadd local complications "\checkmark"
-estadd local socioeconomic "\checkmark"
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    ""
-
-
-* (6) Risk controls + cluster fixed effects
-reghdfe `outcome' ///
+* Define common sample using the most restrictive specification
+quietly reghdfe `outcome' ///
     ib4.group##i.private ///
     `controls' ///
     i.round ///
@@ -223,14 +206,61 @@ reghdfe `outcome' ///
     absorb(psu) ///
     vce(cluster psu)
 
-eststo other_3
+gen sample_other = e(sample)
 
-estadd local maternal     "\checkmark"
+
+* (4) No controls -- common sample
+reg `outcome' ///
+    ib4.group##i.private ///
+    i.round ///
+    [pw = v005] ///
+    if sample_other == 1, ///
+    vce(cluster psu)
+
+eststo other_1
+
+estadd local maternal      ""
+estadd local complications ""
+estadd local socioeconomic ""
+estadd local roundfe       "\checkmark"
+estadd local clusterfe     ""
+
+
+* (5) Risk controls -- common sample
+reg `outcome' ///
+    ib4.group##i.private ///
+    `controls' ///
+    i.round ///
+    [pw = v005] ///
+    if sample_other == 1, ///
+    vce(cluster psu)
+
+eststo other_2
+
+estadd local maternal      "\checkmark"
 estadd local complications "\checkmark"
 estadd local socioeconomic "\checkmark"
-estadd local roundfe      "\checkmark"
-estadd local clusterfe    "\checkmark"
+estadd local roundfe       "\checkmark"
+estadd local clusterfe     ""
 
+
+* (6) Risk controls + cluster fixed effects -- common sample
+reghdfe `outcome' ///
+    ib4.group##i.private ///
+    `controls' ///
+    i.round ///
+    [pw = v005] ///
+    if sample_other == 1, ///
+    absorb(psu) ///
+    vce(cluster psu)
+
+eststo other_3
+
+estadd local maternal      "\checkmark"
+estadd local complications "\checkmark"
+estadd local socioeconomic "\checkmark"
+estadd local roundfe       "\checkmark"
+estadd local clusterfe     "\checkmark"
 
 
 *------------------------------------------------------------
