@@ -27,6 +27,7 @@ local rounds 4,5
 local outfile "tables/table2 group private interactions UP Bihar and other states NFHS4,5.tex"
 
 
+
 *------------------------------------------------------------
 * Controls
 *------------------------------------------------------------
@@ -72,6 +73,10 @@ keep if inlist(group, 1, 2, 3, 4, 5)
 
 * Prior NNM is undefined for first births; code as no prior NNM
 replace prior = 0 if missing(prior) & bord == 1
+
+
+* focus on only last births for which these questions are asked
+keep if !missing(vaginal) & !missing(breech) & !missing(prolongedlabour) & !missing(excessivebleed)
 
 
 *------------------------------------------------------------

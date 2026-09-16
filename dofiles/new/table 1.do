@@ -34,6 +34,10 @@ replace prior = 0 if missing(prior) & bord == 1
 svyset psu [pw = v005], strata(strata) vce(linearized) singleunit(centered)
 
 
+* focus on only last births for which these questions are asked
+keep if !missing(vaginal) & !missing(breech) & !missing(prolongedlabour) & !missing(excessivebleed)
+
+
 *------------------------------------------------------------*
 * 2) Regions and column order
 *------------------------------------------------------------*
