@@ -417,3 +417,86 @@ esttab ///
         ) ///
         fmt(%s %s %s %s %s %9.0fc) ///
     )
+
+	
+
+*********************************************************************************
+*------------------------------------------------------------
+* 1) Define exact sample used by care-controls specification
+*------------------------------------------------------------
+
+reghdfe nnm ///
+    ib4.group##i.private ///
+    i.prior ///
+    i.underweight_projected ///
+    i.male ///
+    i.momunder20 ///
+    i.multiples ///
+    i.birth_order ///
+    i.vaginal ///
+    i.breech ///
+    i.prolongedlabour ///
+    i.excessivebleed ///
+    i.illiterate ///
+    i.v190 ///
+    i.eibf ///
+    i.skin ///
+    i.round ///
+    [pw = v005] ///
+    if up_bihar == 1, ///
+    absorb(psu) ///
+    vce(cluster psu)
+
+gen care_sample_upb = e(sample)
+
+
+*------------------------------------------------------------
+* 2) Original specification on SAME exact sample
+*------------------------------------------------------------
+
+reghdfe nnm ///
+    ib4.group##i.private ///
+    i.prior ///
+    i.underweight_projected ///
+    i.male ///
+    i.momunder20 ///
+    i.multiples ///
+    i.birth_order ///
+    i.vaginal ///
+    i.breech ///
+    i.prolongedlabour ///
+    i.excessivebleed ///
+    i.illiterate ///
+    i.v190 ///
+    i.round ///
+    [pw = v005] ///
+    if care_sample_upb == 1, ///
+    absorb(psu) ///
+    vce(cluster psu)
+
+
+*------------------------------------------------------------
+* 3) Care-controls specification on SAME exact sample
+*------------------------------------------------------------
+
+reghdfe nnm ///
+    ib4.group##i.private ///
+    i.prior ///
+    i.underweight_projected ///
+    i.male ///
+    i.momunder20 ///
+    i.multiples ///
+    i.birth_order ///
+    i.vaginal ///
+    i.breech ///
+    i.prolongedlabour ///
+    i.excessivebleed ///
+    i.illiterate ///
+    i.v190 ///
+    i.eibf ///
+    i.skin ///
+    i.round ///
+    [pw = v005] ///
+    if care_sample_upb == 1, ///
+    absorb(psu) ///
+    vce(cluster psu)
