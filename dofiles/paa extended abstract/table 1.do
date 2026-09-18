@@ -116,7 +116,7 @@ tempfile results
 postfile `P' ///
     str40 statvar ///
     double col ///
-    str30 value ///
+    str80 value ///
     using `results', replace
 
 
@@ -154,10 +154,9 @@ foreach reg of local regions {
                 quietly lincom 1.private + `g'.group#1.private
             }
 
-            matrix L = r(table)
-
-            local b = `mult' * L[1,1]
-            local p = L[4,1]
+            * lincom returns the estimate and p-value directly
+            local b = `mult' * r(estimate)
+            local p = r(p)
 
             local stars ""
             if `p' < .10 local stars "*"
