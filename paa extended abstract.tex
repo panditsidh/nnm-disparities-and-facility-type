@@ -32,22 +32,29 @@
 \usepackage{ragged2e}
 \usepackage{authblk}
 
+% Formatting only
+\titleformat{\section}{\large\bfseries}{\thesection}{0.75em}{}
+\titlespacing*{\section}{0pt}{1.5em}{0.75em}
+
 \floatstyle{plaintop}
 \restylefloat{table}
 
 
 \begin{document}
 
+\doublespacing
+\setlength{\parskip}{0pt}
+
 \begin{center}
-    {\normalsize \textbf{Disparities in neonatal mortality in India are driven by private, not public facility births}} \\[0.5em]
+    {\Large \textbf{Disparities in neonatal mortality in India are driven by private, not public facility births}} \\[0.75em]
     {\normalsize \today}
 \end{center}
 
 
 
-%=====================================================================
-% INTRODUCTION
-%=====================================================================
+\section{Abstract}
+
+
 
 \section{Introduction}
 
@@ -57,7 +64,7 @@ In India, caste and religion are important dimensions of inequalities in health.
 
 This distinction is especially important in India, which has a large system of rural public health facilities alongside a growing private sector where the quality of care varies substantially across regions. We highlight Uttar Pradesh and Bihar in our analysis, two large northern states that comprise over a quarter of India's population together. Neonatal mortality is much higher in Uttar Pradesh and Bihar across every social group, with rates roughly 15 to 20 deaths per 1,000 births above those observed in the rest of India, and is particularly high among rural private sector births. 
 
-Our primary contribution is showing that disparities in neonatal mortality are much wider among private facility births than public facility births in Uttar Pradesh and Bihar. The contrast is especially stark for births to Dalits mothers in these two states: the neonatal mortality gap between Dalit and forward caste births is about 4 deaths per 1,000 in public facilities and 35 deaths per 1,000 in private facilities. In contrast, in other Indian states, the disparity in neonatal mortality between Dalit and forward caste births in private facilities is less than half as large.
+Our primary contribution is showing that disparities in neonatal mortality are much wider among private facility births than public facility births in Uttar Pradesh and Bihar. The contrast is especially stark for births to Dalit mothers in these two states: the neonatal mortality gap between Dalit and forward caste births is about 4 deaths per 1,000 in public facilities and 35 deaths per 1,000 in private facilities. In contrast, in other Indian states, the disparity in neonatal mortality between Dalit and forward caste births in private facilities is less than half as large.
 
 Previous research has documented higher neonatal mortality among private than public facility births in poorer north Indian states (\cite{franz2025cheaper, coffey2025excess}). This work points to differences in the quality of care provided as one possible explanation, including incentives facing private providers to offer additional services and newborn care practices that may increase mortality risk, such as early bathing of newborns. Our results add an important dimension to this phenomenon: whatever produces the excess neonatal mortality observed in private facilities does not affect all social groups equally.
 
@@ -153,13 +160,9 @@ Neonatal mortality is also about 9 deaths per 1,000 higher among births to Adiva
 \end{figure}
 
 
-Figure \ref{fig:fig2} now separates public and private facility births in depicting disparities in neonatal mortality. Among public facility births in Uttar Pradesh and Bihar, neonatal mortality rates are relatively similar across social groups, ranging from about 32 to 38 deaths per 1,000 births. In contrast, disparities are much larger among private facility births. The contrast is especially stark for births to Dalit mothers in Uttar Pradesh and Bihar: the difference in neonatal mortality with births to forward caste Hindu mothers is about 35 deaths per 1,000 among private facility births. 
+Figure \ref{fig:fig2} separates public and private facility births in depicting disparities in neonatal mortality. In Uttar Pradesh and Bihar, among public facility, neonatal mortality rates are relatively similar across social groups, ranging from about 32 to 38 deaths per 1,000 births. In contrast, disparities are much larger among private facility births. The contrast is especially stark for births to Dalit mothers in Uttar Pradesh and Bihar: the difference in neonatal mortality with births to forward caste Hindu mothers is about 35 deaths per 1,000 among private facility births. Among private facility births in other Indian states, this difference is also present, albeit less drastically -- neonatal mortality among births to Dalit mothers is 15 deaths per 1,000 births higher than among births to forward caste Hindu mothers.
 
-
-Among private facility births in other Indian states, this difference is also present, albeit less drastically -- neonatal mortality among births to Dalit mothers is 15 deahts per 1,000 births higher than among births to forward caste Hindu mothers, which is half the size of the corresponding gap in Uttar Pradesh and Bihar. 
-
-
-
+This pattern arises because neonatal mortality is higher in private than in public facilities for disadvantaged social groups, but not for forward caste Hindus.  In Uttar Pradesh and Bihar, neonatal mortality is almost 40 deaths per 1,000 births higher in private facilities for Dalits, and almost 20 deaths per 1,000 births higher in private facilities for OBC and Muslims. On the other hand, for forward caste births there is no statistically significant difference in neonatal mortality. 
 
 \begin{figure}[H]
     \centering
@@ -182,10 +185,16 @@ Among private facility births in other Indian states, this difference is also pr
     \end{minipage}
 \end{figure}
 
+A possible explanation for this pattern is if births with higher underlying risk of neonatal mortality sort into private facilities. Table \ref{tab:private_public_characteristics} begins to test whether there are differences between private and public facilities in characteristics that may explain the differences in neonatal mortality. Several characteristics show meaningful differences. For one, women who gave birth in a private health facility are more likely to be literate and in a higher wealth quintile in all social groups. These differences are consistent with the greater use of private care among relatively more advantaged households.
 
-Table \ref{tab:private_public_characteristics} begins to test whether there are differences between private and public facilities in characteristics that may explain the differences in neonatal mortality. 
+A similar pattern appears for some maternal and birth risk characteristics. Among all social groups, women who give birth in private facilities are up to 10.8 percentage points less likely to have been underweight at the start of pregnancy than those who give birth in public facilities. 
 
-Several characteristics show meaningful differences -- among all social groups, women who give birth in private facilities are up to 10.8 percentage points less likely to have been underweight at the start of pregnancy than those who give birth in public facilities. 
+For some characteristics, there are statistically significant private–public differences among Dalits, OBCs, and Muslims but not among Forward Hindus, consistent with the possibility that selection into private facilities differs across social groups. For example, among Dalit and OBC births in Uttar Pradesh and Bihar, private facility births are more likely to be to a mother with a prior neonatal death, while the corresponding differences among Forward Hindu births are small and not statistically significant.
+
+Pregnancy and delivery characteristics also differ between public and private facility births. These include breech presentation, prolonged labor, excessive bleeding, and C-section delivery. Some of these measures may reflect underlying risk, while others may also be influenced by the care received during labor and delivery. We therefore present them as descriptive indicators of differences in the circumstances surrounding delivery.
+
+Finally, private facility use also differs substantially across social groups. In Uttar Pradesh and Bihar, 39 percent of Forward Hindu births occur in private facilities, compared with 19 percent of Dalit births and 26 percent of OBC births, with Muslim births falling in between at 30 percent.
+
 
 %=====================================================================
 % TABLE 1
@@ -242,6 +251,21 @@ Several characteristics show meaningful differences -- among all social groups, 
 \end{landscape}
 
 
+Table \ref{tab:nnm_interactions} quantifies the extent to which the private–public difference in neonatal mortality varies across social groups, and whether these differences persist after adjustment for observed characteristics and local area cluster fixed effects. The interaction terms indicate how different the private–public mortality gap is for each social group relative to forward Hindu.
+
+In these two states, the mortality disadvantage associated with private rather than public facility birth is substantially larger for disadvantaged social groups: relative to forward Hindu births, the unadjusted private–public gap is about 35 deaths per 1,000 births larger for Dalits and about 16 deaths per 1,000 births larger for both OBCs and Muslims. In other Indian states, these differences are much smaller. The unadjusted private–public gap is about 5 deaths per 1,000 larger for Dalits than for Forward Hindus, while the corresponding differences for Adivasi, OBC, and Muslim births are close to zero.
+
+To test whether this pattern can be accounted for by differences in the types of births occurring in private rather than public facilities, we adjust for maternal and birth characteristics, pregnancy and delivery characteristics, and socioeconomic status. The interaction estimates change only modestly after these adjustments.
+
+Another possible explanation is if disadvantaged social groups are more likely to live in local areas with worse healthcare environments, where private facility births also have higher mortality. We therefore include sampling-cluster fixed effects, which compare births to mothers living in the same local area and remove differences across local areas. To begin to test this, we additionally include cluster fixed effects, which make the estimates reflect comparisons of births to mothers living in the same local area. Even after adjusting for observable birth characteristics and local area fixed effects, the private–public mortality gap remains about 30 deaths per 1,000 larger for Dalit births than for forward Hindu births, and about 10 to 11 deaths per 1,000 larger for OBC and Muslim births.
+
+
+
+
+
+
+
+
 %=====================================================================
 % TABLE 2
 %=====================================================================
@@ -284,6 +308,23 @@ Each column reports a regression of neonatal mortality on social group, private 
 
 
 \end{landscape}
+
+\section{Discussion}
+
+Previous work has established a puzzle of excess neonatal mortality in private relative to public facilities in India, despite services in private facilities costing more and attracting patients who are healthier, wealthier, and more educated. This paper adds an important dimension to this puzzle, showing that this phenomenon of excess private neonatal mortality primarily affects disadvantaged social groups in Uttar Pradesh and Bihar, and most severely Dalits. 
+
+As a result, not only may private providers in India account for thousands of excess neonatal deaths each year \citep{franz2025cheaper}, but health disparities in neonatal survival outcomes are substantially wider among births in private facilities, adding more significance to this puzzle of excess private neonatal mortality.
+
+This paper is also important in guiding future work that investigates the mechanisms behind this phenomenon -- whatever produces the excess neonatal mortality observed in private facilities seems to be more prevalent in births to mothers of disadvantaged social groups. This is consistent with at least three explanations. 
+
+First, that among mothers of disadvantaged social groups, births that are in private facilities have higher underlying risk of neonatal mortality, wheras there is less selection on risk factors into private facilities for forward caste Hindu births. We begin to test this explanation, and find no evidence for greater selection of riskier births into private facilities for disadvantaged social groups based on the observable birth characteristics in the NFHS.
+
+Second, that private facility births to mothers of disadvantaged social groups may occur in lower quality private facilities, where the facilities themselves are causing worse neonatal survival outcomes. With the absence of variables identifying facilities beyond the margin of private as opposed to tiers of public, the NFHS is not capable of answering this question.  Rather, we provide suggestive evidence that if this were the case, it's not because mothers of disadvantaged social groups live in different local areas, where the accessible private facilities are lower quality.
+
+Finally, that mothers from disadvantaged social groups may be receiving worse medical treatment within the same private facilities. An important characteristic of care at birth which determines neonatal survival is skin-to-skin contact immediately after birth and initiation of breastfeeding within the first hour after birth, both of which have been shown to provide several benefits to the child's health in the medical literature.  \cite{franz2025cheaper} finds that private facilities being more likely to separate mothers from their babies immediately after birth accounts for much of the gap in neonatal mortality between private and public facilities. However, the lower prevalence of skin-to-skin contact in private facilities is not concentrated among disadvantaged social groups -- the private–public difference is at least as large among forward Hindu births. Thus, although these practices may help explain the overall mortality disadvantage associated with private facility birth, they do not appear to explain why that disadvantage is substantially larger among disadvantaged social groups.
+
+Our analysis is descriptive and does not identify a larger causal effect of private facility birth on neonatal mortality for disadvantaged social groups. Taken together, our results suggest that observable differences in birth characteristics and broad differences across local areas do not fully account for the larger private-facility mortality disadvantage among disadvantaged social groups.
+
 
 
 \bibliographystyle{apalike}
