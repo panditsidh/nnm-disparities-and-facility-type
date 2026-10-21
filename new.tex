@@ -1,0 +1,384 @@
+```latex
+\documentclass[12pt]{article}
+
+%===========================================================
+% PACKAGES
+%===========================================================
+
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+
+\usepackage{caption}
+\usepackage[font=scriptsize]{subcaption}
+\captionsetup[figure]{labelsep=none}
+\captionsetup[table]{labelsep=none}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{pdflscape}
+\usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage[margin=1in]{geometry}
+
+\floatstyle{plaintop}
+\restylefloat{table}
+
+
+%===========================================================
+% DOCUMENT
+%===========================================================
+
+\begin{document}
+
+
+%=====================================================================
+% FIGURE 1
+%=====================================================================
+
+\begin{figure}[H]
+    \centering
+
+    \includegraphics[
+        width=\textwidth
+    ]{figures/figure1 overall nnm UP Bihar other states NFHS4,5.png}
+
+    \caption{
+        : Disparities in neonatal mortality for all rural births
+    }
+    \label{fig:fig1}
+
+    \vspace{0.4em}
+
+    \begin{minipage}{0.96\textwidth}
+        \scriptsize
+        \textit{Notes:}
+        The sample consists of rural births in NFHS-4 and NFHS-5.
+        Adivasi includes Scheduled Tribe mothers, Dalit includes Scheduled
+        Caste mothers, Muslim includes Muslim mothers who are not Scheduled
+        Caste or Scheduled Tribe, OBC includes Hindu or Sikh mothers in
+        Other Backward Classes, and forward caste Hindu includes Hindu
+        mothers who are not Scheduled Caste, Scheduled Tribe, or OBC.
+    \end{minipage}
+
+\end{figure}
+
+
+\clearpage
+
+
+%=====================================================================
+% FIGURE 2
+%=====================================================================
+
+\begin{figure}[H]
+    \centering
+
+    \includegraphics[
+        width=\textwidth
+    ]{figures/figure2 nnm public private UP Bihar NFHS4,5.png}
+
+    \caption{
+        : Disparities in neonatal mortality are larger among private
+        facility births in Uttar Pradesh and Bihar
+    }
+    \label{fig:fig2}
+
+    \vspace{0.4em}
+
+    \begin{minipage}{0.96\textwidth}
+        \scriptsize
+        \textit{Notes:}
+        The sample consists of rural births in NFHS-4 and NFHS-5.
+        Adivasi includes Scheduled Tribe mothers, Dalit includes Scheduled
+        Caste mothers, Muslim includes Muslim mothers who are not Scheduled
+        Caste or Scheduled Tribe, OBC includes Hindu or Sikh mothers in
+        Other Backward Classes, and forward caste Hindu includes Hindu
+        mothers who are not Scheduled Caste, Scheduled Tribe, or OBC.
+    \end{minipage}
+
+\end{figure}
+
+
+\clearpage
+
+
+%=====================================================================
+% TABLE 1
+%=====================================================================
+
+\begin{landscape}
+
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{9pt}
+
+\begin{table}[H]
+    \centering
+
+    \caption{
+        : Private facility births are socioeconomically advantaged across
+        social groups, while differences in maternal and birth risk are mixed
+    }
+    \label{tab:private_public_characteristics}
+
+    \vspace{0.4em}
+
+    \begin{threeparttable}
+
+        \begin{adjustbox}{max width=\linewidth}
+            \scriptsize
+            \input{tables/table1 private public differences UP Bihar and other states NFHS4,5.tex}
+        \end{adjustbox}
+
+        \vspace{0.5em}
+
+        \begin{minipage}{0.92\linewidth}
+            \scriptsize
+            \textit{Notes:}
+            With the exception of those under the ``General'' subheader,
+            entries report differences between private and public facility
+            births (private minus public) within each social group and region.
+            Estimates are obtained from regressions of each characteristic on
+            indicators for social group, private facility birth, and their
+            interactions, estimated separately by region.
+
+            Binary characteristics are reported in percentage points; other
+            variables are reported in their original units.
+
+            * $p<0.10$, ** $p<0.05$, *** $p<0.01$ indicate whether the
+            private--public difference within a social group is statistically
+            different from zero.
+
+            $\dagger$ indicates that the private--public difference for that
+            social group is statistically different from the corresponding
+            difference among forward Hindu births at $p<0.05$.
+
+            The sample consists of rural public and private facility births
+            in NFHS-4 and NFHS-5 for which the variables used in the table
+            are observed.
+        \end{minipage}
+
+    \end{threeparttable}
+
+\end{table}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+
+\end{landscape}
+
+
+\clearpage
+
+
+%=====================================================================
+% TABLE 2
+%=====================================================================
+
+\begin{landscape}
+
+\renewcommand{\arraystretch}{0.7}
+\setlength{\tabcolsep}{12pt}
+
+\begin{table}[H]
+    \centering
+
+    \caption{
+        : The larger private--public gap in neonatal mortality for
+        disadvantaged social groups in Uttar Pradesh and Bihar is not
+        accounted for by observed birth characteristics or local area
+        differences
+    }
+    \label{tab:nnm_interactions}
+
+    \vspace{0.4em}
+
+    \begin{threeparttable}
+
+        \begin{adjustbox}{max width=\textwidth}
+            \scriptsize
+            \input{tables/table2 group private interactions UP Bihar and other states NFHS4,5.tex}
+        \end{adjustbox}
+
+        \vspace{0.5em}
+
+        \begin{minipage}{0.92\textwidth}
+            \scriptsize
+            \textit{Notes:}
+            Each column reports a regression of neonatal mortality on
+            household wealth, social group, private facility birth, and their
+            interactions. Wealth quintile 5 and forward Hindu births are the
+            omitted categories.
+
+            Maternal and birth controls include prior neonatal death,
+            projected maternal prepregnancy underweight, child sex, maternal
+            age under 20, multiple birth, birth order, and maternal
+            illiteracy. In specifications that interact the controls with
+            private facility birth, these interactions are included but not
+            reported.
+
+            All specifications include survey-round fixed effects.
+            Specifications with sampling-cluster fixed effects compare births
+            within the same local area.
+
+            The sample consists of rural public and private facility births
+            in NFHS-4 and NFHS-5. Regressions use NFHS sampling weights and
+            standard errors are clustered at the primary sampling unit level.
+
+            * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
+        \end{minipage}
+
+    \end{threeparttable}
+
+\end{table}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+
+\end{landscape}
+
+
+\clearpage
+
+
+%=====================================================================
+% TABLE 3
+%=====================================================================
+
+\begin{landscape}
+
+\renewcommand{\arraystretch}{0.9}
+\setlength{\tabcolsep}{10pt}
+
+\begin{table}[H]
+    \centering
+
+    \caption{
+        : Private facility birth is associated with differences in newborn
+        care practices and circumstances surrounding delivery
+    }
+    \label{tab:newborn_care}
+
+    \vspace{0.4em}
+
+    \begin{threeparttable}
+
+        \begin{adjustbox}{max width=\textwidth}
+            \scriptsize
+            \input{tables/table3 newborn care and delivery.tex}
+        \end{adjustbox}
+
+        \vspace{0.5em}
+
+        \begin{minipage}{0.92\textwidth}
+            \scriptsize
+            \textit{Notes:}
+            Columns report regressions for postnatal care within 24 hours,
+            skin-to-skin contact, initiation of breastfeeding within one
+            hour, prolonged labor, and Cesarean delivery.
+
+            Reported coefficients describe how private--public differences
+            vary by household wealth and social group. Wealth quintile 5 and
+            forward Hindu births are the omitted categories.
+
+            All specifications include household wealth and social-group main
+            effects, maternal and birth controls, interactions between the
+            maternal and birth controls and private facility birth,
+            survey-round fixed effects, and sampling-cluster fixed effects.
+
+            The sample consists of rural public and private facility births
+            in NFHS-4 and NFHS-5 for which the relevant outcome is observed.
+            Regressions use NFHS sampling weights and standard errors are
+            clustered at the primary sampling unit level.
+
+            * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
+        \end{minipage}
+
+    \end{threeparttable}
+
+\end{table}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+
+\end{landscape}
+
+
+\clearpage
+
+
+%=====================================================================
+% TABLE 4
+%=====================================================================
+
+\begin{landscape}
+
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{11pt}
+
+\begin{table}[H]
+    \centering
+
+    \caption{
+        : Private--public neonatal mortality disparities are larger in
+        selected low-capacity health-system settings
+    }
+    \label{tab:health_system_capacity}
+
+    \vspace{0.4em}
+
+    \begin{threeparttable}
+
+        \begin{adjustbox}{max width=\textwidth}
+            \scriptsize
+            \input{tables/table 4 health system capacity.tex}
+        \end{adjustbox}
+
+        \vspace{0.5em}
+
+        \begin{minipage}{0.92\textwidth}
+            \scriptsize
+            \textit{Notes:}
+            Each column reports a regression of neonatal mortality that
+            interacts a proxy for the health-system environment with private
+            facility birth, household wealth, and social group.
+
+            In column 1, the proxy equals one for Uttar Pradesh and Bihar.
+            In column 2, the proxy equals one for states with below-median
+            government allopathic doctors per 100,000 population.
+            In column 3, the proxy equals one for states with below-median
+            rural government hospital beds per 100,000 rural population.
+
+            Reported coefficients are the triple interactions between the
+            proxy, private facility birth, and each wealth or social-group
+            category. All constituent main effects and two-way interactions
+            are included but not reported.
+
+            Wealth quintile 5 and forward Hindu births are the omitted wealth
+            and social-group categories.
+
+            All specifications include maternal and birth controls,
+            interactions between these controls and private facility birth,
+            survey-round fixed effects, and sampling-cluster fixed effects.
+
+            The sample consists of rural public and private facility births
+            in NFHS-4 and NFHS-5. Regressions use NFHS sampling weights and
+            standard errors are clustered at the primary sampling unit level.
+
+            * $p<0.10$, ** $p<0.05$, *** $p<0.01$.
+        \end{minipage}
+
+    \end{threeparttable}
+
+\end{table}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1}
+
+\end{landscape}
+
+
+\end{document}
+```
