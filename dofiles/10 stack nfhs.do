@@ -7,6 +7,8 @@ do "$paths"
 
 preserve
 
+
+
 import delimited "data/districtcrosswalk_1245.csv", clear
 keep state_nfhs5 name_nfhs5
 drop if missing(state_nfhs5) | missing(name_nfhs5)
@@ -124,6 +126,9 @@ append using `nfhs4br'
 
 
 
+
+
+
 *-------------------------------------------------
 * Create value label for state_nfhs5
 *-------------------------------------------------
@@ -168,6 +173,16 @@ label define state5_lbl ///
 * Attach label to variable
 label values state_nfhs5 state5_lbl
 
+
+
+
+gen district_nfhs5 = districtcode_nfhs5 if round==4
+replace district_nfhs5 = sdist if round==5
+
+
+
+
+label values district_nfhs5 SDIST
 
 
 

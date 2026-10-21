@@ -1,0 +1,93 @@
+{
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\begin{tabular}{l*{3}{c}}
+\toprule
+            &\multicolumn{1}{c}{UP \& Bihar}&\multicolumn{1}{c}{Low government doctor capacity}&\multicolumn{1}{c}{Low rural public bed capacity}\\\cmidrule(lr){2-2}\cmidrule(lr){3-3}\cmidrule(lr){4-4}
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}\\
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}\\
+\midrule
+Proxy $\times$ Private $\times$ quintile 1&        16.8         &                     &                     \\
+            &      (10.4)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 2&        16.6\sym{*}  &                     &                     \\
+            &       (9.4)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 3&         0.0         &                     &                     \\
+            &       (9.1)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 4&         9.9         &                     &                     \\
+            &       (9.1)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ Adivasi&        22.1         &                     &                     \\
+            &      (22.9)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ Dalit&        15.0\sym{*}  &                     &                     \\
+            &       (9.1)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ OBC&         5.3         &                     &                     \\
+            &       (7.3)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ Muslim&         5.3         &                     &                     \\
+            &       (9.5)         &                     &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 1&                     &        -7.5         &                     \\
+            &                     &      (23.9)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 2&                     &        16.2\sym{*}  &                     \\
+            &                     &       (9.5)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 3&                     &         3.9         &                     \\
+            &                     &       (6.9)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 4&                     &         1.0         &                     \\
+            &                     &       (6.0)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ Adivasi&                     &        22.4\sym{**} &                     \\
+            &                     &      (10.6)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ Dalit&                     &        -5.3         &                     \\
+            &                     &       (8.5)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ OBC&                     &         7.5         &                     \\
+            &                     &       (6.5)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ Muslim&                     &         7.9         &                     \\
+            &                     &       (8.0)         &                     \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 1&                     &                     &         7.4         \\
+            &                     &                     &      (16.2)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 2&                     &                     &        14.0\sym{*}  \\
+            &                     &                     &       (7.7)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 3&                     &                     &        -3.8         \\
+            &                     &                     &       (6.0)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ quintile 4&                     &                     &        -1.4         \\
+            &                     &                     &       (5.7)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ Adivasi&                     &                     &         8.9         \\
+            &                     &                     &       (9.8)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ Dalit&                     &                     &         3.3         \\
+            &                     &                     &       (7.4)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ OBC&                     &                     &         4.7         \\
+            &                     &                     &       (5.6)         \\
+\addlinespace
+Proxy $\times$ Private $\times$ Muslim&                     &                     &         0.4         \\
+            &                     &                     &       (8.0)         \\
+\midrule
+Mean neonatal mortality&        28.1         &        28.1         &        28.1         \\
+Observations&      282727         &      282727         &      282727         \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize Standard errors clustered by PSU appear in parentheses.}\\
+\multicolumn{4}{l}{\footnotesize The dependent variable is neonatal mortality per 1,000 births.}\\
+\multicolumn{4}{l}{\footnotesize In column 1, Proxy equals one for Uttar Pradesh and Bihar.}\\
+\multicolumn{4}{l}{\footnotesize In columns 2 and 3, Proxy equals one for states below the median in government allopathic doctors per 100,000 population and rural government hospital beds per 100,000 rural population, respectively.}\\
+\multicolumn{4}{l}{\footnotesize All models include the constituent main effects and two-way interactions corresponding to the reported triple interactions; these coefficients are not reported.}\\
+\multicolumn{4}{l}{\footnotesize All models include maternal and birth controls, their interactions with Private, NFHS round fixed effects, and PSU fixed effects.}\\
+\multicolumn{4}{l}{\footnotesize Wealth quintile 5 and Forward Hindu are the omitted wealth and social-group categories.}\\
+\multicolumn{4}{l}{\footnotesize $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.}\\
+\end{tabular}
+}

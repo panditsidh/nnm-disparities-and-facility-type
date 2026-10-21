@@ -1,0 +1,1646 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/onemore.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 1 Oct 2026, 16:46:48
+
+{com}. do "/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//SD00400.000000"
+{txt}
+{com}. 
+. /********************************************************************
+> Three-way test using HOUSEHOLD-LEVEL PSU social composition
+> CORRECTED FOR NFHS-4 vs NFHS-5 HOUSEHOLD VARIABLE NAMES
+> 
+> IMPORTANT CODING DIFFERENCE
+> ---------------------------
+> NFHS-4 household recode:
+>     religion of household head      = sh34
+>     caste/tribe type of HH head     = sh36
+> 
+>     sh34:
+>         1 Hindu
+>         2 Muslim
+>         3 Christian
+>         4 Sikh
+>         5 Buddhist/Neo-Buddhist
+>         6 Jain
+>         ...
+> 
+>     sh36:
+>         1 Scheduled caste
+>         2 Scheduled tribe
+>         3 Other Backward Class
+>         4 None of above
+>         8 Don't know
+> 
+> NFHS-5 household recode:
+>     religion of household head      = sh47
+>     caste/tribe type of HH head     = sh49
+> 
+> The NFHS-5 coding below follows your existing project code.
+> 
+> Question:
+> Does the comparison-group vs Forward Hindu difference in the
+> private-public neonatal mortality gap vary with household-based
+> PSU social composition?
+> 
+> Preferred composition measure:
+>     leave-one-HOUSEHOLD-out weighted PSU share
+> 
+> Console output only.
+> ********************************************************************/
+. 
+. clear all
+{res}{txt}
+{com}. set more off
+{txt}
+{com}. set maxvar 7000
+
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * User settings
+. *------------------------------------------------------------
+. 
+. local outcome nnm
+{txt}
+{com}. 
+. local regions up_bihar non_upbihar_focus nonfocus
+{txt}
+{com}. 
+. local groups 1 2 3 5
+{txt}
+{com}. 
+. local groupname1 "Adivasi"
+{txt}
+{com}. local groupname2 "Dalit"
+{txt}
+{com}. local groupname3 "OBC"
+{txt}
+{com}. local groupname5 "Muslim"
+{txt}
+{com}. 
+. local residence rural
+{txt}
+{com}. local r 4,5
+{txt}
+{com}. 
+. local controls ///
+>     i.prior ///
+>     i.underweight_projected ///
+>     i.male ///
+>     i.momunder20 ///
+>     i.multiples ///
+>     i.v190 ///
+>     i.birth_order ///
+>     i.illiterate ///
+>     i.round
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Paths
+. *------------------------------------------------------------
+. 
+. do "$paths"
+{txt}
+{com}. 
+. if "`c(username)'" == "sidhpandit" {c -(}
+.         global nfhs3ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs3ir/IAIR52FL.dta"
+.         global nfhs4ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs4ir/IAIR74FL.DTA"       
+.         global nfhs5ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs5ir/IAIR7EFL.DTA"
+. 
+.         global nfhs1br "/Users/sidhpandit/Desktop/data/nfhs/nfhs1br/IABR23FL.DTA"
+.         global nfhs2br "/Users/sidhpandit/Desktop/data/nfhs/nfhs2br/IABR42FL.dta"
+.         global nfhs3br "/Users/sidhpandit/Desktop/data/nfhs/nfhs3br/IABR52FL.dta"
+.         global nfhs4br "/Users/sidhpandit/Desktop/data/nfhs/nfhs4br/IABR74FL.DTA"
+.         global nfhs5br "/Users/sidhpandit/Desktop/data/nfhs/nfhs5br/IABR7EFL.DTA"
+.         global dataset "/Users/sidhpandit/Dropbox/maternal nutrition by social group/data/prepared_dataset.dta"
+. 
+.         
+.         global nfhs1hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs1hr/IAHR23FL.DTA"
+.         
+.         cd "/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups"
+{res}/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups
+{com}.         
+.         global paths "/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups/dofiles/000_paths.do"
+.         
+.         global nfhs5mr "/Users/sidhpandit/Desktop/nfhs/nfhs5mr/IAMR7EFL.DTA"
+.         
+.         global nfhs5hmr "/Users/sidhpandit/Desktop/data/nfhs/nfhs5hmr/IAPR7EFL.DTA"
+.         
+.         global nfhs5hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs5hr/IAHR7EFL.DTA"
+.         
+.         global nfhs4hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs4hr/IAHR74FL.DTA"
+.         
+.         global nfhs3hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs3hr/IAHR52FL.dta"
+.         
+.         global nfhs2hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs2hr/IAHR42FL.DTA"
+.         
+.         global nfhs1hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs1hr/IAHR23FL.DTA"
+.         
+.         global ihds1_individual "/Users/sidhpandit/Desktop/data/IHDS/IHDS-1/DS0001/22626-0001-Data.dta"
+.         
+.         global ihds1_household "/Users/sidhpandit/Desktop/data/IHDS/IHDS-1/DS0002/22626-0002-Data.dta"
+.         
+.         
+.         global ihds2_individual "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0001/36151-0001-Data.dta"
+.         
+.         
+.         global ihds2_household "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0002/36151-0002-Data.dta"
+.         
+.         global ihds2_ewomen "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0003/36151-0003-Data.dta"
+.         
+.         
+.         global reweighting_dataset "/Users/sidhpandit/Dropbox/maternal nutrition by social group/data/prepared_dataset.dta"
+.         
+.         cd "/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type"
+{res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type
+{com}.         
+.         
+.         global paths "/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/dofiles/00 paths.do"
+.         
+.         global dataset "/Users/sidhpandit/Library/CloudStorage/Box-Box/Anemia_Thesis/data/nnm dataset.dta"
+.         
+. {c )-}
+{txt}
+{com}. 
+. 
+. 
+. if "`c(username)'" == "dc42724" {c -(}
+. 
+.         global nfhs5ir "C:\Users\dc42724\Dropbox\Data\NFHS\NFHS19\IAIR7DDT\IAIR7DFL.DTA"
+. 
+.         global dataset "C:\Users\dc42724\Dropbox\K01\maternal-nutrition-social-group\data\prepared_dataset.dta"
+.         
+.         cd "C:\Users\dc42724\Documents\GitHub\maternal-nutrition-and-social-groups"
+.         
+.         global paths "C:\Users\dc42724\Documents\GitHub\maternal-nutrition-and-social-groups\dofiles\000_paths.do"
+.         
+.         global ihds2_ewomen "C:\Users\dc42724\Dropbox\Data\IHDS\2011 data\women\36151-0003-Data.dta"
+. {c )-}
+{txt}
+{com}. 
+. 
+. if "`c(hostname)'" == "PPRC-STATS-P01" {c -(}
+.         
+.         
+.         global nfhs3ir "Q:\Coffey\Users\SidhPandit\nfhs3ir\IAIR52FL.dta"
+.         
+.         global nfhs3br "Q:\Coffey\Users\SidhPandit\nfhs3br\IABR52FL.dta"
+.         
+.         global nfhs5ir "Q:\Coffey\Users\SidhPandit\nfhs5ir\IAIR7EFL.dta"
+.         
+.         global nfhs5br "Q:\Coffey\Users\SidhPandit\nfhs5br\IABR7EFL.dta"
+.         
+. *       global dataset "C:\Users\dc42724\Dropbox\K01\maternal-nutrition-social-group\data\prepared_dataset.dta"
+. 
+.         
+.         cd "C:\Users\ssp2843\Documents\GitHub\maternal-nutrition-and-social-groups"
+.         
+.         
+. {c )-}
+{txt}
+{com}. 
+. 
+. 
+. 
+. 
+{txt}end of do-file
+
+{com}. 
+. 
+. /********************************************************************
+> PART 1. PREPARE NFHS-4 HOUSEHOLD FILE
+> ********************************************************************/
+. 
+. tempfile hr4 hr5 hh_comp
+{txt}
+{com}. 
+. use "$nfhs4hr", clear
+{txt}
+{com}. 
+. gen byte round = 4
+{txt}
+{com}. 
+. * NFHS-4 household-head social-group variables:
+. *   sh34 = religion
+. *   sh36 = type of caste/tribe
+. gen byte hr_group = .
+{txt}(601,509 missing values generated)
+
+{com}. 
+. * Adivasi: Scheduled Tribe, regardless of religion
+. replace hr_group = 1 if sh36 == 2
+{txt}(114,100 real changes made)
+
+{com}. 
+. * Dalit: Scheduled Caste, regardless of religion
+. replace hr_group = 2 if sh36 == 1
+{txt}(108,434 real changes made)
+
+{com}. 
+. * Muslim: Muslim and not SC/ST
+. replace hr_group = 5 if sh34 == 2 & missing(hr_group)
+{txt}(67,461 real changes made)
+
+{com}. 
+. * OBC: Hindu or Sikh and OBC
+. replace hr_group = 3 if sh36 == 3 & inlist(sh34,1,4)
+{txt}(190,997 real changes made)
+
+{com}. 
+. * Forward Hindu: Hindu, not SC/ST/OBC
+. replace hr_group = 4 if sh34 == 1 ///
+>     & inlist(sh36,4,8,.) ///
+>     & missing(hr_group)
+{txt}(104,700 real changes made)
+
+{com}. 
+. label define hr_group_lbl ///
+>     1 "Adivasi" ///
+>     2 "Dalit" ///
+>     3 "OBC" ///
+>     4 "Forward Hindu" ///
+>     5 "Muslim", replace
+{txt}
+{com}. label values hr_group hr_group_lbl
+{txt}
+{com}. 
+. * Standardize identifiers / weight names
+. rename hv000 v000
+{res}{txt}
+{com}. rename hv001 v001
+{res}{txt}
+{com}. rename hv002 v002
+{res}{txt}
+{com}. rename hv024 v024
+{res}{txt}
+{com}. rename hv025 v025
+{res}{txt}
+{com}. rename hv005 hh_weight
+{res}{txt}
+{com}. 
+. keep ///
+>     round ///
+>     v000 v001 v002 v024 v025 ///
+>     hh_weight hr_group
+{txt}
+{com}. 
+. save `hr4', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000003{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000003{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 2. PREPARE NFHS-5 HOUSEHOLD FILE
+> ********************************************************************/
+. 
+. use "$nfhs5hr", clear
+{txt}
+{com}. 
+. gen byte round = 5
+{txt}
+{com}. 
+. * NFHS-5 household-head social-group variables from your existing code:
+. *   sh47 = religion
+. *   sh49 = type of caste/tribe
+. gen byte hr_group = .
+{txt}(636,699 missing values generated)
+
+{com}. 
+. * Adivasi: Scheduled Tribe, regardless of religion
+. replace hr_group = 1 if sh49 == 2
+{txt}(123,443 real changes made)
+
+{com}. 
+. * Dalit: Scheduled Caste, regardless of religion
+. replace hr_group = 2 if sh49 == 1
+{txt}(123,002 real changes made)
+
+{com}. 
+. * Muslim: Muslim and not SC/ST
+. replace hr_group = 5 if sh47 == 2 & missing(hr_group)
+{txt}(66,343 real changes made)
+
+{com}. 
+. * OBC: Hindu or Sikh and OBC
+. replace hr_group = 3 if sh49 == 3 & inlist(sh47,1,4)
+{txt}(201,303 real changes made)
+
+{com}. 
+. * Forward Hindu: Hindu, not SC/ST/OBC
+. replace hr_group = 4 if sh47 == 1 ///
+>     & inlist(sh49,4,8,.) ///
+>     & missing(hr_group)
+{txt}(105,914 real changes made)
+
+{com}. 
+. label values hr_group hr_group_lbl
+{txt}
+{com}. 
+. rename hv000 v000
+{res}{txt}
+{com}. rename hv001 v001
+{res}{txt}
+{com}. rename hv002 v002
+{res}{txt}
+{com}. rename hv024 v024
+{res}{txt}
+{com}. rename hv025 v025
+{res}{txt}
+{com}. rename hv005 hh_weight
+{res}{txt}
+{com}. 
+. keep ///
+>     round ///
+>     v000 v001 v002 v024 v025 ///
+>     hh_weight hr_group
+{txt}
+{com}. 
+. save `hr5', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000004{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000004{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 3. STACK NFHS-4 AND NFHS-5 HOUSEHOLDS
+> ********************************************************************/
+. 
+. use `hr4', clear
+{txt}
+{com}. append using `hr5'
+{txt}(label {bf:{txt}HV025} already defined)
+(label {bf:{txt}HV024} already defined)
+
+{com}. 
+. * Paper is rural
+. keep if v025 == 2
+{txt}(336,084 observations deleted)
+
+{com}. 
+. * IMPORTANT:
+. * Do NOT drop households outside the five analytic groups before
+. * creating the denominator. The denominator should represent all
+. * sampled rural households in the PSU.
+. *
+. * Numerators below count only the five analytic social groups.
+. * Households outside those groups remain in the denominator.
+. 
+. * Survey-specific PSU identifier
+. egen long hh_psu = group(round v001 v024 v025)
+{res}{txt}
+{com}. 
+. 
+. /********************************************************************
+> PART 4. PSU HOUSEHOLD SOCIAL COMPOSITION
+> ********************************************************************/
+. 
+. * Weighted household totals
+. bysort hh_psu: egen double total_w_hh = total(hh_weight)
+{txt}
+{com}. 
+. foreach g in 1 2 3 4 5 {c -(}
+{txt}  2{com}. 
+.     gen double w_group`g' = ///
+>         hh_weight * (hr_group == `g') if !missing(hr_group)
+{txt}  3{com}. 
+.     replace w_group`g' = 0 if missing(w_group`g')
+{txt}  4{com}. 
+.     bysort hh_psu: egen double total_w_group`g' = ///
+>         total(w_group`g')
+{txt}  5{com}. {c )-}
+{txt}(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Ordinary PSU shares
+. *------------------------------------------------------------
+. 
+. gen double pct_psu_adivasi = total_w_group1 / total_w_hh
+{txt}
+{com}. gen double pct_psu_dalit   = total_w_group2 / total_w_hh
+{txt}
+{com}. gen double pct_psu_obc     = total_w_group3 / total_w_hh
+{txt}
+{com}. gen double pct_psu_forward = total_w_group4 / total_w_hh
+{txt}
+{com}. gen double pct_psu_muslim  = total_w_group5 / total_w_hh
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Leave-one-HOUSEHOLD-out shares
+. *
+. * Since we merge composition back to the focal birth's household,
+. * this removes that household's own contribution to BOTH numerator
+. * and denominator.
+. *------------------------------------------------------------
+. 
+. gen double total_w_hh_loo = total_w_hh - hh_weight
+{txt}
+{com}. 
+. foreach g in 1 2 3 4 5 {c -(}
+{txt}  2{com}. 
+.     gen double total_w_group`g'_loo = ///
+>         total_w_group`g' - hh_weight * (hr_group == `g')
+{txt}  3{com}. 
+. {c )-}
+{txt}
+{com}. 
+. 
+. gen double pct_psu_adivasi_loo = ///
+>     total_w_group1_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_dalit_loo = ///
+>     total_w_group2_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_obc_loo = ///
+>     total_w_group3_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_forward_loo = ///
+>     total_w_group4_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_muslim_loo = ///
+>     total_w_group5_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Higher-ranking shares requested
+. *------------------------------------------------------------
+. 
+. * Adivasi and Dalit:
+. * higher ranking = OBC + Forward Hindu + Muslim
+. gen double higher_adivasi = ///
+>     pct_psu_obc + pct_psu_forward + pct_psu_muslim
+{txt}
+{com}. 
+. gen double higher_dalit = ///
+>     pct_psu_obc + pct_psu_forward + pct_psu_muslim
+{txt}
+{com}. 
+. gen double higher_adivasi_loo = ///
+>     pct_psu_obc_loo + pct_psu_forward_loo + pct_psu_muslim_loo
+{txt}
+{com}. 
+. gen double higher_dalit_loo = ///
+>     pct_psu_obc_loo + pct_psu_forward_loo + pct_psu_muslim_loo
+{txt}
+{com}. 
+. 
+. * OBC and Muslim:
+. * higher ranking = Forward Hindu only
+. gen double higher_obc = pct_psu_forward
+{txt}
+{com}. gen double higher_muslim = pct_psu_forward
+{txt}
+{com}. 
+. gen double higher_obc_loo = pct_psu_forward_loo
+{txt}
+{com}. gen double higher_muslim_loo = pct_psu_forward_loo
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Keep one row per household for merge
+. *------------------------------------------------------------
+. 
+. keep ///
+>     round ///
+>     v000 v001 v002 v024 v025 ///
+>     hr_group ///
+>     pct_psu_adivasi pct_psu_dalit pct_psu_obc ///
+>     pct_psu_forward pct_psu_muslim ///
+>     pct_psu_adivasi_loo pct_psu_dalit_loo pct_psu_obc_loo ///
+>     pct_psu_forward_loo pct_psu_muslim_loo ///
+>     higher_adivasi higher_dalit higher_obc higher_muslim ///
+>     higher_adivasi_loo higher_dalit_loo higher_obc_loo higher_muslim_loo
+{txt}
+{com}. 
+. isid round v000 v001 v002 v024 v025
+{txt}
+{com}. 
+. save `hh_comp', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000005{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000005{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 5. MERGE TO BIRTH-LEVEL NNM DATA
+> ********************************************************************/
+. 
+. use "$dataset", clear
+{txt}
+{com}. 
+. replace prior = 0 if missing(prior)
+{txt}(203,686 real changes made)
+
+{com}. 
+. keep if inlist(round, `r')
+{txt}(52,002 observations deleted)
+
+{com}. keep if `residence' == 1
+{txt}(109,480 observations deleted)
+
+{com}. keep if inrange(group,1,5)
+{txt}(5,861 observations deleted)
+
+{com}. 
+. merge m:1 ///
+>     round v000 v001 v002 v024 v025 ///
+>     using `hh_comp'
+{res}{err}variable {bf}_merge{sf} already defined
+{txt}{search r(110), local:r(110);}
+
+end of do-file
+
+{search r(110), local:r(110);}
+
+{com}. do "/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//SD00400.000000"
+{txt}
+{com}. 
+. /********************************************************************
+> Three-way test using HOUSEHOLD-LEVEL PSU social composition
+> CORRECTED FOR NFHS-4 vs NFHS-5 HOUSEHOLD VARIABLE NAMES
+> 
+> IMPORTANT CODING DIFFERENCE
+> ---------------------------
+> NFHS-4 household recode:
+>     religion of household head      = sh34
+>     caste/tribe type of HH head     = sh36
+> 
+>     sh34:
+>         1 Hindu
+>         2 Muslim
+>         3 Christian
+>         4 Sikh
+>         5 Buddhist/Neo-Buddhist
+>         6 Jain
+>         ...
+> 
+>     sh36:
+>         1 Scheduled caste
+>         2 Scheduled tribe
+>         3 Other Backward Class
+>         4 None of above
+>         8 Don't know
+> 
+> NFHS-5 household recode:
+>     religion of household head      = sh47
+>     caste/tribe type of HH head     = sh49
+> 
+> The NFHS-5 coding below follows your existing project code.
+> 
+> Question:
+> Does the comparison-group vs Forward Hindu difference in the
+> private-public neonatal mortality gap vary with household-based
+> PSU social composition?
+> 
+> Preferred composition measure:
+>     leave-one-HOUSEHOLD-out weighted PSU share
+> 
+> Console output only.
+> ********************************************************************/
+. 
+. clear all
+{res}{txt}
+{com}. set more off
+{txt}
+{com}. set maxvar 7000
+
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * User settings
+. *------------------------------------------------------------
+. 
+. local outcome nnm
+{txt}
+{com}. 
+. local regions up_bihar non_upbihar_focus nonfocus
+{txt}
+{com}. 
+. local groups 1 2 3 5
+{txt}
+{com}. 
+. local groupname1 "Adivasi"
+{txt}
+{com}. local groupname2 "Dalit"
+{txt}
+{com}. local groupname3 "OBC"
+{txt}
+{com}. local groupname5 "Muslim"
+{txt}
+{com}. 
+. local residence rural
+{txt}
+{com}. local r 4,5
+{txt}
+{com}. 
+. local controls ///
+>     i.prior ///
+>     i.underweight_projected ///
+>     i.male ///
+>     i.momunder20 ///
+>     i.multiples ///
+>     i.v190 ///
+>     i.birth_order ///
+>     i.illiterate ///
+>     i.round
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Paths
+. *------------------------------------------------------------
+. 
+. do "$paths"
+{txt}
+{com}. 
+. if "`c(username)'" == "sidhpandit" {c -(}
+.         global nfhs3ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs3ir/IAIR52FL.dta"
+.         global nfhs4ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs4ir/IAIR74FL.DTA"       
+.         global nfhs5ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs5ir/IAIR7EFL.DTA"
+. 
+.         global nfhs1br "/Users/sidhpandit/Desktop/data/nfhs/nfhs1br/IABR23FL.DTA"
+.         global nfhs2br "/Users/sidhpandit/Desktop/data/nfhs/nfhs2br/IABR42FL.dta"
+.         global nfhs3br "/Users/sidhpandit/Desktop/data/nfhs/nfhs3br/IABR52FL.dta"
+.         global nfhs4br "/Users/sidhpandit/Desktop/data/nfhs/nfhs4br/IABR74FL.DTA"
+.         global nfhs5br "/Users/sidhpandit/Desktop/data/nfhs/nfhs5br/IABR7EFL.DTA"
+.         global dataset "/Users/sidhpandit/Dropbox/maternal nutrition by social group/data/prepared_dataset.dta"
+. 
+.         
+.         global nfhs1hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs1hr/IAHR23FL.DTA"
+.         
+.         cd "/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups"
+{res}/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups
+{com}.         
+.         global paths "/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups/dofiles/000_paths.do"
+.         
+.         global nfhs5mr "/Users/sidhpandit/Desktop/nfhs/nfhs5mr/IAMR7EFL.DTA"
+.         
+.         global nfhs5hmr "/Users/sidhpandit/Desktop/data/nfhs/nfhs5hmr/IAPR7EFL.DTA"
+.         
+.         global nfhs5hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs5hr/IAHR7EFL.DTA"
+.         
+.         global nfhs4hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs4hr/IAHR74FL.DTA"
+.         
+.         global nfhs3hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs3hr/IAHR52FL.dta"
+.         
+.         global nfhs2hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs2hr/IAHR42FL.DTA"
+.         
+.         global nfhs1hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs1hr/IAHR23FL.DTA"
+.         
+.         global ihds1_individual "/Users/sidhpandit/Desktop/data/IHDS/IHDS-1/DS0001/22626-0001-Data.dta"
+.         
+.         global ihds1_household "/Users/sidhpandit/Desktop/data/IHDS/IHDS-1/DS0002/22626-0002-Data.dta"
+.         
+.         
+.         global ihds2_individual "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0001/36151-0001-Data.dta"
+.         
+.         
+.         global ihds2_household "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0002/36151-0002-Data.dta"
+.         
+.         global ihds2_ewomen "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0003/36151-0003-Data.dta"
+.         
+.         
+.         global reweighting_dataset "/Users/sidhpandit/Dropbox/maternal nutrition by social group/data/prepared_dataset.dta"
+.         
+.         cd "/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type"
+{res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type
+{com}.         
+.         
+.         global paths "/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/dofiles/00 paths.do"
+.         
+.         global dataset "/Users/sidhpandit/Library/CloudStorage/Box-Box/Anemia_Thesis/data/nnm dataset.dta"
+.         
+. {c )-}
+{txt}
+{com}. 
+. 
+. 
+. if "`c(username)'" == "dc42724" {c -(}
+. 
+.         global nfhs5ir "C:\Users\dc42724\Dropbox\Data\NFHS\NFHS19\IAIR7DDT\IAIR7DFL.DTA"
+. 
+.         global dataset "C:\Users\dc42724\Dropbox\K01\maternal-nutrition-social-group\data\prepared_dataset.dta"
+.         
+.         cd "C:\Users\dc42724\Documents\GitHub\maternal-nutrition-and-social-groups"
+.         
+.         global paths "C:\Users\dc42724\Documents\GitHub\maternal-nutrition-and-social-groups\dofiles\000_paths.do"
+.         
+.         global ihds2_ewomen "C:\Users\dc42724\Dropbox\Data\IHDS\2011 data\women\36151-0003-Data.dta"
+. {c )-}
+{txt}
+{com}. 
+. 
+. if "`c(hostname)'" == "PPRC-STATS-P01" {c -(}
+.         
+.         
+.         global nfhs3ir "Q:\Coffey\Users\SidhPandit\nfhs3ir\IAIR52FL.dta"
+.         
+.         global nfhs3br "Q:\Coffey\Users\SidhPandit\nfhs3br\IABR52FL.dta"
+.         
+.         global nfhs5ir "Q:\Coffey\Users\SidhPandit\nfhs5ir\IAIR7EFL.dta"
+.         
+.         global nfhs5br "Q:\Coffey\Users\SidhPandit\nfhs5br\IABR7EFL.dta"
+.         
+. *       global dataset "C:\Users\dc42724\Dropbox\K01\maternal-nutrition-social-group\data\prepared_dataset.dta"
+. 
+.         
+.         cd "C:\Users\ssp2843\Documents\GitHub\maternal-nutrition-and-social-groups"
+.         
+.         
+. {c )-}
+{txt}
+{com}. 
+. 
+. 
+. 
+. 
+{txt}end of do-file
+
+{com}. 
+. 
+. /********************************************************************
+> PART 1. PREPARE NFHS-4 HOUSEHOLD FILE
+> ********************************************************************/
+. 
+. tempfile hr4 hr5 hh_comp
+{txt}
+{com}. 
+. use "$nfhs4hr", clear
+{txt}
+{com}. 
+. gen byte round = 4
+{txt}
+{com}. 
+. * NFHS-4 household-head social-group variables:
+. *   sh34 = religion
+. *   sh36 = type of caste/tribe
+. gen byte hr_group = .
+{txt}(601,509 missing values generated)
+
+{com}. 
+. * Adivasi: Scheduled Tribe, regardless of religion
+. replace hr_group = 1 if sh36 == 2
+{txt}(114,100 real changes made)
+
+{com}. 
+. * Dalit: Scheduled Caste, regardless of religion
+. replace hr_group = 2 if sh36 == 1
+{txt}(108,434 real changes made)
+
+{com}. 
+. * Muslim: Muslim and not SC/ST
+. replace hr_group = 5 if sh34 == 2 & missing(hr_group)
+{txt}(67,461 real changes made)
+
+{com}. 
+. * OBC: Hindu or Sikh and OBC
+. replace hr_group = 3 if sh36 == 3 & inlist(sh34,1,4)
+{txt}(190,997 real changes made)
+
+{com}. 
+. * Forward Hindu: Hindu, not SC/ST/OBC
+. replace hr_group = 4 if sh34 == 1 ///
+>     & inlist(sh36,4,8,.) ///
+>     & missing(hr_group)
+{txt}(104,700 real changes made)
+
+{com}. 
+. label define hr_group_lbl ///
+>     1 "Adivasi" ///
+>     2 "Dalit" ///
+>     3 "OBC" ///
+>     4 "Forward Hindu" ///
+>     5 "Muslim", replace
+{txt}
+{com}. label values hr_group hr_group_lbl
+{txt}
+{com}. 
+. * Standardize identifiers / weight names
+. rename hv000 v000
+{res}{txt}
+{com}. rename hv001 v001
+{res}{txt}
+{com}. rename hv002 v002
+{res}{txt}
+{com}. rename hv024 v024
+{res}{txt}
+{com}. rename hv025 v025
+{res}{txt}
+{com}. rename hv005 hh_weight
+{res}{txt}
+{com}. 
+. keep ///
+>     round ///
+>     v000 v001 v002 v024 v025 ///
+>     hh_weight hr_group
+{txt}
+{com}. 
+. save `hr4', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000003{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000003{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 2. PREPARE NFHS-5 HOUSEHOLD FILE
+> ********************************************************************/
+. 
+. use "$nfhs5hr", clear
+{txt}
+{com}. 
+. gen byte round = 5
+{txt}
+{com}. 
+. * NFHS-5 household-head social-group variables from your existing code:
+. *   sh47 = religion
+. *   sh49 = type of caste/tribe
+. gen byte hr_group = .
+{txt}(636,699 missing values generated)
+
+{com}. 
+. * Adivasi: Scheduled Tribe, regardless of religion
+. replace hr_group = 1 if sh49 == 2
+{txt}(123,443 real changes made)
+
+{com}. 
+. * Dalit: Scheduled Caste, regardless of religion
+. replace hr_group = 2 if sh49 == 1
+{txt}(123,002 real changes made)
+
+{com}. 
+. * Muslim: Muslim and not SC/ST
+. replace hr_group = 5 if sh47 == 2 & missing(hr_group)
+{txt}(66,343 real changes made)
+
+{com}. 
+. * OBC: Hindu or Sikh and OBC
+. replace hr_group = 3 if sh49 == 3 & inlist(sh47,1,4)
+{txt}(201,303 real changes made)
+
+{com}. 
+. * Forward Hindu: Hindu, not SC/ST/OBC
+. replace hr_group = 4 if sh47 == 1 ///
+>     & inlist(sh49,4,8,.) ///
+>     & missing(hr_group)
+{txt}(105,914 real changes made)
+
+{com}. 
+. label values hr_group hr_group_lbl
+{txt}
+{com}. 
+. rename hv000 v000
+{res}{txt}
+{com}. rename hv001 v001
+{res}{txt}
+{com}. rename hv002 v002
+{res}{txt}
+{com}. rename hv024 v024
+{res}{txt}
+{com}. rename hv025 v025
+{res}{txt}
+{com}. rename hv005 hh_weight
+{res}{txt}
+{com}. 
+. keep ///
+>     round ///
+>     v000 v001 v002 v024 v025 ///
+>     hh_weight hr_group
+{txt}
+{com}. 
+. save `hr5', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000004{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000004{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 3. STACK NFHS-4 AND NFHS-5 HOUSEHOLDS
+> ********************************************************************/
+. 
+. use `hr4', clear
+{txt}
+{com}. append using `hr5'
+{txt}(label {bf:{txt}HV025} already defined)
+(label {bf:{txt}HV024} already defined)
+
+{com}. 
+. * Paper is rural
+. keep if v025 == 2
+{txt}(336,084 observations deleted)
+
+{com}. 
+. * IMPORTANT:
+. * Do NOT drop households outside the five analytic groups before
+. * creating the denominator. The denominator should represent all
+. * sampled rural households in the PSU.
+. *
+. * Numerators below count only the five analytic social groups.
+. * Households outside those groups remain in the denominator.
+. 
+. * Survey-specific PSU identifier
+. egen long hh_psu = group(round v001 v024 v025)
+{res}{txt}
+{com}. 
+. 
+. /********************************************************************
+> PART 4. PSU HOUSEHOLD SOCIAL COMPOSITION
+> ********************************************************************/
+. 
+. * Weighted household totals
+. bysort hh_psu: egen double total_w_hh = total(hh_weight)
+{txt}
+{com}. 
+. foreach g in 1 2 3 4 5 {c -(}
+{txt}  2{com}. 
+.     gen double w_group`g' = ///
+>         hh_weight * (hr_group == `g') if !missing(hr_group)
+{txt}  3{com}. 
+.     replace w_group`g' = 0 if missing(w_group`g')
+{txt}  4{com}. 
+.     bysort hh_psu: egen double total_w_group`g' = ///
+>         total(w_group`g')
+{txt}  5{com}. {c )-}
+{txt}(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+(20,573 missing values generated)
+(20,573 real changes made)
+
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Ordinary PSU shares
+. *------------------------------------------------------------
+. 
+. gen double pct_psu_adivasi = total_w_group1 / total_w_hh
+{txt}
+{com}. gen double pct_psu_dalit   = total_w_group2 / total_w_hh
+{txt}
+{com}. gen double pct_psu_obc     = total_w_group3 / total_w_hh
+{txt}
+{com}. gen double pct_psu_forward = total_w_group4 / total_w_hh
+{txt}
+{com}. gen double pct_psu_muslim  = total_w_group5 / total_w_hh
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Leave-one-HOUSEHOLD-out shares
+. *
+. * Since we merge composition back to the focal birth's household,
+. * this removes that household's own contribution to BOTH numerator
+. * and denominator.
+. *------------------------------------------------------------
+. 
+. gen double total_w_hh_loo = total_w_hh - hh_weight
+{txt}
+{com}. 
+. foreach g in 1 2 3 4 5 {c -(}
+{txt}  2{com}. 
+.     gen double total_w_group`g'_loo = ///
+>         total_w_group`g' - hh_weight * (hr_group == `g')
+{txt}  3{com}. 
+. {c )-}
+{txt}
+{com}. 
+. 
+. gen double pct_psu_adivasi_loo = ///
+>     total_w_group1_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_dalit_loo = ///
+>     total_w_group2_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_obc_loo = ///
+>     total_w_group3_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_forward_loo = ///
+>     total_w_group4_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. gen double pct_psu_muslim_loo = ///
+>     total_w_group5_loo / total_w_hh_loo ///
+>     if total_w_hh_loo > 0
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Higher-ranking shares requested
+. *------------------------------------------------------------
+. 
+. * Adivasi and Dalit:
+. * higher ranking = OBC + Forward Hindu + Muslim
+. gen double higher_adivasi = ///
+>     pct_psu_obc + pct_psu_forward + pct_psu_muslim
+{txt}
+{com}. 
+. gen double higher_dalit = ///
+>     pct_psu_obc + pct_psu_forward + pct_psu_muslim
+{txt}
+{com}. 
+. gen double higher_adivasi_loo = ///
+>     pct_psu_obc_loo + pct_psu_forward_loo + pct_psu_muslim_loo
+{txt}
+{com}. 
+. gen double higher_dalit_loo = ///
+>     pct_psu_obc_loo + pct_psu_forward_loo + pct_psu_muslim_loo
+{txt}
+{com}. 
+. 
+. * OBC and Muslim:
+. * higher ranking = Forward Hindu only
+. gen double higher_obc = pct_psu_forward
+{txt}
+{com}. gen double higher_muslim = pct_psu_forward
+{txt}
+{com}. 
+. gen double higher_obc_loo = pct_psu_forward_loo
+{txt}
+{com}. gen double higher_muslim_loo = pct_psu_forward_loo
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Keep one row per household for merge
+. *------------------------------------------------------------
+. 
+. keep ///
+>     round ///
+>     v000 v001 v002 v024 v025 ///
+>     hr_group ///
+>     pct_psu_adivasi pct_psu_dalit pct_psu_obc ///
+>     pct_psu_forward pct_psu_muslim ///
+>     pct_psu_adivasi_loo pct_psu_dalit_loo pct_psu_obc_loo ///
+>     pct_psu_forward_loo pct_psu_muslim_loo ///
+>     higher_adivasi higher_dalit higher_obc higher_muslim ///
+>     higher_adivasi_loo higher_dalit_loo higher_obc_loo higher_muslim_loo
+{txt}
+{com}. 
+. isid round v000 v001 v002 v024 v025
+{txt}
+{com}. 
+. save `hh_comp', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000005{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000005{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 5. MERGE TO BIRTH-LEVEL NNM DATA
+> ********************************************************************/
+. 
+. use "$dataset", clear
+{txt}
+{com}. 
+. replace prior = 0 if missing(prior)
+{txt}(203,686 real changes made)
+
+{com}. 
+. keep if inlist(round, `r')
+{txt}(52,002 observations deleted)
+
+{com}. keep if `residence' == 1
+{txt}(109,480 observations deleted)
+
+{com}. keep if inrange(group,1,5)
+{txt}(5,861 observations deleted)
+
+{com}. 
+. merge m:1 ///
+>     round v000 v001 v002 v024 v025 ///
+>     using `hh_comp', gen(merge2)
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}         951,828
+{txt}{col 9}from master{col 30}{res}         183,260{txt}  (merge2==1)
+{col 9}from using{col 30}{res}         768,568{txt}  (merge2==2)
+
+{col 5}Matched{col 30}{res}         197,070{txt}  (merge2==3)
+{col 5}{hline 41}
+
+{com}. 
+. tab merge2
+
+   {txt}Matching result from {c |}
+                  merge {c |}      Freq.     Percent        Cum.
+{hline 24}{c +}{hline 35}
+        Master only (1) {c |}{res}    183,260       15.95       15.95
+{txt}         Using only (2) {c |}{res}    768,568       66.90       82.85
+{txt}            Matched (3) {c |}{res}    197,070       17.15      100.00
+{txt}{hline 24}{c +}{hline 35}
+                  Total {c |}{res}  1,148,898      100.00
+{txt}
+{com}. 
+. keep if merge2 == 3
+{txt}(951,828 observations deleted)
+
+{com}. drop merge2
+{txt}
+{com}. 
+. tempfile birthbase
+{txt}
+{com}. save `birthbase', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000006{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000006{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. 
+. /********************************************************************
+> PART 6. THREE-WAY INTERACTION MODELS
+> ********************************************************************/
+. 
+. foreach region of local regions {c -(}
+{txt}  2{com}. 
+.     local reglabel : variable label `region'
+{txt}  3{com}.     if "`reglabel'" == "" local reglabel "`region'"
+{txt}  4{com}. 
+.     di as text ""
+{txt}  5{com}.     di as text "======================================================================"
+{txt}  6{com}.     di as text "REGION: `reglabel'"
+{txt}  7{com}.     di as text "======================================================================"
+{txt}  8{com}. 
+.     foreach g of local groups {c -(}
+{txt}  9{com}. 
+.         use `birthbase', clear
+{txt} 10{com}. 
+.         local gname "`groupname`g''"
+{txt} 11{com}. 
+.         * Select relevant household-composition variable
+.         if `g' == 1 {c -(}
+{txt} 12{com}.             local hvar "higher_adivasi_loo"
+{txt} 13{com}.             local hvar_raw "higher_adivasi"
+{txt} 14{com}.         {c )-}
+{txt} 15{com}.         else if `g' == 2 {c -(}
+{txt} 16{com}.             local hvar "higher_dalit_loo"
+{txt} 17{com}.             local hvar_raw "higher_dalit"
+{txt} 18{com}.         {c )-}
+{txt} 19{com}.         else if `g' == 3 {c -(}
+{txt} 20{com}.             local hvar "higher_obc_loo"
+{txt} 21{com}.             local hvar_raw "higher_obc"
+{txt} 22{com}.         {c )-}
+{txt} 23{com}.         else if `g' == 5 {c -(}
+{txt} 24{com}.             local hvar "higher_muslim_loo"
+{txt} 25{com}.             local hvar_raw "higher_muslim"
+{txt} 26{com}.         {c )-}
+{txt} 27{com}. 
+. 
+.         * Main paper sample
+.         drop if home == 1
+{txt} 28{com}.         keep if `region' == 1
+{txt} 29{com}.         keep if inlist(group,4,`g')
+{txt} 30{com}. 
+.         gen byte comp_group = .
+{txt} 31{com}.         replace comp_group = 0 if group == 4
+{txt} 32{com}.         replace comp_group = 1 if group == `g'
+{txt} 33{com}. 
+.         label define comp_group_lbl ///
+>             0 "Forward Hindu" ///
+>             1 "`gname'", replace
+{txt} 34{com}.         label values comp_group comp_group_lbl
+{txt} 35{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Preferred model: leave-one-household-out composition
+.         *--------------------------------------------------------
+. 
+.         capture noisily reghdfe `outcome' ///
+>             i.comp_group##i.private##c.`hvar' ///
+>             `controls' ///
+>             [aw = v005], ///
+>             cluster(psu) absorb(sdist)
+{txt} 36{com}. 
+.         if _rc != 0 {c -(}
+{txt} 37{com}.             di as error "`gname': household-composition regression failed"
+{txt} 38{com}.             continue
+{txt} 39{com}.         {c )-}
+{txt} 40{com}. 
+.         local N = e(N)
+{txt} 41{com}. 
+.         local triple = ///
+>             _b[1.comp_group#1.private#c.`hvar']
+{txt} 42{com}. 
+.         quietly test ///
+>             1.comp_group#1.private#c.`hvar'
+{txt} 43{com}.         local p_triple = r(p)
+{txt} 44{com}. 
+. 
+.         * Composition percentiles in actual regression sample
+.         quietly summarize `hvar' if e(sample), detail
+{txt} 45{com}. 
+.         local p25 = r(p25)
+{txt} 46{com}.         local p50 = r(p50)
+{txt} 47{com}.         local p75 = r(p75)
+{txt} 48{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Comparison-vs-Forward difference in private-public gap
+.         *--------------------------------------------------------
+. 
+.         quietly lincom ///
+>             1.comp_group#1.private ///
+>             + `p25' * 1.comp_group#1.private#c.`hvar'
+{txt} 49{com}. 
+.         local did25 = r(estimate)
+{txt} 50{com}.         local se25 = r(se)
+{txt} 51{com}.         local pdid25 = r(p)
+{txt} 52{com}. 
+. 
+.         quietly lincom ///
+>             1.comp_group#1.private ///
+>             + `p50' * 1.comp_group#1.private#c.`hvar'
+{txt} 53{com}. 
+.         local did50 = r(estimate)
+{txt} 54{com}.         local se50 = r(se)
+{txt} 55{com}.         local pdid50 = r(p)
+{txt} 56{com}. 
+. 
+.         quietly lincom ///
+>             1.comp_group#1.private ///
+>             + `p75' * 1.comp_group#1.private#c.`hvar'
+{txt} 57{com}. 
+.         local did75 = r(estimate)
+{txt} 58{com}.         local se75 = r(se)
+{txt} 59{com}.         local pdid75 = r(p)
+{txt} 60{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Private-public gap within Forward Hindu
+.         *--------------------------------------------------------
+. 
+.         quietly lincom ///
+>             1.private ///
+>             + `p25' * 1.private#c.`hvar'
+{txt} 61{com}.         local fwd25 = r(estimate)
+{txt} 62{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + `p50' * 1.private#c.`hvar'
+{txt} 63{com}.         local fwd50 = r(estimate)
+{txt} 64{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + `p75' * 1.private#c.`hvar'
+{txt} 65{com}.         local fwd75 = r(estimate)
+{txt} 66{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Private-public gap within comparison group
+.         *--------------------------------------------------------
+. 
+.         quietly lincom ///
+>             1.private ///
+>             + 1.comp_group#1.private ///
+>             + `p25' * 1.private#c.`hvar' ///
+>             + `p25' * 1.comp_group#1.private#c.`hvar'
+{txt} 67{com}.         local comp25 = r(estimate)
+{txt} 68{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + 1.comp_group#1.private ///
+>             + `p50' * 1.private#c.`hvar' ///
+>             + `p50' * 1.comp_group#1.private#c.`hvar'
+{txt} 69{com}.         local comp50 = r(estimate)
+{txt} 70{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + 1.comp_group#1.private ///
+>             + `p75' * 1.private#c.`hvar' ///
+>             + `p75' * 1.comp_group#1.private#c.`hvar'
+{txt} 71{com}.         local comp75 = r(estimate)
+{txt} 72{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Sensitivity: ordinary PSU household composition
+.         *--------------------------------------------------------
+. 
+.         capture noisily reghdfe `outcome' ///
+>             i.comp_group##i.private##c.`hvar_raw' ///
+>             `controls' ///
+>             [aw = v005], ///
+>             cluster(psu) absorb(sdist)
+{txt} 73{com}. 
+.         if _rc == 0 {c -(}
+{txt} 74{com}. 
+.             local triple_raw = ///
+>                 _b[1.comp_group#1.private#c.`hvar_raw']
+{txt} 75{com}. 
+.             quietly test ///
+>                 1.comp_group#1.private#c.`hvar_raw'
+{txt} 76{com}. 
+.             local p_triple_raw = r(p)
+{txt} 77{com}.         {c )-}
+{txt} 78{com}.         else {c -(}
+{txt} 79{com}.             local triple_raw = .
+{txt} 80{com}.             local p_triple_raw = .
+{txt} 81{com}.         {c )-}
+{txt} 82{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Console summary
+.         *--------------------------------------------------------
+. 
+.         di as text ""
+{txt} 83{com}.         di as text "------------------------------------------------------------------"
+{txt} 84{com}.         di as text "`gname' vs Forward Hindu"
+{txt} 85{com}.         di as text "Household-based higher-ranking PSU composition"
+{txt} 86{com}.         di as text "------------------------------------------------------------------"
+{txt} 87{com}. 
+.         di as result "N: " %9.0fc `N'
+{txt} 88{com}. 
+.         di as result "Composition p25 / p50 / p75: " ///
+>             %6.3f `p25' "   " ///
+>             %6.3f `p50' "   " ///
+>             %6.3f `p75'
+{txt} 89{com}. 
+.         di as text ""
+{txt} 90{com}. 
+.         di as result "THREE-WAY interaction: " ///
+>             %10.2f `triple' ///
+>             "   p = " %6.4f `p_triple'
+{txt} 91{com}. 
+.         di as text ""
+{txt} 92{com}.         di as text "Difference in private-public gap:"
+{txt} 93{com}.         di as text "  (comparison group minus Forward Hindu)"
+{txt} 94{com}. 
+.         di as result "At p25 composition: " ///
+>             %9.2f `did25' ///
+>             "   SE = " %8.2f `se25' ///
+>             "   p = " %6.4f `pdid25'
+{txt} 95{com}. 
+.         di as result "At p50 composition: " ///
+>             %9.2f `did50' ///
+>             "   SE = " %8.2f `se50' ///
+>             "   p = " %6.4f `pdid50'
+{txt} 96{com}. 
+.         di as result "At p75 composition: " ///
+>             %9.2f `did75' ///
+>             "   SE = " %8.2f `se75' ///
+>             "   p = " %6.4f `pdid75'
+{txt} 97{com}. 
+.         di as text ""
+{txt} 98{com}.         di as text "Private-public gap within each group:"
+{txt} 99{com}. 
+.         di as result "Forward Hindu, p25 / p50 / p75: " ///
+>             %8.2f `fwd25' "   " ///
+>             %8.2f `fwd50' "   " ///
+>             %8.2f `fwd75'
+{txt}100{com}. 
+.         di as result "`gname', p25 / p50 / p75: " ///
+>             %8.2f `comp25' "   " ///
+>             %8.2f `comp50' "   " ///
+>             %8.2f `comp75'
+{txt}101{com}. 
+.         di as text ""
+{txt}102{com}.         di as text "Sensitivity: ordinary household-based PSU share"
+{txt}103{com}. 
+.         di as result "Three-way interaction: " ///
+>             %10.2f `triple_raw' ///
+>             "   p = " %6.4f `p_triple_raw'
+{txt}104{com}.     {c )-}
+{txt}105{com}. {c )-}
+{txt}
+======================================================================
+REGION: UP and Bihar
+======================================================================
+(54,450 observations deleted)
+(105,057 observations deleted)
+(32,303 observations deleted)
+(5,260 missing values generated)
+(4,499 real changes made)
+(761 real changes made)
+{res}{err}insufficient observations
+Adivasi: household-composition regression failed
+{txt}(54,450 observations deleted)
+(105,057 observations deleted)
+(23,832 observations deleted)
+(13,731 missing values generated)
+(4,499 real changes made)
+(9,232 real changes made)
+{res}{err}insufficient observations
+Dalit: household-composition regression failed
+{txt}(54,450 observations deleted)
+(105,057 observations deleted)
+(14,753 observations deleted)
+(22,810 missing values generated)
+(4,499 real changes made)
+(18,311 real changes made)
+{res}{err}insufficient observations
+OBC: household-composition regression failed
+{txt}(54,450 observations deleted)
+(105,057 observations deleted)
+(28,304 observations deleted)
+(9,259 missing values generated)
+(4,499 real changes made)
+(4,760 real changes made)
+{res}{err}insufficient observations
+Muslim: household-composition regression failed
+{txt}
+======================================================================
+REGION: EAG states besides UP and Bihar
+======================================================================
+(54,450 observations deleted)
+(96,258 observations deleted)
+(28,596 observations deleted)
+(17,766 missing values generated)
+(5,906 real changes made)
+(11,860 real changes made)
+{res}{err}insufficient observations
+Adivasi: household-composition regression failed
+{txt}(54,450 observations deleted)
+(96,258 observations deleted)
+(31,825 observations deleted)
+(14,537 missing values generated)
+(5,906 real changes made)
+(8,631 real changes made)
+{res}{err}insufficient observations
+Dalit: household-composition regression failed
+{txt}(54,450 observations deleted)
+(96,258 observations deleted)
+(22,827 observations deleted)
+(23,535 missing values generated)
+(5,906 real changes made)
+(17,629 real changes made)
+{res}{err}insufficient observations
+OBC: household-composition regression failed
+{txt}(54,450 observations deleted)
+(96,258 observations deleted)
+(38,120 observations deleted)
+(8,242 missing values generated)
+(5,906 real changes made)
+(2,336 real changes made)
+{res}{err}insufficient observations
+Muslim: household-composition regression failed
+{txt}
+======================================================================
+REGION: Non EAG states
+======================================================================
+(54,450 observations deleted)
+(83,925 observations deleted)
+(35,506 observations deleted)
+(23,189 missing values generated)
+(9,199 real changes made)
+(13,990 real changes made)
+{res}{err}insufficient observations
+Adivasi: household-composition regression failed
+{txt}(54,450 observations deleted)
+(83,925 observations deleted)
+(37,867 observations deleted)
+(20,828 missing values generated)
+(9,199 real changes made)
+(11,629 real changes made)
+{res}{err}insufficient observations
+Dalit: household-composition regression failed
+{txt}(54,450 observations deleted)
+(83,925 observations deleted)
+(34,168 observations deleted)
+(24,527 missing values generated)
+(9,199 real changes made)
+(15,328 real changes made)
+{res}{err}insufficient observations
+OBC: household-composition regression failed
+{txt}(54,450 observations deleted)
+(83,925 observations deleted)
+(40,947 observations deleted)
+(17,748 missing values generated)
+(9,199 real changes made)
+(8,549 real changes made)
+{res}{err}insufficient observations
+Muslim: household-composition regression failed
+{txt}
+{com}. 
+. 
+. di as text ""
+{res}{txt}
+
+{com}. di as text "======================================================================"
+{res}{txt}======================================================================
+
+{com}. di as text "DONE"
+{res}{txt}DONE
+
+{com}. di as text "======================================================================"
+{res}{txt}======================================================================
+
+{com}. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/onemore.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 1 Oct 2026, 17:40:25
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

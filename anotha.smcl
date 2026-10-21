@@ -1,0 +1,2492 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/anotha.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 1 Oct 2026, 16:39:09
+
+{com}. do "/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//SD00400.000000"
+{txt}
+{com}. 
+. /********************************************************************
+> Does the private-public NNM gap vary with local social composition?
+> 
+> Console output only.
+> 
+> For each region and comparison group, estimate:
+> 
+>     NNM_i =
+>         comparison group
+>       + private
+>       + local higher-ranking share
+>       + all two-way interactions
+>       + comparison x private x local higher-ranking share
+>       + controls
+>       + district FE
+>       + error_i
+> 
+> The key coefficient is:
+> 
+>     1.comp_group#1.private#c.higher_share_psu_loo
+> 
+> It asks whether the DIFFERENCE in the private-public NNM gap between
+> the comparison group and Forward Hindus changes as the local share
+> of higher-ranking social groups increases.
+> 
+> Definitions requested:
+> 
+>     Adivasi:
+>         higher ranking = OBC + Forward Hindu + Muslim
+> 
+>     Dalit:
+>         higher ranking = OBC + Forward Hindu + Muslim
+> 
+>     OBC:
+>         higher ranking = Forward Hindu only
+> 
+>     Muslim:
+>         higher ranking = Forward Hindu only
+> 
+> Local composition is constructed using ALL rural births in NFHS-4/5
+> among the five analytic social groups, before restricting the
+> regression sample to public/private facility births.
+> 
+> Preferred measure:
+>     leave-one-out PSU higher-ranking share
+> 
+> Also reports:
+>     - p-value on the three-way interaction
+>     - the group difference in the private-public gap at the
+>       25th, 50th, and 75th percentiles of local composition
+>     - sensitivity using the ordinary non-LOO PSU share
+> ********************************************************************/
+. 
+. 
+. *------------------------------------------------------------
+. * User settings
+. *------------------------------------------------------------
+. 
+. local outcome nnm
+{txt}
+{com}. 
+. local regions up_bihar non_upbihar_focus nonfocus
+{txt}
+{com}. 
+. local groups 1 2 3 5
+{txt}
+{com}. 
+. local groupname1 "Adivasi"
+{txt}
+{com}. local groupname2 "Dalit"
+{txt}
+{com}. local groupname3 "OBC"
+{txt}
+{com}. local groupname5 "Muslim"
+{txt}
+{com}. 
+. local residence rural
+{txt}
+{com}. local r 4,5
+{txt}
+{com}. 
+. * Same controls as the previous local-composition diagnostic.
+. local controls ///
+>     i.prior ///
+>     i.underweight_projected ///
+>     i.male ///
+>     i.momunder20 ///
+>     i.multiples ///
+>     i.v190 ///
+>     i.birth_order ///
+>     i.illiterate ///
+>     i.round
+{txt}
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Load data
+. *------------------------------------------------------------
+. 
+. do "$paths"
+{txt}
+{com}. 
+. if "`c(username)'" == "sidhpandit" {c -(}
+.         global nfhs3ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs3ir/IAIR52FL.dta"
+.         global nfhs4ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs4ir/IAIR74FL.DTA"       
+.         global nfhs5ir "/Users/sidhpandit/Desktop/data/nfhs/nfhs5ir/IAIR7EFL.DTA"
+. 
+.         global nfhs1br "/Users/sidhpandit/Desktop/data/nfhs/nfhs1br/IABR23FL.DTA"
+.         global nfhs2br "/Users/sidhpandit/Desktop/data/nfhs/nfhs2br/IABR42FL.dta"
+.         global nfhs3br "/Users/sidhpandit/Desktop/data/nfhs/nfhs3br/IABR52FL.dta"
+.         global nfhs4br "/Users/sidhpandit/Desktop/data/nfhs/nfhs4br/IABR74FL.DTA"
+.         global nfhs5br "/Users/sidhpandit/Desktop/data/nfhs/nfhs5br/IABR7EFL.DTA"
+.         global dataset "/Users/sidhpandit/Dropbox/maternal nutrition by social group/data/prepared_dataset.dta"
+. 
+.         
+.         global nfhs1hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs1hr/IAHR23FL.DTA"
+.         
+.         cd "/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups"
+{res}/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups
+{com}.         
+.         global paths "/Users/sidhpandit/Documents/GitHub/maternal-nutrition-and-social-groups/dofiles/000_paths.do"
+.         
+.         global nfhs5mr "/Users/sidhpandit/Desktop/nfhs/nfhs5mr/IAMR7EFL.DTA"
+.         
+.         global nfhs5hmr "/Users/sidhpandit/Desktop/data/nfhs/nfhs5hmr/IAPR7EFL.DTA"
+.         
+.         global nfhs5hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs5hr/IAHR7EFL.DTA"
+.         
+.         global nfhs4hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs4hr/IAHR74FL.DTA"
+.         
+.         global nfhs3hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs3hr/IAHR52FL.dta"
+.         
+.         global nfhs2hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs2hr/IAHR42FL.DTA"
+.         
+.         global nfhs1hr "/Users/sidhpandit/Desktop/data/nfhs/nfhs1hr/IAHR23FL.DTA"
+.         
+.         global ihds1_individual "/Users/sidhpandit/Desktop/data/IHDS/IHDS-1/DS0001/22626-0001-Data.dta"
+.         
+.         global ihds1_household "/Users/sidhpandit/Desktop/data/IHDS/IHDS-1/DS0002/22626-0002-Data.dta"
+.         
+.         
+.         global ihds2_individual "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0001/36151-0001-Data.dta"
+.         
+.         
+.         global ihds2_household "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0002/36151-0002-Data.dta"
+.         
+.         global ihds2_ewomen "/Users/sidhpandit/Desktop/data/IHDS/IHDS-2/DS0003/36151-0003-Data.dta"
+.         
+.         
+.         global reweighting_dataset "/Users/sidhpandit/Dropbox/maternal nutrition by social group/data/prepared_dataset.dta"
+.         
+.         cd "/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type"
+{res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type
+{com}.         
+.         
+.         global paths "/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/dofiles/00 paths.do"
+.         
+.         global dataset "/Users/sidhpandit/Library/CloudStorage/Box-Box/Anemia_Thesis/data/nnm dataset.dta"
+.         
+. {c )-}
+{txt}
+{com}. 
+. 
+. 
+. if "`c(username)'" == "dc42724" {c -(}
+. 
+.         global nfhs5ir "C:\Users\dc42724\Dropbox\Data\NFHS\NFHS19\IAIR7DDT\IAIR7DFL.DTA"
+. 
+.         global dataset "C:\Users\dc42724\Dropbox\K01\maternal-nutrition-social-group\data\prepared_dataset.dta"
+.         
+.         cd "C:\Users\dc42724\Documents\GitHub\maternal-nutrition-and-social-groups"
+.         
+.         global paths "C:\Users\dc42724\Documents\GitHub\maternal-nutrition-and-social-groups\dofiles\000_paths.do"
+.         
+.         global ihds2_ewomen "C:\Users\dc42724\Dropbox\Data\IHDS\2011 data\women\36151-0003-Data.dta"
+. {c )-}
+{txt}
+{com}. 
+. 
+. if "`c(hostname)'" == "PPRC-STATS-P01" {c -(}
+.         
+.         
+.         global nfhs3ir "Q:\Coffey\Users\SidhPandit\nfhs3ir\IAIR52FL.dta"
+.         
+.         global nfhs3br "Q:\Coffey\Users\SidhPandit\nfhs3br\IABR52FL.dta"
+.         
+.         global nfhs5ir "Q:\Coffey\Users\SidhPandit\nfhs5ir\IAIR7EFL.dta"
+.         
+.         global nfhs5br "Q:\Coffey\Users\SidhPandit\nfhs5br\IABR7EFL.dta"
+.         
+. *       global dataset "C:\Users\dc42724\Dropbox\K01\maternal-nutrition-social-group\data\prepared_dataset.dta"
+. 
+.         
+.         cd "C:\Users\ssp2843\Documents\GitHub\maternal-nutrition-and-social-groups"
+.         
+.         
+. {c )-}
+{txt}
+{com}. 
+. 
+. 
+. 
+. 
+{txt}end of do-file
+
+{com}. use "$dataset", clear
+{txt}
+{com}. 
+. replace prior = 0 if missing(prior)
+{txt}(203,686 real changes made)
+
+{com}. 
+. keep if inlist(round, `r')
+{txt}(52,002 observations deleted)
+
+{com}. keep if `residence' == 1
+{txt}(109,480 observations deleted)
+
+{com}. keep if inrange(group, 1, 5)
+{txt}(5,861 observations deleted)
+
+{com}. 
+. tempfile base
+{txt}
+{com}. save `base', replace
+{txt}{p 0 4 2}
+(file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000003{rm}
+not found)
+{p_end}
+{p 0 4 2}
+file {bf}
+/var/folders/tr/xr039_6d14gc3ld9ky66cxxr0000gn/T//S_00400.000003{rm}
+saved
+as .dta format
+{p_end}
+
+{com}. 
+. 
+. *------------------------------------------------------------
+. * Loop over regions and comparison groups
+. *------------------------------------------------------------
+. 
+. foreach region of local regions {c -(}
+{txt}  2{com}. 
+.     local reglabel : variable label `region'
+{txt}  3{com}.     if "`reglabel'" == "" local reglabel "`region'"
+{txt}  4{com}. 
+.     di as text ""
+{txt}  5{com}.     di as text "======================================================================"
+{txt}  6{com}.     di as text "REGION: `reglabel'"
+{txt}  7{com}.     di as text "======================================================================"
+{txt}  8{com}. 
+.     foreach g of local groups {c -(}
+{txt}  9{com}. 
+.         use `base', clear
+{txt} 10{com}. 
+.         local gname "`groupname`g''"
+{txt} 11{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Define higher-ranking social groups
+.         *--------------------------------------------------------
+. 
+.         gen byte higher_rank = .
+{txt} 12{com}. 
+.         if inlist(`g', 1, 2) {c -(}
+{txt} 13{com}.             replace higher_rank = 1 if inlist(group, 3, 4, 5)
+{txt} 14{com}.             replace higher_rank = 0 if inlist(group, 1, 2)
+{txt} 15{com}.         {c )-}
+{txt} 16{com}.         else if inlist(`g', 3, 5) {c -(}
+{txt} 17{com}.             replace higher_rank = 1 if group == 4
+{txt} 18{com}.             replace higher_rank = 0 if inlist(group, 1, 2, 3, 5)
+{txt} 19{com}.         {c )-}
+{txt} 20{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Construct weighted PSU social composition
+.         * using ALL rural births in the five analytic groups
+.         *--------------------------------------------------------
+. 
+.         gen double comp_den_i = v005
+{txt} 21{com}.         gen double comp_num_i = v005 * higher_rank
+{txt} 22{com}. 
+.         bysort psu: egen double comp_den_psu = total(comp_den_i)
+{txt} 23{com}.         bysort psu: egen double comp_num_psu = total(comp_num_i)
+{txt} 24{com}. 
+.         * Ordinary PSU share
+.         gen double higher_share_psu = ///
+>             comp_num_psu / comp_den_psu
+{txt} 25{com}. 
+.         * Leave-one-out PSU share
+.         gen double comp_den_loo = comp_den_psu - comp_den_i
+{txt} 26{com}.         gen double comp_num_loo = comp_num_psu - comp_num_i
+{txt} 27{com}. 
+.         gen double higher_share_psu_loo = ///
+>             comp_num_loo / comp_den_loo ///
+>             if comp_den_loo > 0
+{txt} 28{com}. 
+.         label var higher_share_psu ///
+>             "PSU share higher-ranking social groups"
+{txt} 29{com}. 
+.         label var higher_share_psu_loo ///
+>             "PSU share higher-ranking social groups, leave-one-out"
+{txt} 30{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Main regression sample
+.         *--------------------------------------------------------
+. 
+.         drop if home == 1
+{txt} 31{com}.         keep if `region' == 1
+{txt} 32{com}.         keep if inlist(group, 4, `g')
+{txt} 33{com}. 
+.         gen byte comp_group = .
+{txt} 34{com}.         replace comp_group = 0 if group == 4
+{txt} 35{com}.         replace comp_group = 1 if group == `g'
+{txt} 36{com}. 
+.         label define comp_group_lbl ///
+>             0 "Forward Hindu" ///
+>             1 "`gname'", replace
+{txt} 37{com}.         label values comp_group comp_group_lbl
+{txt} 38{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Preferred model: leave-one-out composition
+.         *--------------------------------------------------------
+. 
+.         capture noisily reghdfe `outcome' ///
+>             i.comp_group##i.private##c.higher_share_psu_loo ///
+>             `controls' ///
+>             [aw = v005], ///
+>             cluster(psu) absorb(sdist)
+{txt} 39{com}. 
+.         if _rc != 0 {c -(}
+{txt} 40{com}.             di as error "`gname': LOO three-way regression failed"
+{txt} 41{com}.             continue
+{txt} 42{com}.         {c )-}
+{txt} 43{com}. 
+.         local N = e(N)
+{txt} 44{com}. 
+.         * Three-way interaction:
+.         * Does the comparison-vs-Forward difference in the
+.         * private-public gap vary with higher-ranking share?
+.         local triple = ///
+>             _b[1.comp_group#1.private#c.higher_share_psu_loo]
+{txt} 45{com}. 
+.         quietly test ///
+>             1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 46{com}.         local p_triple = r(p)
+{txt} 47{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Composition percentiles in the ACTUAL regression sample
+.         *--------------------------------------------------------
+. 
+.         quietly summarize higher_share_psu_loo ///
+>             if e(sample), detail
+{txt} 48{com}. 
+.         local p25 = r(p25)
+{txt} 49{com}.         local p50 = r(p50)
+{txt} 50{com}.         local p75 = r(p75)
+{txt} 51{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Difference in private-public gap relative to Forward
+.         * at p25 / p50 / p75 of local composition
+.         *
+.         * DID(s) =
+.         *   group#private
+.         *   + s * group#private#higher_share
+.         *--------------------------------------------------------
+. 
+.         quietly lincom ///
+>             1.comp_group#1.private ///
+>             + `p25' * ///
+>             1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 52{com}. 
+.         local did25 = r(estimate)
+{txt} 53{com}.         local se25  = r(se)
+{txt} 54{com}.         local p_did25 = r(p)
+{txt} 55{com}. 
+.         quietly lincom ///
+>             1.comp_group#1.private ///
+>             + `p50' * ///
+>             1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 56{com}. 
+.         local did50 = r(estimate)
+{txt} 57{com}.         local se50  = r(se)
+{txt} 58{com}.         local p_did50 = r(p)
+{txt} 59{com}. 
+.         quietly lincom ///
+>             1.comp_group#1.private ///
+>             + `p75' * ///
+>             1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 60{com}. 
+.         local did75 = r(estimate)
+{txt} 61{com}.         local se75  = r(se)
+{txt} 62{com}.         local p_did75 = r(p)
+{txt} 63{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Optional: actual private-public gap within EACH group
+.         * at the same three composition values
+.         *--------------------------------------------------------
+. 
+.         quietly lincom ///
+>             1.private ///
+>             + `p25' * 1.private#c.higher_share_psu_loo
+{txt} 64{com}.         local fwd25 = r(estimate)
+{txt} 65{com}.         local p_fwd25 = r(p)
+{txt} 66{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + `p50' * 1.private#c.higher_share_psu_loo
+{txt} 67{com}.         local fwd50 = r(estimate)
+{txt} 68{com}.         local p_fwd50 = r(p)
+{txt} 69{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + `p75' * 1.private#c.higher_share_psu_loo
+{txt} 70{com}.         local fwd75 = r(estimate)
+{txt} 71{com}.         local p_fwd75 = r(p)
+{txt} 72{com}. 
+. 
+.         quietly lincom ///
+>             1.private ///
+>             + 1.comp_group#1.private ///
+>             + `p25' * 1.private#c.higher_share_psu_loo ///
+>             + `p25' * 1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 73{com}.         local comp25 = r(estimate)
+{txt} 74{com}.         local p_comp25 = r(p)
+{txt} 75{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + 1.comp_group#1.private ///
+>             + `p50' * 1.private#c.higher_share_psu_loo ///
+>             + `p50' * 1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 76{com}.         local comp50 = r(estimate)
+{txt} 77{com}.         local p_comp50 = r(p)
+{txt} 78{com}. 
+.         quietly lincom ///
+>             1.private ///
+>             + 1.comp_group#1.private ///
+>             + `p75' * 1.private#c.higher_share_psu_loo ///
+>             + `p75' * 1.comp_group#1.private#c.higher_share_psu_loo
+{txt} 79{com}.         local comp75 = r(estimate)
+{txt} 80{com}.         local p_comp75 = r(p)
+{txt} 81{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Sensitivity: ordinary non-LOO composition
+.         *--------------------------------------------------------
+. 
+.         capture noisily reghdfe `outcome' ///
+>             i.comp_group##i.private##c.higher_share_psu ///
+>             `controls' ///
+>             [aw = v005], ///
+>             cluster(psu) absorb(sdist)
+{txt} 82{com}. 
+.         if _rc == 0 {c -(}
+{txt} 83{com}.             local triple_raw = ///
+>                 _b[1.comp_group#1.private#c.higher_share_psu]
+{txt} 84{com}. 
+.             quietly test ///
+>                 1.comp_group#1.private#c.higher_share_psu
+{txt} 85{com}.             local p_triple_raw = r(p)
+{txt} 86{com}.         {c )-}
+{txt} 87{com}.         else {c -(}
+{txt} 88{com}.             local triple_raw = .
+{txt} 89{com}.             local p_triple_raw = .
+{txt} 90{com}.         {c )-}
+{txt} 91{com}. 
+. 
+.         *--------------------------------------------------------
+.         * Console summary
+.         *--------------------------------------------------------
+. 
+.         di as text ""
+{txt} 92{com}.         di as text "------------------------------------------------------------------"
+{txt} 93{com}.         di as text "`gname' vs Forward Hindu"
+{txt} 94{com}.         di as text "Higher-ranking definition: " ///
+>             cond(inlist(`g',1,2), ///
+>             "OBC + Forward Hindu + Muslim", ///
+>             "Forward Hindu only")
+{txt} 95{com}.         di as text "------------------------------------------------------------------"
+{txt} 96{com}. 
+.         di as result "N: " %9.0fc `N'
+{txt} 97{com}. 
+.         di as result "LOO composition p25 / p50 / p75: " ///
+>             %6.3f `p25' "   " ///
+>             %6.3f `p50' "   " ///
+>             %6.3f `p75'
+{txt} 98{com}. 
+.         di as text ""
+{txt} 99{com}.         di as result "THREE-WAY interaction:" ///
+>             %10.2f `triple' ///
+>             "   p = " %6.4f `p_triple'
+{txt}100{com}. 
+.         di as text ""
+{txt}101{com}.         di as text "Difference in private-public gap:"
+{txt}102{com}.         di as text "  (comparison group minus Forward Hindu)"
+{txt}103{com}. 
+.         di as result "At p25 composition: " ///
+>             %9.2f `did25' ///
+>             "   SE = " %8.2f `se25' ///
+>             "   p = " %6.4f `p_did25'
+{txt}104{com}. 
+.         di as result "At p50 composition: " ///
+>             %9.2f `did50' ///
+>             "   SE = " %8.2f `se50' ///
+>             "   p = " %6.4f `p_did50'
+{txt}105{com}. 
+.         di as result "At p75 composition: " ///
+>             %9.2f `did75' ///
+>             "   SE = " %8.2f `se75' ///
+>             "   p = " %6.4f `p_did75'
+{txt}106{com}. 
+.         di as text ""
+{txt}107{com}.         di as text "Private-public gap within each group:"
+{txt}108{com}. 
+.         di as result "Forward Hindu, p25 / p50 / p75: " ///
+>             %8.2f `fwd25' "   " ///
+>             %8.2f `fwd50' "   " ///
+>             %8.2f `fwd75'
+{txt}109{com}. 
+.         di as result "`gname', p25 / p50 / p75: " ///
+>             %8.2f `comp25' "   " ///
+>             %8.2f `comp50' "   " ///
+>             %8.2f `comp75'
+{txt}110{com}. 
+.         di as text ""
+{txt}111{com}.         di as text "Sensitivity: non-LOO composition"
+{txt}112{com}.         di as result "Three-way interaction:" ///
+>             %10.2f `triple_raw' ///
+>             "   p = " %6.4f `p_triple_raw'
+{txt}113{com}.     {c )-}
+{txt}114{com}. {c )-}
+{txt}
+======================================================================
+REGION: UP and Bihar
+======================================================================
+(380,330 missing values generated)
+(214,885 real changes made)
+(165,445 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(220,350 observations deleted)
+(67,076 observations deleted)
+(10,394 missing values generated)
+(8,743 real changes made)
+(1,651 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     4,940
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   1884{txt}){col 67}= {res}      1.84
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0112
+{txt}{col 51}R-squared{col 67}= {res}    0.0537
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0276
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0302
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     1,885{txt}{col 51}Root MSE{col 67}= {res}  182.4200
+
+{txt}{ralign 107:(Std. err. adjusted for {res:1,885} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 33}Adivasi  {c |}{col 43}{res}{space 2} 42.70277{col 55}{space 2} 24.82664{col 66}{space 1}    1.72{col 75}{space 3}0.086{col 83}{space 4}-5.987835{col 96}{space 3} 91.39338
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 21.38105{col 55}{space 2} 19.70093{col 66}{space 1}    1.09{col 75}{space 3}0.278{col 83}{space 4}-17.25689{col 96}{space 3}   60.019
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 31}Adivasi#1  {c |}{col 43}{res}{space 2} -38.8497{col 55}{space 2} 39.30649{col 66}{space 1}   -0.99{col 75}{space 3}0.323{col 83}{space 4}-115.9385{col 96}{space 3} 38.23913
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 26.74493{col 55}{space 2} 15.24277{col 66}{space 1}    1.75{col 75}{space 3}0.079{col 83}{space 4}-3.149554{col 96}{space 3} 56.63942
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 33}Adivasi  {c |}{col 43}{res}{space 2}-63.12039{col 55}{space 2} 34.17222{col 66}{space 1}   -1.85{col 75}{space 3}0.065{col 83}{space 4}-130.1398{col 96}{space 3} 3.898987
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-18.33266{col 55}{space 2} 25.39549{col 66}{space 1}   -0.72{col 75}{space 3}0.470{col 83}{space 4}-68.13891{col 96}{space 3} 31.47359
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 31}Adivasi#1  {c |}{col 43}{res}{space 2} 61.50823{col 55}{space 2} 58.25422{col 66}{space 1}    1.06{col 75}{space 3}0.291{col 83}{space 4}-52.74134{col 96}{space 3} 175.7578
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 105.1918{col 55}{space 2}  34.1979{col 66}{space 1}    3.08{col 75}{space 3}0.002{col 83}{space 4} 38.12208{col 96}{space 3} 172.2616
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2} 3.070224{col 55}{space 2} 8.365875{col 66}{space 1}    0.37{col 75}{space 3}0.714{col 83}{space 4}-13.33713{col 96}{space 3} 19.47758
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 7.496916{col 55}{space 2} 6.218506{col 66}{space 1}    1.21{col 75}{space 3}0.228{col 83}{space 4}-4.698967{col 96}{space 3}  19.6928
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 46.24616{col 55}{space 2}  13.3851{col 66}{space 1}    3.46{col 75}{space 3}0.001{col 83}{space 4} 19.99498{col 96}{space 3} 72.49733
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 146.5583{col 55}{space 2} 49.32626{col 66}{space 1}    2.97{col 75}{space 3}0.003{col 83}{space 4} 49.81844{col 96}{space 3} 243.2981
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2} -6.87283{col 55}{space 2} 9.963901{col 66}{space 1}   -0.69{col 75}{space 3}0.490{col 83}{space 4}-26.41427{col 96}{space 3} 12.66861
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-7.600357{col 55}{space 2} 11.70024{col 66}{space 1}   -0.65{col 75}{space 3}0.516{col 83}{space 4}-30.54714{col 96}{space 3} 15.34643
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-13.97259{col 55}{space 2} 11.24698{col 66}{space 1}   -1.24{col 75}{space 3}0.214{col 83}{space 4}-36.03044{col 96}{space 3}  8.08526
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-17.48807{col 55}{space 2} 12.09076{col 66}{space 1}   -1.45{col 75}{space 3}0.148{col 83}{space 4}-41.20076{col 96}{space 3} 6.224626
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2} 1.549587{col 55}{space 2} 6.810344{col 66}{space 1}    0.23{col 75}{space 3}0.820{col 83}{space 4}-11.80702{col 96}{space 3}  14.9062
+{txt}{space 39}3  {c |}{col 43}{res}{space 2} .8380779{col 55}{space 2} 8.496478{col 66}{space 1}    0.10{col 75}{space 3}0.921{col 83}{space 4}-15.82542{col 96}{space 3} 17.50157
+{txt}{space 39}4  {c |}{col 43}{res}{space 2} 1.887627{col 55}{space 2} 11.36775{col 66}{space 1}    0.17{col 75}{space 3}0.868{col 83}{space 4}-20.40707{col 96}{space 3} 24.18233
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} 1.509469{col 55}{space 2} 16.68538{col 66}{space 1}    0.09{col 75}{space 3}0.928{col 83}{space 4} -31.2143{col 96}{space 3} 34.23324
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 4.353413{col 55}{space 2} 8.799855{col 66}{space 1}    0.49{col 75}{space 3}0.621{col 83}{space 4}-12.90507{col 96}{space 3}  21.6119
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 3.500893{col 55}{space 2} 16.80921{col 66}{space 1}    0.21{col 75}{space 3}0.835{col 83}{space 4}-29.46573{col 96}{space 3} 36.46751
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     4,942
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   1886{txt}){col 67}= {res}      1.84
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0115
+{txt}{col 51}R-squared{col 67}= {res}    0.0537
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0275
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0301
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     1,887{txt}{col 51}Root MSE{col 67}= {res}  182.3360
+
+{txt}{ralign 103:(Std. err. adjusted for {res:1,887} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 29}Adivasi  {c |}{col 39}{res}{space 2} 43.34384{col 51}{space 2} 25.60249{col 62}{space 1}    1.69{col 71}{space 3}0.091{col 79}{space 4}-6.868341{col 92}{space 3} 93.55601
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 23.04134{col 51}{space 2} 23.12234{col 62}{space 1}    1.00{col 71}{space 3}0.319{col 79}{space 4}-22.30672{col 92}{space 3} 68.38939
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 27}Adivasi#1  {c |}{col 39}{res}{space 2} -33.8682{col 51}{space 2} 41.04823{col 62}{space 1}   -0.83{col 71}{space 3}0.409{col 79}{space 4}-114.3729{col 92}{space 3} 46.63652
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 28.11227{col 51}{space 2}  16.9977{col 62}{space 1}    1.65{col 71}{space 3}0.098{col 79}{space 4}-5.224011{col 92}{space 3} 61.44855
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 29}Adivasi  {c |}{col 39}{res}{space 2}-66.05085{col 51}{space 2} 37.67068{col 62}{space 1}   -1.75{col 71}{space 3}0.080{col 79}{space 4}-139.9314{col 92}{space 3} 7.829738
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-20.08525{col 51}{space 2} 29.13658{col 62}{space 1}   -0.69{col 71}{space 3}0.491{col 79}{space 4}-77.22858{col 92}{space 3} 37.05807
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 27}Adivasi#1  {c |}{col 39}{res}{space 2} 54.18056{col 51}{space 2} 63.19117{col 62}{space 1}    0.86{col 71}{space 3}0.391{col 79}{space 4}-69.75139{col 92}{space 3} 178.1125
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2}  105.254{col 51}{space 2} 34.17877{col 62}{space 1}    3.08{col 71}{space 3}0.002{col 79}{space 4} 38.22183{col 92}{space 3} 172.2862
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2} 3.128068{col 51}{space 2} 8.362441{col 62}{space 1}    0.37{col 71}{space 3}0.708{col 79}{space 4}-13.27254{col 92}{space 3} 19.52868
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2}  7.42713{col 51}{space 2} 6.208485{col 62}{space 1}    1.20{col 71}{space 3}0.232{col 79}{space 4}-4.749092{col 92}{space 3} 19.60335
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 46.23138{col 51}{space 2} 13.39949{col 62}{space 1}    3.45{col 71}{space 3}0.001{col 79}{space 4} 19.95199{col 92}{space 3} 72.51076
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 146.5332{col 51}{space 2} 49.32567{col 62}{space 1}    2.97{col 71}{space 3}0.003{col 79}{space 4} 49.79459{col 92}{space 3} 243.2718
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-6.826428{col 51}{space 2} 9.959725{col 62}{space 1}   -0.69{col 71}{space 3}0.493{col 79}{space 4}-26.35967{col 92}{space 3} 12.70681
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-7.622869{col 51}{space 2} 11.67992{col 62}{space 1}   -0.65{col 71}{space 3}0.514{col 79}{space 4}-30.52979{col 92}{space 3} 15.28405
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-13.90834{col 51}{space 2} 11.25049{col 62}{space 1}   -1.24{col 71}{space 3}0.217{col 79}{space 4}-35.97305{col 92}{space 3} 8.156362
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2} -17.4304{col 51}{space 2} 12.07208{col 62}{space 1}   -1.44{col 71}{space 3}0.149{col 79}{space 4}-41.10643{col 92}{space 3} 6.245623
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2} 1.599596{col 51}{space 2} 6.789948{col 62}{space 1}    0.24{col 71}{space 3}0.814{col 79}{space 4}  -11.717{col 92}{space 3}  14.9162
+{txt}{space 35}3  {c |}{col 39}{res}{space 2} .8902147{col 51}{space 2} 8.486905{col 62}{space 1}    0.10{col 71}{space 3}0.916{col 79}{space 4}-15.75449{col 92}{space 3} 17.53492
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}  1.94649{col 51}{space 2} 11.36915{col 62}{space 1}    0.17{col 71}{space 3}0.864{col 79}{space 4}-20.35094{col 92}{space 3} 24.24392
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} 1.639782{col 51}{space 2} 16.68461{col 62}{space 1}    0.10{col 71}{space 3}0.922{col 79}{space 4}-31.08245{col 92}{space 3} 34.36202
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 4.392186{col 51}{space 2} 8.792424{col 62}{space 1}    0.50{col 71}{space 3}0.617{col 79}{space 4}-12.85171{col 92}{space 3} 21.63609
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 1.795418{col 51}{space 2} 18.20947{col 62}{space 1}    0.10{col 71}{space 3}0.921{col 79}{space 4}-33.91741{col 92}{space 3} 37.50825
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Adivasi vs Forward Hindu
+Higher-ranking definition: OBC + Forward Hindu + Muslim
+------------------------------------------------------------------
+{res}N:     4,940
+LOO composition p25 / p50 / p75:  0.533    0.750    0.917
+{txt}
+{res}THREE-WAY interaction:     61.51   p = 0.2912
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:     -6.05   SE =    22.09   p = 0.7843
+At p50 composition:      7.28   SE =    24.69   p = 0.7681
+At p75 composition:     17.53   SE =    30.34   p = 0.5634
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    11.60       7.63       4.58
+Adivasi, p25 / p50 / p75:     5.56      14.91      22.11
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     54.18   p = 0.3913
+{txt}(380,330 missing values generated)
+(214,885 real changes made)
+(165,445 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(220,350 observations deleted)
+(48,554 observations deleted)
+(28,916 missing values generated)
+(8,743 real changes made)
+(20,173 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    14,567
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   3419{txt}){col 67}= {res}      5.51
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0427
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0339
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0290
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     3,420{txt}{col 51}Root MSE{col 67}= {res}  190.6457
+
+{txt}{ralign 107:(Std. err. adjusted for {res:3,420} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 35}Dalit  {c |}{col 43}{res}{space 2} 8.376246{col 55}{space 2} 12.19971{col 66}{space 1}    0.69{col 75}{space 3}0.492{col 83}{space 4}-15.54322{col 96}{space 3} 32.29571
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 16.18574{col 55}{space 2} 19.15093{col 66}{space 1}    0.85{col 75}{space 3}0.398{col 83}{space 4}-21.36268{col 96}{space 3} 53.73416
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 33}Dalit#1  {c |}{col 43}{res}{space 2} 37.64914{col 55}{space 2} 25.54444{col 66}{space 1}    1.47{col 75}{space 3}0.141{col 83}{space 4}-12.43476{col 96}{space 3} 87.73305
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 23.21351{col 55}{space 2} 15.12773{col 66}{space 1}    1.53{col 75}{space 3}0.125{col 83}{space 4}-6.446799{col 96}{space 3} 52.87381
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 35}Dalit  {c |}{col 43}{res}{space 2}-16.52092{col 55}{space 2} 16.80737{col 66}{space 1}   -0.98{col 75}{space 3}0.326{col 83}{space 4}-49.47442{col 96}{space 3} 16.43257
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-15.19812{col 55}{space 2} 24.72833{col 66}{space 1}   -0.61{col 75}{space 3}0.539{col 83}{space 4}-63.68193{col 96}{space 3} 33.28568
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 33}Dalit#1  {c |}{col 43}{res}{space 2}-9.336661{col 55}{space 2} 36.43025{col 66}{space 1}   -0.26{col 75}{space 3}0.798{col 83}{space 4}-80.76393{col 96}{space 3} 62.09061
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 74.19141{col 55}{space 2} 17.81728{col 66}{space 1}    4.16{col 75}{space 3}0.000{col 83}{space 4} 39.25782{col 96}{space 3}  109.125
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}  7.02476{col 55}{space 2} 4.388131{col 66}{space 1}    1.60{col 75}{space 3}0.110{col 83}{space 4}-1.578864{col 96}{space 3} 15.62838
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 7.011331{col 55}{space 2} 3.573054{col 66}{space 1}    1.96{col 75}{space 3}0.050{col 83}{space 4} .0057935{col 96}{space 3} 14.01687
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 20.06256{col 55}{space 2} 6.841321{col 66}{space 1}    2.93{col 75}{space 3}0.003{col 83}{space 4} 6.649066{col 96}{space 3} 33.47605
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 171.4466{col 55}{space 2} 35.53557{col 66}{space 1}    4.82{col 75}{space 3}0.000{col 83}{space 4} 101.7735{col 96}{space 3} 241.1197
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}-3.747999{col 55}{space 2} 4.607923{col 66}{space 1}   -0.81{col 75}{space 3}0.416{col 83}{space 4}-12.78256{col 96}{space 3} 5.286561
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-.1685971{col 55}{space 2} 6.295836{col 66}{space 1}   -0.03{col 75}{space 3}0.979{col 83}{space 4}-12.51258{col 96}{space 3} 12.17539
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-17.67658{col 55}{space 2} 6.661263{col 66}{space 1}   -2.65{col 75}{space 3}0.008{col 83}{space 4}-30.73704{col 96}{space 3}-4.616117
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-13.14276{col 55}{space 2} 8.357233{col 66}{space 1}   -1.57{col 75}{space 3}0.116{col 83}{space 4}-29.52844{col 96}{space 3} 3.242915
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-6.010625{col 55}{space 2} 4.655175{col 66}{space 1}   -1.29{col 75}{space 3}0.197{col 83}{space 4}-15.13783{col 96}{space 3} 3.116582
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-6.238042{col 55}{space 2} 5.269685{col 66}{space 1}   -1.18{col 75}{space 3}0.237{col 83}{space 4}-16.57009{col 96}{space 3} 4.094009
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-6.589464{col 55}{space 2} 6.384943{col 66}{space 1}   -1.03{col 75}{space 3}0.302{col 83}{space 4}-19.10815{col 96}{space 3} 5.929225
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} 7.992686{col 55}{space 2} 8.390025{col 66}{space 1}    0.95{col 75}{space 3}0.341{col 83}{space 4}-8.457284{col 96}{space 3} 24.44266
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2}  8.42051{col 55}{space 2} 4.387246{col 66}{space 1}    1.92{col 75}{space 3}0.055{col 83}{space 4}-.1813785{col 96}{space 3}  17.0224
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 10.15313{col 55}{space 2} 13.36191{col 66}{space 1}    0.76{col 75}{space 3}0.447{col 83}{space 4}-16.04501{col 96}{space 3} 36.35127
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    14,576
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   3428{txt}){col 67}= {res}      5.50
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0427
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0339
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0290
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     3,429{txt}{col 51}Root MSE{col 67}= {res}  190.5669
+
+{txt}{ralign 103:(Std. err. adjusted for {res:3,429} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 31}Dalit  {c |}{col 39}{res}{space 2} 8.829043{col 51}{space 2} 13.64831{col 62}{space 1}    0.65{col 71}{space 3}0.518{col 79}{space 4} -17.9306{col 92}{space 3} 35.58868
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 17.21572{col 51}{space 2} 22.50706{col 62}{space 1}    0.76{col 71}{space 3}0.444{col 79}{space 4}-26.91288{col 92}{space 3} 61.34432
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 29}Dalit#1  {c |}{col 39}{res}{space 2}  37.8454{col 51}{space 2} 27.84984{col 62}{space 1}    1.36{col 71}{space 3}0.174{col 79}{space 4}-16.75856{col 92}{space 3} 92.44936
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 24.04451{col 51}{space 2} 16.84318{col 62}{space 1}    1.43{col 71}{space 3}0.154{col 79}{space 4}-8.979177{col 92}{space 3} 57.06819
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 31}Dalit  {c |}{col 39}{res}{space 2} -15.3104{col 51}{space 2} 18.64353{col 62}{space 1}   -0.82{col 71}{space 3}0.412{col 79}{space 4}-51.86396{col 92}{space 3} 21.24315
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-16.20276{col 51}{space 2} 28.39815{col 62}{space 1}   -0.57{col 71}{space 3}0.568{col 79}{space 4}-71.88178{col 92}{space 3} 39.47625
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 29}Dalit#1  {c |}{col 39}{res}{space 2}-13.38456{col 51}{space 2} 40.28874{col 62}{space 1}   -0.33{col 71}{space 3}0.740{col 79}{space 4}-92.37693{col 92}{space 3} 65.60781
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 74.25823{col 51}{space 2} 17.81387{col 62}{space 1}    4.17{col 71}{space 3}0.000{col 79}{space 4} 39.33135{col 92}{space 3} 109.1851
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2} 7.013576{col 51}{space 2} 4.384507{col 62}{space 1}    1.60{col 71}{space 3}0.110{col 79}{space 4}-1.582935{col 92}{space 3} 15.61009
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 7.023121{col 51}{space 2} 3.569728{col 62}{space 1}    1.97{col 71}{space 3}0.049{col 79}{space 4} .0241113{col 92}{space 3} 14.02213
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 20.09251{col 51}{space 2} 6.837955{col 62}{space 1}    2.94{col 71}{space 3}0.003{col 79}{space 4} 6.685635{col 92}{space 3} 33.49939
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2}  171.479{col 51}{space 2} 35.54141{col 62}{space 1}    4.82{col 71}{space 3}0.000{col 79}{space 4} 101.7945{col 92}{space 3} 241.1635
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-3.755056{col 51}{space 2} 4.605263{col 62}{space 1}   -0.82{col 71}{space 3}0.415{col 79}{space 4}-12.78439{col 92}{space 3} 5.274281
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-.2248273{col 51}{space 2} 6.285466{col 62}{space 1}   -0.04{col 71}{space 3}0.971{col 79}{space 4}-12.54846{col 92}{space 3} 12.09881
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-17.69606{col 51}{space 2}  6.66037{col 62}{space 1}   -2.66{col 71}{space 3}0.008{col 79}{space 4}-30.75475{col 92}{space 3}-4.637359
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2} -13.2008{col 51}{space 2} 8.348947{col 62}{space 1}   -1.58{col 71}{space 3}0.114{col 79}{space 4}-29.57022{col 92}{space 3} 3.168616
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-5.952625{col 51}{space 2} 4.649797{col 62}{space 1}   -1.28{col 71}{space 3}0.201{col 79}{space 4}-15.06928{col 92}{space 3} 3.164029
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-6.194881{col 51}{space 2} 5.265649{col 62}{space 1}   -1.18{col 71}{space 3}0.239{col 79}{space 4}-16.51901{col 92}{space 3} 4.129247
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}-6.526356{col 51}{space 2} 6.381908{col 62}{space 1}   -1.02{col 71}{space 3}0.307{col 79}{space 4}-19.03908{col 92}{space 3} 5.986372
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} 7.990672{col 51}{space 2} 8.381095{col 62}{space 1}    0.95{col 71}{space 3}0.340{col 79}{space 4}-8.441774{col 92}{space 3} 24.42312
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 8.384608{col 51}{space 2} 4.384321{col 62}{space 1}    1.91{col 71}{space 3}0.056{col 79}{space 4} -.211539{col 92}{space 3} 16.98076
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 8.984584{col 51}{space 2} 14.85163{col 62}{space 1}    0.60{col 71}{space 3}0.545{col 79}{space 4}-20.13436{col 92}{space 3} 38.10353
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Dalit vs Forward Hindu
+Higher-ranking definition: OBC + Forward Hindu + Muslim
+------------------------------------------------------------------
+{res}N:    14,567
+LOO composition p25 / p50 / p75:  0.375    0.600    0.800
+{txt}
+{res}THREE-WAY interaction:     -9.34   p = 0.7977
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:     34.15   SE =    14.03   p = 0.0150
+At p50 composition:     32.05   SE =    10.14   p = 0.0016
+At p75 composition:     30.18   SE =    11.49   p = 0.0086
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    10.49       7.07       4.03
+Dalit, p25 / p50 / p75:    44.63      39.11      34.21
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:    -13.38   p = 0.7397
+{txt}(380,330 missing values generated)
+(43,951 real changes made)
+(336,379 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(220,350 observations deleted)
+(31,794 observations deleted)
+(45,676 missing values generated)
+(8,743 real changes made)
+(36,933 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    22,034
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   3822{txt}){col 67}= {res}      4.55
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0217
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0158
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0117
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     3,823{txt}{col 51}Root MSE{col 67}= {res}  177.3434
+
+{txt}{ralign 107:(Std. err. adjusted for {res:3,823} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 37}OBC  {c |}{col 43}{res}{space 2} 1.621829{col 55}{space 2} 6.079278{col 66}{space 1}    0.27{col 75}{space 3}0.790{col 83}{space 4}-10.29711{col 96}{space 3} 13.54077
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2}  15.8639{col 55}{space 2} 9.970478{col 66}{space 1}    1.59{col 75}{space 3}0.112{col 83}{space 4}-3.684069{col 96}{space 3} 35.41187
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 35}OBC#1  {c |}{col 43}{res}{space 2}-2.995648{col 55}{space 2} 10.74318{col 66}{space 1}   -0.28{col 75}{space 3}0.780{col 83}{space 4}-24.05857{col 96}{space 3} 18.06727
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2}  22.7444{col 55}{space 2} 15.57574{col 66}{space 1}    1.46{col 75}{space 3}0.144{col 83}{space 4}-7.793157{col 96}{space 3} 53.28196
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 37}OBC  {c |}{col 43}{res}{space 2}-20.51437{col 55}{space 2} 20.20117{col 66}{space 1}   -1.02{col 75}{space 3}0.310{col 83}{space 4}-60.12049{col 96}{space 3} 19.09174
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-43.63956{col 55}{space 2} 22.17487{col 66}{space 1}   -1.97{col 75}{space 3}0.049{col 83}{space 4}-87.11527{col 96}{space 3} -.163852
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 35}OBC#1  {c |}{col 43}{res}{space 2} 69.48768{col 55}{space 2} 38.55618{col 66}{space 1}    1.80{col 75}{space 3}0.072{col 83}{space 4}-6.104978{col 96}{space 3} 145.0803
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 56.94191{col 55}{space 2} 15.72028{col 66}{space 1}    3.62{col 75}{space 3}0.000{col 83}{space 4} 26.12098{col 96}{space 3} 87.76285
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}-3.428039{col 55}{space 2} 3.283321{col 66}{space 1}   -1.04{col 75}{space 3}0.297{col 83}{space 4}-9.865269{col 96}{space 3} 3.009191
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 3.854908{col 55}{space 2} 2.710069{col 66}{space 1}    1.42{col 75}{space 3}0.155{col 83}{space 4}-1.458413{col 96}{space 3} 9.168229
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 13.40788{col 55}{space 2} 5.250674{col 66}{space 1}    2.55{col 75}{space 3}0.011{col 83}{space 4} 3.113492{col 96}{space 3} 23.70227
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2}  99.1987{col 55}{space 2} 24.38283{col 66}{space 1}    4.07{col 75}{space 3}0.000{col 83}{space 4} 51.39408{col 96}{space 3} 147.0033
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2} 8.417621{col 55}{space 2}  3.47073{col 66}{space 1}    2.43{col 75}{space 3}0.015{col 83}{space 4}  1.61296{col 96}{space 3} 15.22228
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2} 3.420606{col 55}{space 2} 4.308457{col 66}{space 1}    0.79{col 75}{space 3}0.427{col 83}{space 4} -5.02649{col 96}{space 3}  11.8677
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-2.212745{col 55}{space 2} 5.047917{col 66}{space 1}   -0.44{col 75}{space 3}0.661{col 83}{space 4}-12.10962{col 96}{space 3} 7.684125
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-11.37897{col 55}{space 2} 5.795316{col 66}{space 1}   -1.96{col 75}{space 3}0.050{col 83}{space 4}-22.74118{col 96}{space 3}-.0167591
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-13.31034{col 55}{space 2} 3.184105{col 66}{space 1}   -4.18{col 75}{space 3}0.000{col 83}{space 4}-19.55305{col 96}{space 3}-7.067631
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-11.40659{col 55}{space 2} 3.878738{col 66}{space 1}   -2.94{col 75}{space 3}0.003{col 83}{space 4}-19.01118{col 96}{space 3}-3.801991
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-3.206768{col 55}{space 2} 5.713707{col 66}{space 1}   -0.56{col 75}{space 3}0.575{col 83}{space 4}-14.40898{col 96}{space 3}  7.99544
+{txt}{space 39}5  {c |}{col 43}{res}{space 2}-.0380645{col 55}{space 2} 6.974728{col 66}{space 1}   -0.01{col 75}{space 3}0.996{col 83}{space 4}-13.71261{col 96}{space 3} 13.63648
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 6.848808{col 55}{space 2} 3.293554{col 66}{space 1}    2.08{col 75}{space 3}0.038{col 83}{space 4} .3915165{col 96}{space 3}  13.3061
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 23.52988{col 55}{space 2} 6.853449{col 66}{space 1}    3.43{col 75}{space 3}0.001{col 83}{space 4} 10.09312{col 96}{space 3} 36.96665
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    22,042
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   3830{txt}){col 67}= {res}      4.50
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0217
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0157
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0116
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     3,831{txt}{col 51}Root MSE{col 67}= {res}  177.2980
+
+{txt}{ralign 103:(Std. err. adjusted for {res:3,831} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 33}OBC  {c |}{col 39}{res}{space 2} 2.347934{col 51}{space 2} 7.304677{col 62}{space 1}    0.32{col 71}{space 3}0.748{col 79}{space 4} -11.9735{col 92}{space 3} 16.66936
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 18.56963{col 51}{space 2} 11.98103{col 62}{space 1}    1.55{col 71}{space 3}0.121{col 79}{space 4}-4.920187{col 92}{space 3} 42.05945
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 31}OBC#1  {c |}{col 39}{res}{space 2}-5.742948{col 51}{space 2} 12.61212{col 62}{space 1}   -0.46{col 71}{space 3}0.649{col 79}{space 4}-30.47006{col 92}{space 3} 18.98416
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 20.92685{col 51}{space 2} 17.08257{col 62}{space 1}    1.23{col 71}{space 3}0.221{col 79}{space 4}-12.56497{col 92}{space 3} 54.41867
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 33}OBC  {c |}{col 39}{res}{space 2}-18.30981{col 51}{space 2} 22.41415{col 62}{space 1}   -0.82{col 71}{space 3}0.414{col 79}{space 4}-62.25463{col 92}{space 3}   25.635
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-43.34867{col 51}{space 2} 24.66424{col 62}{space 1}   -1.76{col 71}{space 3}0.079{col 79}{space 4}-91.70497{col 92}{space 3} 5.007631
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 31}OBC#1  {c |}{col 39}{res}{space 2} 72.31273{col 51}{space 2} 43.03435{col 62}{space 1}    1.68{col 71}{space 3}0.093{col 79}{space 4} -12.0597{col 92}{space 3} 156.6852
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 56.94838{col 51}{space 2}  15.7216{col 62}{space 1}    3.62{col 71}{space 3}0.000{col 79}{space 4} 26.12486{col 92}{space 3}  87.7719
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}-3.401612{col 51}{space 2}  3.28352{col 62}{space 1}   -1.04{col 71}{space 3}0.300{col 79}{space 4}-9.839227{col 92}{space 3} 3.036003
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2}  3.83388{col 51}{space 2} 2.708587{col 62}{space 1}    1.42{col 71}{space 3}0.157{col 79}{space 4}-1.476531{col 92}{space 3} 9.144292
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 13.39799{col 51}{space 2} 5.245041{col 62}{space 1}    2.55{col 71}{space 3}0.011{col 79}{space 4} 3.114652{col 92}{space 3} 23.68134
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 99.24186{col 51}{space 2} 24.38074{col 62}{space 1}    4.07{col 71}{space 3}0.000{col 79}{space 4} 51.44139{col 92}{space 3} 147.0423
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2} 8.445921{col 51}{space 2} 3.469488{col 62}{space 1}    2.43{col 71}{space 3}0.015{col 79}{space 4}   1.6437{col 92}{space 3} 15.24814
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2} 3.436585{col 51}{space 2} 4.302264{col 62}{space 1}    0.80{col 71}{space 3}0.424{col 79}{space 4}-4.998364{col 92}{space 3} 11.87153
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-2.202529{col 51}{space 2} 5.046329{col 62}{space 1}   -0.44{col 71}{space 3}0.663{col 79}{space 4}-12.09628{col 92}{space 3}  7.69122
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-11.41802{col 51}{space 2} 5.785999{col 62}{space 1}   -1.97{col 71}{space 3}0.049{col 79}{space 4}-22.76195{col 92}{space 3}-.0740829
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-13.30071{col 51}{space 2} 3.180731{col 62}{space 1}   -4.18{col 71}{space 3}0.000{col 79}{space 4} -19.5368{col 92}{space 3}-7.064623
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-11.40127{col 51}{space 2}  3.87509{col 62}{space 1}   -2.94{col 71}{space 3}0.003{col 79}{space 4} -18.9987{col 92}{space 3}-3.803828
+{txt}{space 35}4  {c |}{col 39}{res}{space 2} -3.19549{col 51}{space 2} 5.713947{col 62}{space 1}   -0.56{col 71}{space 3}0.576{col 79}{space 4}-14.39816{col 92}{space 3}  8.00718
+{txt}{space 35}5  {c |}{col 39}{res}{space 2}-.0386483{col 51}{space 2}  6.97284{col 62}{space 1}   -0.01{col 71}{space 3}0.996{col 79}{space 4}-13.70948{col 92}{space 3} 13.63219
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 6.860823{col 51}{space 2} 3.293792{col 62}{space 1}    2.08{col 71}{space 3}0.037{col 79}{space 4} .4030677{col 92}{space 3} 13.31858
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 22.76704{col 51}{space 2}  7.99522{col 62}{space 1}    2.85{col 71}{space 3}0.004{col 79}{space 4} 7.091741{col 92}{space 3} 38.44233
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+OBC vs Forward Hindu
+Higher-ranking definition: Forward Hindu only
+------------------------------------------------------------------
+{res}N:    22,034
+LOO composition p25 / p50 / p75:  0.000    0.000    0.182
+{txt}
+{res}THREE-WAY interaction:     69.49   p = 0.0716
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:     -3.00   SE =    10.74   p = 0.7804
+At p50 composition:     -3.00   SE =    10.74   p = 0.7804
+At p75 composition:      9.64   SE =     9.00   p = 0.2841
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    15.86      15.86       7.93
+OBC, p25 / p50 / p75:    12.87      12.87      17.57
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     72.31   p = 0.0930
+{txt}(380,330 missing values generated)
+(43,951 real changes made)
+(336,379 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(220,350 observations deleted)
+(58,757 observations deleted)
+(18,713 missing values generated)
+(8,743 real changes made)
+(9,970 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     8,918
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   2455{txt}){col 67}= {res}      3.27
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0305
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0158
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0153
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     2,456{txt}{col 51}Root MSE{col 67}= {res}  187.5374
+
+{txt}{ralign 107:(Std. err. adjusted for {res:2,456} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 34}Muslim  {c |}{col 43}{res}{space 2} 6.851828{col 55}{space 2} 7.276817{col 66}{space 1}    0.94{col 75}{space 3}0.346{col 83}{space 4}-7.417508{col 96}{space 3} 21.12116
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 20.04389{col 55}{space 2} 10.32329{col 66}{space 1}    1.94{col 75}{space 3}0.052{col 83}{space 4}-.1993657{col 96}{space 3} 40.28715
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 32}Muslim#1  {c |}{col 43}{res}{space 2}  7.05412{col 55}{space 2}  12.9684{col 66}{space 1}    0.54{col 75}{space 3}0.587{col 83}{space 4}-18.37601{col 96}{space 3} 32.48425
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 20.06859{col 55}{space 2} 15.47542{col 66}{space 1}    1.30{col 75}{space 3}0.195{col 83}{space 4}-10.27764{col 96}{space 3} 50.41482
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 34}Muslim  {c |}{col 43}{res}{space 2}-47.61843{col 55}{space 2} 29.22551{col 66}{space 1}   -1.63{col 75}{space 3}0.103{col 83}{space 4}-104.9276{col 96}{space 3} 9.690782
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-48.14367{col 55}{space 2} 22.56174{col 66}{space 1}   -2.13{col 75}{space 3}0.033{col 83}{space 4}-92.38568{col 96}{space 3} -3.90166
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 32}Muslim#1  {c |}{col 43}{res}{space 2} 63.60381{col 55}{space 2} 71.57705{col 66}{space 1}    0.89{col 75}{space 3}0.374{col 83}{space 4}-76.75382{col 96}{space 3} 203.9615
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 32.31145{col 55}{space 2} 22.42378{col 66}{space 1}    1.44{col 75}{space 3}0.150{col 83}{space 4}-11.66003{col 96}{space 3} 76.28294
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2} .0942965{col 55}{space 2} 6.423795{col 66}{space 1}    0.01{col 75}{space 3}0.988{col 83}{space 4}-12.50232{col 96}{space 3} 12.69091
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 11.35084{col 55}{space 2} 4.540153{col 66}{space 1}    2.50{col 75}{space 3}0.012{col 83}{space 4} 2.447916{col 96}{space 3} 20.25377
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 33.45462{col 55}{space 2} 10.28663{col 66}{space 1}    3.25{col 75}{space 3}0.001{col 83}{space 4} 13.28324{col 96}{space 3}   53.626
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2}  93.4807{col 55}{space 2} 29.98254{col 66}{space 1}    3.12{col 75}{space 3}0.002{col 83}{space 4} 34.68701{col 96}{space 3} 152.2744
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}  .723547{col 55}{space 2} 6.803957{col 66}{space 1}    0.11{col 75}{space 3}0.915{col 83}{space 4}-12.61854{col 96}{space 3} 14.06564
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-5.209737{col 55}{space 2} 7.787377{col 66}{space 1}   -0.67{col 75}{space 3}0.504{col 83}{space 4}-20.48024{col 96}{space 3} 10.06077
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-10.05807{col 55}{space 2} 8.382485{col 66}{space 1}   -1.20{col 75}{space 3}0.230{col 83}{space 4}-26.49554{col 96}{space 3} 6.379403
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-24.66894{col 55}{space 2} 8.638496{col 66}{space 1}   -2.86{col 75}{space 3}0.004{col 83}{space 4}-41.60843{col 96}{space 3}-7.729444
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-9.750261{col 55}{space 2} 5.783017{col 66}{space 1}   -1.69{col 75}{space 3}0.092{col 83}{space 4}-21.09036{col 96}{space 3} 1.589835
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-16.22914{col 55}{space 2} 6.772436{col 66}{space 1}   -2.40{col 75}{space 3}0.017{col 83}{space 4}-29.50942{col 96}{space 3}-2.948858
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-19.24097{col 55}{space 2} 7.926018{col 66}{space 1}   -2.43{col 75}{space 3}0.015{col 83}{space 4}-34.78334{col 96}{space 3}-3.698598
+{txt}{space 39}5  {c |}{col 43}{res}{space 2}-5.224162{col 55}{space 2} 9.636704{col 66}{space 1}   -0.54{col 75}{space 3}0.588{col 83}{space 4}-24.12107{col 96}{space 3} 13.67275
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 8.226979{col 55}{space 2} 5.817339{col 66}{space 1}    1.41{col 75}{space 3}0.157{col 83}{space 4} -3.18042{col 96}{space 3} 19.63438
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 24.67875{col 55}{space 2} 9.337442{col 66}{space 1}    2.64{col 75}{space 3}0.008{col 83}{space 4} 6.368674{col 96}{space 3} 42.98883
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     8,920
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   2457{txt}){col 67}= {res}      3.21
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0305
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0158
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0153
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     2,458{txt}{col 51}Root MSE{col 67}= {res}  187.4921
+
+{txt}{ralign 103:(Std. err. adjusted for {res:2,458} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 30}Muslim  {c |}{col 39}{res}{space 2} 7.240953{col 51}{space 2} 8.261968{col 62}{space 1}    0.88{col 71}{space 3}0.381{col 79}{space 4}-8.960188{col 92}{space 3} 23.44209
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 23.17998{col 51}{space 2} 12.35518{col 62}{space 1}    1.88{col 71}{space 3}0.061{col 79}{space 4}-1.047658{col 92}{space 3} 47.40762
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 28}Muslim#1  {c |}{col 39}{res}{space 2} 3.819364{col 51}{space 2} 14.57751{col 62}{space 1}    0.26{col 71}{space 3}0.793{col 79}{space 4}-24.76612{col 92}{space 3} 32.40485
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 17.67631{col 51}{space 2} 17.01233{col 62}{space 1}    1.04{col 71}{space 3}0.299{col 79}{space 4}-15.68369{col 92}{space 3}  51.0363
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 30}Muslim  {c |}{col 39}{res}{space 2}-47.82589{col 51}{space 2} 32.56918{col 62}{space 1}   -1.47{col 71}{space 3}0.142{col 79}{space 4}-111.6918{col 92}{space 3}    16.04
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-48.21808{col 51}{space 2} 25.03202{col 62}{space 1}   -1.93{col 71}{space 3}0.054{col 79}{space 4}-97.30412{col 92}{space 3} .8679503
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 28}Muslim#1  {c |}{col 39}{res}{space 2} 66.34619{col 51}{space 2} 79.38951{col 62}{space 1}    0.84{col 71}{space 3}0.403{col 79}{space 4}-89.33107{col 92}{space 3} 222.0235
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 32.35451{col 51}{space 2} 22.43342{col 62}{space 1}    1.44{col 71}{space 3}0.149{col 79}{space 4}-11.63587{col 92}{space 3} 76.34488
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}  .131869{col 51}{space 2} 6.424855{col 62}{space 1}    0.02{col 71}{space 3}0.984{col 79}{space 4}-12.46682{col 92}{space 3} 12.73056
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2}  11.3215{col 51}{space 2} 4.537502{col 62}{space 1}    2.50{col 71}{space 3}0.013{col 79}{space 4} 2.423773{col 92}{space 3} 20.21922
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 33.45984{col 51}{space 2} 10.28318{col 62}{space 1}    3.25{col 71}{space 3}0.001{col 79}{space 4} 13.29525{col 92}{space 3} 53.62442
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 93.51886{col 51}{space 2} 29.97696{col 62}{space 1}    3.12{col 71}{space 3}0.002{col 79}{space 4} 34.73613{col 92}{space 3} 152.3016
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2} .7789082{col 51}{space 2} 6.805755{col 62}{space 1}    0.11{col 71}{space 3}0.909{col 79}{space 4} -12.5667{col 92}{space 3} 14.12452
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-5.173272{col 51}{space 2}  7.77487{col 62}{space 1}   -0.67{col 71}{space 3}0.506{col 79}{space 4}-20.41925{col 92}{space 3}  10.0727
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-10.02133{col 51}{space 2} 8.384877{col 62}{space 1}   -1.20{col 71}{space 3}0.232{col 79}{space 4}-26.46349{col 92}{space 3} 6.420822
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-24.62255{col 51}{space 2} 8.627832{col 62}{space 1}   -2.85{col 71}{space 3}0.004{col 79}{space 4}-41.54113{col 92}{space 3}-7.703978
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-9.774778{col 51}{space 2} 5.768473{col 62}{space 1}   -1.69{col 71}{space 3}0.090{col 79}{space 4}-21.08635{col 92}{space 3} 1.536793
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-16.23048{col 51}{space 2} 6.763314{col 62}{space 1}   -2.40{col 71}{space 3}0.016{col 79}{space 4}-29.49287{col 92}{space 3}-2.968097
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}-19.27997{col 51}{space 2} 7.917875{col 62}{space 1}   -2.43{col 71}{space 3}0.015{col 79}{space 4}-34.80636{col 92}{space 3} -3.75357
+{txt}{space 35}5  {c |}{col 39}{res}{space 2}-5.263193{col 51}{space 2} 9.631405{col 62}{space 1}   -0.55{col 71}{space 3}0.585{col 79}{space 4} -24.1497{col 92}{space 3} 13.62332
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 8.229842{col 51}{space 2} 5.822254{col 62}{space 1}    1.41{col 71}{space 3}0.158{col 79}{space 4} -3.18719{col 92}{space 3} 19.64687
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 24.28955{col 51}{space 2} 10.27266{col 62}{space 1}    2.36{col 71}{space 3}0.018{col 79}{space 4} 4.145587{col 92}{space 3} 44.43351
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      113{col 27}{space 1}        0{col 39}{result}{space 1}      113{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Muslim vs Forward Hindu
+Higher-ranking definition: Forward Hindu only
+------------------------------------------------------------------
+{res}N:     8,918
+LOO composition p25 / p50 / p75:  0.000    0.071    0.250
+{txt}
+{res}THREE-WAY interaction:     63.60   p = 0.3743
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:      7.05   SE =    12.97   p = 0.5865
+At p50 composition:     11.60   SE =    11.69   p = 0.3212
+At p75 composition:     22.96   SE =    16.92   p = 0.1751
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    20.04      16.61       8.01
+Muslim, p25 / p50 / p75:    27.10      28.20      30.96
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     66.35   p = 0.4034
+{txt}
+======================================================================
+REGION: EAG states besides UP and Bihar
+======================================================================
+(380,330 missing values generated)
+(214,885 real changes made)
+(165,445 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(206,344 observations deleted)
+(55,863 observations deleted)
+(35,613 missing values generated)
+(11,371 real changes made)
+(24,242 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    17,226
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   4324{txt}){col 67}= {res}      4.73
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0578
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0468
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0388
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     4,325{txt}{col 51}Root MSE{col 67}= {res}  159.1376
+
+{txt}{ralign 107:(Std. err. adjusted for {res:4,325} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 33}Adivasi  {c |}{col 43}{res}{space 2} 11.91775{col 55}{space 2} 6.995773{col 66}{space 1}    1.70{col 75}{space 3}0.089{col 83}{space 4}-1.797553{col 96}{space 3} 25.63305
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 15.85181{col 55}{space 2} 16.03746{col 66}{space 1}    0.99{col 75}{space 3}0.323{col 83}{space 4}-15.58984{col 96}{space 3} 47.29346
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 31}Adivasi#1  {c |}{col 43}{res}{space 2}-3.951696{col 55}{space 2} 20.39853{col 66}{space 1}   -0.19{col 75}{space 3}0.846{col 83}{space 4}-43.94327{col 96}{space 3} 36.03988
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 19.22983{col 55}{space 2} 9.074099{col 66}{space 1}    2.12{col 75}{space 3}0.034{col 83}{space 4} 1.439944{col 96}{space 3} 37.01972
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 33}Adivasi  {c |}{col 43}{res}{space 2}-14.96083{col 55}{space 2} 11.79824{col 66}{space 1}   -1.27{col 75}{space 3}0.205{col 83}{space 4}-38.09143{col 96}{space 3} 8.169773
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-22.27573{col 55}{space 2} 21.28656{col 66}{space 1}   -1.05{col 75}{space 3}0.295{col 83}{space 4}-64.00831{col 96}{space 3} 19.45684
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 31}Adivasi#1  {c |}{col 43}{res}{space 2} 22.14226{col 55}{space 2} 34.52372{col 66}{space 1}    0.64{col 75}{space 3}0.521{col 83}{space 4}-45.54194{col 96}{space 3} 89.82646
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 116.8246{col 55}{space 2}  23.6433{col 66}{space 1}    4.94{col 75}{space 3}0.000{col 83}{space 4} 70.47162{col 96}{space 3} 163.1776
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2} 4.399014{col 55}{space 2} 3.382303{col 66}{space 1}    1.30{col 75}{space 3}0.193{col 83}{space 4}-2.232034{col 96}{space 3} 11.03006
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 5.679472{col 55}{space 2}  2.96656{col 66}{space 1}    1.91{col 75}{space 3}0.056{col 83}{space 4}-.1365072{col 96}{space 3} 11.49545
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2}-.6750963{col 55}{space 2} 5.586465{col 66}{space 1}   -0.12{col 75}{space 3}0.904{col 83}{space 4}-11.62743{col 96}{space 3} 10.27724
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 209.3432{col 55}{space 2} 40.28771{col 66}{space 1}    5.20{col 75}{space 3}0.000{col 83}{space 4} 130.3587{col 96}{space 3} 288.3278
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2} .7059283{col 55}{space 2} 4.238759{col 66}{space 1}    0.17{col 75}{space 3}0.868{col 83}{space 4}-7.604213{col 96}{space 3}  9.01607
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-5.912271{col 55}{space 2} 5.035514{col 66}{space 1}   -1.17{col 75}{space 3}0.240{col 83}{space 4}-15.78446{col 96}{space 3} 3.959919
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-11.16172{col 55}{space 2} 5.296907{col 66}{space 1}   -2.11{col 75}{space 3}0.035{col 83}{space 4}-21.54637{col 96}{space 3}-.7770633
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-13.07023{col 55}{space 2} 6.654038{col 66}{space 1}   -1.96{col 75}{space 3}0.050{col 83}{space 4}-26.11555{col 96}{space 3}-.0249037
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-17.39708{col 55}{space 2} 3.467041{col 66}{space 1}   -5.02{col 75}{space 3}0.000{col 83}{space 4}-24.19426{col 96}{space 3} -10.5999
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-22.03656{col 55}{space 2} 4.576386{col 66}{space 1}   -4.82{col 75}{space 3}0.000{col 83}{space 4}-31.00863{col 96}{space 3} -13.0645
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-24.54589{col 55}{space 2} 5.889324{col 66}{space 1}   -4.17{col 75}{space 3}0.000{col 83}{space 4}-36.09198{col 96}{space 3}-12.99979
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} -10.1926{col 55}{space 2} 9.639857{col 66}{space 1}   -1.06{col 75}{space 3}0.290{col 83}{space 4}-29.09167{col 96}{space 3} 8.706458
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 8.830523{col 55}{space 2} 3.831611{col 66}{space 1}    2.30{col 75}{space 3}0.021{col 83}{space 4} 1.318602{col 96}{space 3} 16.34244
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 15.10399{col 55}{space 2}  7.73314{col 66}{space 1}    1.95{col 75}{space 3}0.051{col 83}{space 4}-.0569303{col 96}{space 3} 30.26491
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      178{col 27}{space 1}        0{col 39}{result}{space 1}      178{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    17,255
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   4353{txt}){col 67}= {res}      4.73
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0577
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0468
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0388
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     4,354{txt}{col 51}Root MSE{col 67}= {res}  159.0634
+
+{txt}{ralign 103:(Std. err. adjusted for {res:4,354} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 29}Adivasi  {c |}{col 39}{res}{space 2} 13.68928{col 51}{space 2} 8.375122{col 62}{space 1}    1.63{col 71}{space 3}0.102{col 79}{space 4}-2.730227{col 92}{space 3} 30.10878
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 18.78004{col 51}{space 2} 20.08895{col 62}{space 1}    0.93{col 71}{space 3}0.350{col 79}{space 4}-20.60454{col 92}{space 3} 58.16461
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 27}Adivasi#1  {c |}{col 39}{res}{space 2}-8.081075{col 51}{space 2} 23.65403{col 62}{space 1}   -0.34{col 71}{space 3}0.733{col 79}{space 4}-54.45502{col 92}{space 3} 38.29287
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 20.56683{col 51}{space 2} 10.88481{col 62}{space 1}    1.89{col 71}{space 3}0.059{col 79}{space 4}-.7729408{col 92}{space 3} 41.90659
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 29}Adivasi  {c |}{col 39}{res}{space 2}-15.90225{col 51}{space 2} 13.87964{col 62}{space 1}   -1.15{col 71}{space 3}0.252{col 79}{space 4}-43.11342{col 92}{space 3} 11.30892
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2} -25.1602{col 51}{space 2} 25.73955{col 62}{space 1}   -0.98{col 71}{space 3}0.328{col 79}{space 4}-75.62283{col 92}{space 3} 25.30242
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 27}Adivasi#1  {c |}{col 39}{res}{space 2} 30.05121{col 51}{space 2} 42.04574{col 62}{space 1}    0.71{col 71}{space 3}0.475{col 79}{space 4}-52.37984{col 92}{space 3} 112.4823
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2}  116.849{col 51}{space 2} 23.64722{col 62}{space 1}    4.94{col 71}{space 3}0.000{col 79}{space 4} 70.48838{col 92}{space 3} 163.2095
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2} 4.496631{col 51}{space 2}  3.38069{col 62}{space 1}    1.33{col 71}{space 3}0.184{col 79}{space 4}-2.131243{col 92}{space 3} 11.12451
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 5.672032{col 51}{space 2} 2.961065{col 62}{space 1}    1.92{col 71}{space 3}0.055{col 79}{space 4}-.1331636{col 92}{space 3} 11.47723
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2}  -.68447{col 51}{space 2} 5.581048{col 62}{space 1}   -0.12{col 71}{space 3}0.902{col 79}{space 4}-11.62617{col 92}{space 3} 10.25723
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 209.3978{col 51}{space 2}  40.2797{col 62}{space 1}    5.20{col 71}{space 3}0.000{col 79}{space 4} 130.4291{col 92}{space 3} 288.3665
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2} .7525032{col 51}{space 2} 4.237282{col 62}{space 1}    0.18{col 71}{space 3}0.859{col 79}{space 4}-7.554726{col 92}{space 3} 9.059733
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-5.979625{col 51}{space 2} 5.005641{col 62}{space 1}   -1.19{col 71}{space 3}0.232{col 79}{space 4}-15.79323{col 92}{space 3}  3.83398
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-11.14865{col 51}{space 2} 5.288058{col 62}{space 1}   -2.11{col 71}{space 3}0.035{col 79}{space 4}-21.51594{col 92}{space 3}-.7813688
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-13.15813{col 51}{space 2} 6.645444{col 62}{space 1}   -1.98{col 71}{space 3}0.048{col 79}{space 4}-26.18658{col 92}{space 3} -.129672
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-17.39417{col 51}{space 2} 3.459574{col 62}{space 1}   -5.03{col 71}{space 3}0.000{col 79}{space 4} -24.1767{col 92}{space 3}-10.61164
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-22.04111{col 51}{space 2} 4.573557{col 62}{space 1}   -4.82{col 71}{space 3}0.000{col 79}{space 4}-31.00761{col 92}{space 3}-13.07461
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}-24.52704{col 51}{space 2} 5.885315{col 62}{space 1}   -4.17{col 71}{space 3}0.000{col 79}{space 4}-36.06526{col 92}{space 3}-12.98883
+{txt}{space 35}5  {c |}{col 39}{res}{space 2}-10.25751{col 51}{space 2} 9.620131{col 62}{space 1}   -1.07{col 71}{space 3}0.286{col 79}{space 4}-29.11786{col 92}{space 3} 8.602846
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 8.803191{col 51}{space 2} 3.828568{col 62}{space 1}    2.30{col 71}{space 3}0.022{col 79}{space 4} 1.297249{col 92}{space 3} 16.30913
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 13.36486{col 51}{space 2} 9.052727{col 62}{space 1}    1.48{col 71}{space 3}0.140{col 79}{space 4}-4.383094{col 92}{space 3} 31.11281
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      178{col 27}{space 1}        0{col 39}{result}{space 1}      178{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Adivasi vs Forward Hindu
+Higher-ranking definition: OBC + Forward Hindu + Muslim
+------------------------------------------------------------------
+{res}N:    17,226
+LOO composition p25 / p50 / p75:  0.000    0.250    0.667
+{txt}
+{res}THREE-WAY interaction:     22.14   p = 0.5213
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:     -3.95   SE =    20.40   p = 0.8464
+At p50 composition:      1.58   SE =    15.98   p = 0.9211
+At p75 composition:     10.81   SE =    17.86   p = 0.5450
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    15.85      10.28       1.00
+Adivasi, p25 / p50 / p75:    11.90      11.87      11.81
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     30.05   p = 0.4748
+{txt}(380,330 missing values generated)
+(214,885 real changes made)
+(165,445 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(206,344 observations deleted)
+(62,886 observations deleted)
+(28,590 missing values generated)
+(11,371 real changes made)
+(17,219 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    13,498
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   3829{txt}){col 67}= {res}      3.29
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0367
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0224
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0212
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     3,830{txt}{col 51}Root MSE{col 67}= {res}  161.1831
+
+{txt}{ralign 107:(Std. err. adjusted for {res:3,830} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 35}Dalit  {c |}{col 43}{res}{space 2} 12.72296{col 55}{space 2} 7.875253{col 66}{space 1}    1.62{col 75}{space 3}0.106{col 83}{space 4}-2.717136{col 96}{space 3} 28.16305
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 10.33553{col 55}{space 2} 16.47232{col 66}{space 1}    0.63{col 75}{space 3}0.530{col 83}{space 4}-21.95983{col 96}{space 3} 42.63089
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 33}Dalit#1  {c |}{col 43}{res}{space 2} 5.708228{col 55}{space 2} 21.33324{col 66}{space 1}    0.27{col 75}{space 3}0.789{col 83}{space 4}-36.11737{col 96}{space 3} 47.53383
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 12.03663{col 55}{space 2} 9.285412{col 66}{space 1}    1.30{col 75}{space 3}0.195{col 83}{space 4}-6.168201{col 96}{space 3} 30.24146
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 35}Dalit  {c |}{col 43}{res}{space 2}-20.91728{col 55}{space 2} 11.46121{col 66}{space 1}   -1.83{col 75}{space 3}0.068{col 83}{space 4}-43.38794{col 96}{space 3} 1.553389
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-15.05058{col 55}{space 2} 21.57112{col 66}{space 1}   -0.70{col 75}{space 3}0.485{col 83}{space 4}-57.34257{col 96}{space 3}  27.2414
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 33}Dalit#1  {c |}{col 43}{res}{space 2}-1.592065{col 55}{space 2} 29.93129{col 66}{space 1}   -0.05{col 75}{space 3}0.958{col 83}{space 4}-60.27487{col 96}{space 3} 57.09074
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 90.76499{col 55}{space 2} 23.41866{col 66}{space 1}    3.88{col 75}{space 3}0.000{col 83}{space 4} 44.85075{col 96}{space 3} 136.6792
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}  -1.7313{col 55}{space 2} 3.858183{col 66}{space 1}   -0.45{col 75}{space 3}0.654{col 83}{space 4}-9.295591{col 96}{space 3} 5.832991
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 6.426939{col 55}{space 2} 3.161326{col 66}{space 1}    2.03{col 75}{space 3}0.042{col 83}{space 4} .2288933{col 96}{space 3} 12.62498
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 5.772322{col 55}{space 2} 6.007263{col 66}{space 1}    0.96{col 75}{space 3}0.337{col 83}{space 4}-6.005421{col 96}{space 3} 17.55006
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 142.2568{col 55}{space 2} 34.93162{col 66}{space 1}    4.07{col 75}{space 3}0.000{col 83}{space 4} 73.77039{col 96}{space 3} 210.7431
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}  -3.1678{col 55}{space 2} 5.194824{col 66}{space 1}   -0.61{col 75}{space 3}0.542{col 83}{space 4}-13.35269{col 96}{space 3} 7.017088
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2} -9.84696{col 55}{space 2} 5.083263{col 66}{space 1}   -1.94{col 75}{space 3}0.053{col 83}{space 4}-19.81312{col 96}{space 3}  .119204
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-15.00636{col 55}{space 2} 5.654323{col 66}{space 1}   -2.65{col 75}{space 3}0.008{col 83}{space 4}-26.09213{col 96}{space 3}-3.920583
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-17.46152{col 55}{space 2} 6.688673{col 66}{space 1}   -2.61{col 75}{space 3}0.009{col 83}{space 4}-30.57523{col 96}{space 3}-4.347821
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-8.605564{col 55}{space 2} 3.919221{col 66}{space 1}   -2.20{col 75}{space 3}0.028{col 83}{space 4}-16.28952{col 96}{space 3}-.9216039
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-10.68102{col 55}{space 2} 5.203904{col 66}{space 1}   -2.05{col 75}{space 3}0.040{col 83}{space 4}-20.88371{col 96}{space 3}-.4783279
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-2.196452{col 55}{space 2} 8.760681{col 66}{space 1}   -0.25{col 75}{space 3}0.802{col 83}{space 4} -19.3725{col 96}{space 3}  14.9796
+{txt}{space 39}5  {c |}{col 43}{res}{space 2}-8.479661{col 55}{space 2} 9.508641{col 66}{space 1}   -0.89{col 75}{space 3}0.373{col 83}{space 4}-27.12215{col 96}{space 3} 10.16283
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 9.854188{col 55}{space 2} 4.072469{col 66}{space 1}    2.42{col 75}{space 3}0.016{col 83}{space 4} 1.869772{col 96}{space 3} 17.83861
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 19.83479{col 55}{space 2} 8.728508{col 66}{space 1}    2.27{col 75}{space 3}0.023{col 83}{space 4} 2.721816{col 96}{space 3} 36.94776
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      178{col 27}{space 1}        0{col 39}{result}{space 1}      178{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    13,535
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   3866{txt}){col 67}= {res}      3.28
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0366
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0223
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0212
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     3,867{txt}{col 51}Root MSE{col 67}= {res}  161.0148
+
+{txt}{ralign 103:(Std. err. adjusted for {res:3,867} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 31}Dalit  {c |}{col 39}{res}{space 2} 12.66622{col 51}{space 2} 9.393161{col 62}{space 1}    1.35{col 71}{space 3}0.178{col 79}{space 4}-5.749803{col 92}{space 3} 31.08224
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 12.07173{col 51}{space 2}     20.6{col 62}{space 1}    0.59{col 71}{space 3}0.558{col 79}{space 4}-28.31617{col 92}{space 3} 52.45964
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 29}Dalit#1  {c |}{col 39}{res}{space 2} 3.300999{col 51}{space 2} 24.58649{col 62}{space 1}    0.13{col 71}{space 3}0.893{col 79}{space 4}-44.90272{col 92}{space 3} 51.50472
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 12.15396{col 51}{space 2} 11.25472{col 62}{space 1}    1.08{col 71}{space 3}0.280{col 79}{space 4}-9.911789{col 92}{space 3} 34.21971
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 31}Dalit  {c |}{col 39}{res}{space 2}-20.93135{col 51}{space 2} 13.63569{col 62}{space 1}   -1.54{col 71}{space 3}0.125{col 79}{space 4}-47.66518{col 92}{space 3} 5.802484
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-16.60775{col 51}{space 2} 26.08485{col 62}{space 1}   -0.64{col 71}{space 3}0.524{col 79}{space 4}-67.74912{col 92}{space 3} 34.53363
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 29}Dalit#1  {c |}{col 39}{res}{space 2}-1.029797{col 51}{space 2} 35.19101{col 62}{space 1}   -0.03{col 71}{space 3}0.977{col 79}{space 4}-70.02451{col 92}{space 3} 67.96492
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 90.98748{col 51}{space 2} 23.41786{col 62}{space 1}    3.89{col 71}{space 3}0.000{col 79}{space 4} 45.07495{col 92}{space 3}    136.9
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}-1.740396{col 51}{space 2}   3.8502{col 62}{space 1}   -0.45{col 71}{space 3}0.651{col 79}{space 4}-9.289012{col 92}{space 3} 5.808221
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 6.401819{col 51}{space 2} 3.154445{col 62}{space 1}    2.03{col 71}{space 3}0.042{col 79}{space 4} .2172844{col 92}{space 3} 12.58635
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 5.760609{col 51}{space 2} 5.989855{col 62}{space 1}    0.96{col 71}{space 3}0.336{col 79}{space 4}-5.982967{col 92}{space 3} 17.50419
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 142.4537{col 51}{space 2} 34.93138{col 62}{space 1}    4.08{col 71}{space 3}0.000{col 79}{space 4} 73.96802{col 92}{space 3} 210.9394
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-3.182691{col 51}{space 2} 5.183787{col 62}{space 1}   -0.61{col 71}{space 3}0.539{col 79}{space 4}-13.34591{col 92}{space 3} 6.980526
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-9.912375{col 51}{space 2} 5.072925{col 62}{space 1}   -1.95{col 71}{space 3}0.051{col 79}{space 4}-19.85824{col 92}{space 3}   .03349
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-15.01184{col 51}{space 2} 5.644813{col 62}{space 1}   -2.66{col 71}{space 3}0.008{col 79}{space 4}-26.07893{col 92}{space 3} -3.94474
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-17.52557{col 51}{space 2} 6.683221{col 62}{space 1}   -2.62{col 71}{space 3}0.009{col 79}{space 4}-30.62854{col 92}{space 3}-4.422591
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-8.586164{col 51}{space 2}  3.91099{col 62}{space 1}   -2.20{col 71}{space 3}0.028{col 79}{space 4}-16.25396{col 92}{space 3}-.9183634
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-10.59002{col 51}{space 2} 5.201299{col 62}{space 1}   -2.04{col 71}{space 3}0.042{col 79}{space 4}-20.78757{col 92}{space 3}-.3924659
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}  -2.1265{col 51}{space 2} 8.757336{col 62}{space 1}   -0.24{col 71}{space 3}0.808{col 79}{space 4}-19.29594{col 92}{space 3} 15.04294
+{txt}{space 35}5  {c |}{col 39}{res}{space 2}-8.600534{col 51}{space 2} 9.476174{col 62}{space 1}   -0.91{col 71}{space 3}0.364{col 79}{space 4}-27.17931{col 92}{space 3} 9.978243
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 9.874372{col 51}{space 2} 4.067494{col 62}{space 1}    2.43{col 71}{space 3}0.015{col 79}{space 4} 1.899733{col 92}{space 3} 17.84901
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 19.31849{col 51}{space 2} 10.18635{col 62}{space 1}    1.90{col 71}{space 3}0.058{col 79}{space 4}-.6526512{col 92}{space 3} 39.28963
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      178{col 27}{space 1}        0{col 39}{result}{space 1}      178{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Dalit vs Forward Hindu
+Higher-ranking definition: OBC + Forward Hindu + Muslim
+------------------------------------------------------------------
+{res}N:    13,498
+LOO composition p25 / p50 / p75:  0.308    0.600    0.833
+{txt}
+{res}THREE-WAY interaction:     -1.59   p = 0.9576
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:      5.22   SE =    13.75   p = 0.7042
+At p50 composition:      4.75   SE =     9.65   p = 0.6225
+At p75 composition:      4.38   SE =    11.25   p = 0.6971
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:     5.70       1.31      -2.21
+Dalit, p25 / p50 / p75:    10.92       6.06       2.17
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     -1.03   p = 0.9767
+{txt}(380,330 missing values generated)
+(43,951 real changes made)
+(336,379 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(206,344 observations deleted)
+(45,967 observations deleted)
+(45,509 missing values generated)
+(11,371 real changes made)
+(34,138 real changes made)
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    21,132
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   4653{txt}){col 67}= {res}      3.81
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0279
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0187
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0154
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     4,654{txt}{col 51}Root MSE{col 67}= {res}  145.8037
+
+{txt}{ralign 107:(Std. err. adjusted for {res:4,654} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 37}OBC  {c |}{col 43}{res}{space 2} 5.365246{col 55}{space 2}  4.37185{col 66}{space 1}    1.23{col 75}{space 3}0.220{col 83}{space 4}-3.205651{col 96}{space 3} 13.93614
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 8.639943{col 55}{space 2} 7.973833{col 66}{space 1}    1.08{col 75}{space 3}0.279{col 83}{space 4}-6.992548{col 96}{space 3} 24.27243
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 35}OBC#1  {c |}{col 43}{res}{space 2}-12.94866{col 55}{space 2}  8.99259{col 66}{space 1}   -1.44{col 75}{space 3}0.150{col 83}{space 4} -30.5784{col 96}{space 3} 4.681077
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 15.40163{col 55}{space 2} 10.10103{col 66}{space 1}    1.52{col 75}{space 3}0.127{col 83}{space 4}-4.401188{col 96}{space 3} 35.20444
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 37}OBC  {c |}{col 43}{res}{space 2}-35.74052{col 55}{space 2} 12.22318{col 66}{space 1}   -2.92{col 75}{space 3}0.003{col 83}{space 4}-59.70373{col 96}{space 3} -11.7773
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-23.94335{col 55}{space 2} 15.51903{col 66}{space 1}   -1.54{col 75}{space 3}0.123{col 83}{space 4}  -54.368{col 96}{space 3} 6.481306
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 35}OBC#1  {c |}{col 43}{res}{space 2} 31.92699{col 55}{space 2} 22.47667{col 66}{space 1}    1.42{col 75}{space 3}0.156{col 83}{space 4}-12.13794{col 96}{space 3} 75.99192
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 82.86096{col 55}{space 2} 19.27116{col 66}{space 1}    4.30{col 75}{space 3}0.000{col 83}{space 4} 45.08036{col 96}{space 3} 120.6416
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2} 3.524104{col 55}{space 2} 2.676166{col 66}{space 1}    1.32{col 75}{space 3}0.188{col 83}{space 4} -1.72245{col 96}{space 3} 8.770659
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2}  6.17769{col 55}{space 2}  2.20957{col 66}{space 1}    2.80{col 75}{space 3}0.005{col 83}{space 4} 1.845885{col 96}{space 3} 10.50949
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 5.249126{col 55}{space 2} 3.868427{col 66}{space 1}    1.36{col 75}{space 3}0.175{col 83}{space 4}-2.334824{col 96}{space 3} 12.83308
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 98.59561{col 55}{space 2} 22.43523{col 66}{space 1}    4.39{col 75}{space 3}0.000{col 83}{space 4} 54.61193{col 96}{space 3} 142.5793
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2} 2.913285{col 55}{space 2} 3.624328{col 66}{space 1}    0.80{col 75}{space 3}0.422{col 83}{space 4}-4.192116{col 96}{space 3} 10.01869
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-1.397615{col 55}{space 2} 3.493159{col 66}{space 1}   -0.40{col 75}{space 3}0.689{col 83}{space 4}-8.245863{col 96}{space 3} 5.450634
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2} 1.341582{col 55}{space 2}  4.18906{col 66}{space 1}    0.32{col 75}{space 3}0.749{col 83}{space 4}-6.870961{col 96}{space 3} 9.554125
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-5.081486{col 55}{space 2} 4.403823{col 66}{space 1}   -1.15{col 75}{space 3}0.249{col 83}{space 4}-13.71507{col 96}{space 3} 3.552094
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-11.32781{col 55}{space 2} 2.500396{col 66}{space 1}   -4.53{col 75}{space 3}0.000{col 83}{space 4}-16.22978{col 96}{space 3}-6.425854
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-7.638295{col 55}{space 2} 3.861475{col 66}{space 1}   -1.98{col 75}{space 3}0.048{col 83}{space 4}-15.20862{col 96}{space 3}-.0679733
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-8.896442{col 55}{space 2} 5.891221{col 66}{space 1}   -1.51{col 75}{space 3}0.131{col 83}{space 4}-20.44603{col 96}{space 3} 2.653144
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} 6.440459{col 55}{space 2}  8.57822{col 66}{space 1}    0.75{col 75}{space 3}0.453{col 83}{space 4}-10.37692{col 96}{space 3} 23.25783
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 4.698052{col 55}{space 2} 2.942687{col 66}{space 1}    1.60{col 75}{space 3}0.110{col 83}{space 4}-1.071008{col 96}{space 3} 10.46711
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 14.87197{col 55}{space 2} 5.255237{col 66}{space 1}    2.83{col 75}{space 3}0.005{col 83}{space 4} 4.569215{col 96}{space 3} 25.17473
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      178{col 27}{space 1}        0{col 39}{result}{space 1}      178{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    21,180
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   4701{txt}){col 67}= {res}      3.79
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0278
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0186
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0154
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     4,702{txt}{col 51}Root MSE{col 67}= {res}  145.6648
+
+{txt}{ralign 103:(Std. err. adjusted for {res:4,702} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 33}OBC  {c |}{col 39}{res}{space 2} 6.139107{col 51}{space 2} 5.529894{col 62}{space 1}    1.11{col 71}{space 3}0.267{col 79}{space 4}-4.702078{col 92}{space 3} 16.98029
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 11.31774{col 51}{space 2} 10.02437{col 62}{space 1}    1.13{col 71}{space 3}0.259{col 79}{space 4}-8.334721{col 92}{space 3}  30.9702
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 31}OBC#1  {c |}{col 39}{res}{space 2}-15.54328{col 51}{space 2} 10.86977{col 62}{space 1}   -1.43{col 71}{space 3}0.153{col 79}{space 4}-36.85313{col 92}{space 3} 5.766575
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 14.21877{col 51}{space 2} 11.56553{col 62}{space 1}    1.23{col 71}{space 3}0.219{col 79}{space 4}-8.455096{col 92}{space 3} 36.89263
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 33}OBC  {c |}{col 39}{res}{space 2}-38.01945{col 51}{space 2} 14.14802{col 62}{space 1}   -2.69{col 71}{space 3}0.007{col 79}{space 4} -65.7562{col 92}{space 3} -10.2827
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-25.71543{col 51}{space 2} 18.17751{col 62}{space 1}   -1.41{col 71}{space 3}0.157{col 79}{space 4}-61.35186{col 92}{space 3} 9.921001
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 31}OBC#1  {c |}{col 39}{res}{space 2} 33.54368{col 51}{space 2} 26.13289{col 62}{space 1}    1.28{col 71}{space 3}0.199{col 79}{space 4}-17.68903{col 92}{space 3} 84.77638
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 82.98145{col 51}{space 2} 19.27881{col 62}{space 1}    4.30{col 71}{space 3}0.000{col 79}{space 4} 45.18594{col 92}{space 3}  120.777
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2} 3.538286{col 51}{space 2} 2.672806{col 62}{space 1}    1.32{col 71}{space 3}0.186{col 79}{space 4}-1.701667{col 92}{space 3} 8.778238
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 6.115321{col 51}{space 2} 2.204265{col 62}{space 1}    2.77{col 71}{space 3}0.006{col 79}{space 4} 1.793927{col 92}{space 3} 10.43671
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 5.272437{col 51}{space 2} 3.859001{col 62}{space 1}    1.37{col 71}{space 3}0.172{col 79}{space 4}-2.293013{col 92}{space 3} 12.83789
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 98.70067{col 51}{space 2} 22.43307{col 62}{space 1}    4.40{col 71}{space 3}0.000{col 79}{space 4} 54.72133{col 92}{space 3}   142.68
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2} 2.948702{col 51}{space 2} 3.620348{col 62}{space 1}    0.81{col 71}{space 3}0.415{col 79}{space 4}-4.148878{col 92}{space 3} 10.04628
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-1.388238{col 51}{space 2} 3.485647{col 62}{space 1}   -0.40{col 71}{space 3}0.690{col 79}{space 4}-8.221739{col 92}{space 3} 5.445264
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2} 1.394555{col 51}{space 2} 4.181604{col 62}{space 1}    0.33{col 71}{space 3}0.739{col 79}{space 4}-6.803349{col 92}{space 3} 9.592458
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-5.055079{col 51}{space 2} 4.397169{col 62}{space 1}   -1.15{col 71}{space 3}0.250{col 79}{space 4}-13.67559{col 92}{space 3} 3.565434
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-11.29126{col 51}{space 2} 2.494534{col 62}{space 1}   -4.53{col 71}{space 3}0.000{col 79}{space 4}-16.18171{col 92}{space 3}-6.400799
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-7.569552{col 51}{space 2} 3.852327{col 62}{space 1}   -1.96{col 71}{space 3}0.049{col 79}{space 4}-15.12192{col 92}{space 3} -.017185
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}-8.879942{col 51}{space 2} 5.879792{col 62}{space 1}   -1.51{col 71}{space 3}0.131{col 79}{space 4}-20.40709{col 92}{space 3} 2.647207
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} 6.292018{col 51}{space 2} 8.554183{col 62}{space 1}    0.74{col 71}{space 3}0.462{col 79}{space 4}-10.47819{col 92}{space 3} 23.06223
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 4.731407{col 51}{space 2}  2.94123{col 62}{space 1}    1.61{col 71}{space 3}0.108{col 79}{space 4}-1.034782{col 92}{space 3}  10.4976
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 14.11066{col 51}{space 2} 6.289504{col 62}{space 1}    2.24{col 71}{space 3}0.025{col 79}{space 4} 1.780287{col 92}{space 3} 26.44104
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      178{col 27}{space 1}        0{col 39}{result}{space 1}      178{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+OBC vs Forward Hindu
+Higher-ranking definition: Forward Hindu only
+------------------------------------------------------------------
+{res}N:    21,132
+LOO composition p25 / p50 / p75:  0.000    0.000    0.250
+{txt}
+{res}THREE-WAY interaction:     31.93   p = 0.1555
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:    -12.95   SE =     8.99   p = 0.1500
+At p50 composition:    -12.95   SE =     8.99   p = 0.1500
+At p75 composition:     -4.97   SE =     6.80   p = 0.4649
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:     8.64       8.64       2.65
+OBC, p25 / p50 / p75:    -4.31      -4.31      -2.31
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     33.54   p = 0.1994
+{txt}(380,330 missing values generated)
+(43,951 real changes made)
+(336,379 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(206,344 observations deleted)
+(75,599 observations deleted)
+(15,877 missing values generated)
+(11,371 real changes made)
+(4,506 real changes made)
+{res}{txt}(dropped 3 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     7,262
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   2377{txt}){col 67}= {res}      2.13
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0020
+{txt}{col 51}R-squared{col 67}= {res}    0.0598
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0341
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0270
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     2,378{txt}{col 51}Root MSE{col 67}= {res}  144.0314
+
+{txt}{ralign 107:(Std. err. adjusted for {res:2,378} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 34}Muslim  {c |}{col 43}{res}{space 2} 6.200665{col 55}{space 2} 6.766319{col 66}{space 1}    0.92{col 75}{space 3}0.360{col 83}{space 4}-7.067833{col 96}{space 3} 19.46916
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2} 10.23765{col 55}{space 2} 7.996759{col 66}{space 1}    1.28{col 75}{space 3}0.201{col 83}{space 4}-5.443698{col 96}{space 3} 25.91899
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 32}Muslim#1  {c |}{col 43}{res}{space 2}-10.57907{col 55}{space 2} 12.28242{col 66}{space 1}   -0.86{col 75}{space 3}0.389{col 83}{space 4}-34.66444{col 96}{space 3}  13.5063
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2}  17.3047{col 55}{space 2} 10.73402{col 66}{space 1}    1.61{col 75}{space 3}0.107{col 83}{space 4}-3.744301{col 96}{space 3}  38.3537
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 34}Muslim  {c |}{col 43}{res}{space 2}-37.45543{col 55}{space 2}  26.1476{col 66}{space 1}   -1.43{col 75}{space 3}0.152{col 83}{space 4}-88.72989{col 96}{space 3} 13.81904
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2}-26.19031{col 55}{space 2} 16.14745{col 66}{space 1}   -1.62{col 75}{space 3}0.105{col 83}{space 4}-57.85485{col 96}{space 3} 5.474239
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 32}Muslim#1  {c |}{col 43}{res}{space 2}-25.57298{col 55}{space 2} 36.60005{col 66}{space 1}   -0.70{col 75}{space 3}0.485{col 83}{space 4}-97.34429{col 96}{space 3} 46.19834
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 122.8001{col 55}{space 2}  43.8527{col 66}{space 1}    2.80{col 75}{space 3}0.005{col 83}{space 4} 36.80662{col 96}{space 3} 208.7936
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2} 1.056008{col 55}{space 2} 5.116047{col 66}{space 1}    0.21{col 75}{space 3}0.836{col 83}{space 4}-8.976368{col 96}{space 3} 11.08838
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 4.146338{col 55}{space 2} 3.743554{col 66}{space 1}    1.11{col 75}{space 3}0.268{col 83}{space 4}-3.194631{col 96}{space 3} 11.48731
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2}-7.061826{col 55}{space 2}  7.41402{col 66}{space 1}   -0.95{col 75}{space 3}0.341{col 83}{space 4}-21.60044{col 96}{space 3} 7.476789
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2}  134.644{col 55}{space 2} 53.14119{col 66}{space 1}    2.53{col 75}{space 3}0.011{col 83}{space 4} 30.43612{col 96}{space 3} 238.8519
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}-2.288616{col 55}{space 2}  8.06156{col 66}{space 1}   -0.28{col 75}{space 3}0.777{col 83}{space 4}-18.09703{col 96}{space 3}  13.5198
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-8.923093{col 55}{space 2} 7.242196{col 66}{space 1}   -1.23{col 75}{space 3}0.218{col 83}{space 4}-23.12477{col 96}{space 3} 5.278582
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-5.966731{col 55}{space 2} 7.920685{col 66}{space 1}   -0.75{col 75}{space 3}0.451{col 83}{space 4} -21.4989{col 96}{space 3} 9.565435
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-13.75999{col 55}{space 2} 8.444619{col 66}{space 1}   -1.63{col 75}{space 3}0.103{col 83}{space 4}-30.31957{col 96}{space 3} 2.799596
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-16.66871{col 55}{space 2} 4.573097{col 66}{space 1}   -3.64{col 75}{space 3}0.000{col 83}{space 4}-25.63638{col 96}{space 3}-7.701038
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-19.30516{col 55}{space 2} 7.681034{col 66}{space 1}   -2.51{col 75}{space 3}0.012{col 83}{space 4}-34.36738{col 96}{space 3}-4.242936
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-15.72617{col 55}{space 2} 10.93825{col 66}{space 1}   -1.44{col 75}{space 3}0.151{col 83}{space 4}-37.17566{col 96}{space 3}  5.72333
+{txt}{space 39}5  {c |}{col 43}{res}{space 2}-1.115445{col 55}{space 2}  11.2836{col 66}{space 1}   -0.10{col 75}{space 3}0.921{col 83}{space 4}-23.24216{col 96}{space 3} 21.01127
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 12.15123{col 55}{space 2} 5.673425{col 66}{space 1}    2.14{col 75}{space 3}0.032{col 83}{space 4} 1.025853{col 96}{space 3}  23.2766
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 23.29966{col 55}{space 2} 8.521319{col 66}{space 1}    2.73{col 75}{space 3}0.006{col 83}{space 4} 6.589672{col 96}{space 3} 40.00965
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      173{col 27}{space 1}        0{col 39}{result}{space 1}      173{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}(dropped 3 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}     7,280
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   2395{txt}){col 67}= {res}      2.18
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0015
+{txt}{col 51}R-squared{col 67}= {res}    0.0594
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0338
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0268
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     2,396{txt}{col 51}Root MSE{col 67}= {res}  143.8920
+
+{txt}{ralign 103:(Std. err. adjusted for {res:2,396} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 30}Muslim  {c |}{col 39}{res}{space 2} 6.220372{col 51}{space 2} 7.485307{col 62}{space 1}    0.83{col 71}{space 3}0.406{col 79}{space 4}-8.457979{col 92}{space 3} 20.89872
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} 12.65909{col 51}{space 2} 10.06901{col 62}{space 1}    1.26{col 71}{space 3}0.209{col 79}{space 4}-7.085774{col 92}{space 3} 32.40396
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 28}Muslim#1  {c |}{col 39}{res}{space 2}-12.90076{col 51}{space 2} 13.74357{col 62}{space 1}   -0.94{col 71}{space 3}0.348{col 79}{space 4}-39.85128{col 92}{space 3} 14.04977
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 14.04019{col 51}{space 2} 12.30284{col 62}{space 1}    1.14{col 71}{space 3}0.254{col 79}{space 4}-10.08512{col 92}{space 3}  38.1655
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 30}Muslim  {c |}{col 39}{res}{space 2}-38.82645{col 51}{space 2} 29.61751{col 62}{space 1}   -1.31{col 71}{space 3}0.190{col 79}{space 4}-96.90506{col 92}{space 3} 19.25215
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2}-27.07443{col 51}{space 2} 18.85559{col 62}{space 1}   -1.44{col 71}{space 3}0.151{col 79}{space 4} -64.0494{col 92}{space 3} 9.900545
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 28}Muslim#1  {c |}{col 39}{res}{space 2}-31.16183{col 51}{space 2} 41.94126{col 62}{space 1}   -0.74{col 71}{space 3}0.458{col 79}{space 4}-113.4068{col 92}{space 3}  51.0831
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 123.2962{col 51}{space 2}  43.8562{col 62}{space 1}    2.81{col 71}{space 3}0.005{col 79}{space 4} 37.29614{col 92}{space 3} 209.2962
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2} .9802887{col 51}{space 2} 5.109755{col 62}{space 1}    0.19{col 71}{space 3}0.848{col 79}{space 4}-9.039711{col 92}{space 3} 11.00029
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 4.016798{col 51}{space 2} 3.735846{col 62}{space 1}    1.08{col 71}{space 3}0.282{col 79}{space 4}-3.309029{col 92}{space 3} 11.34262
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2}-6.973762{col 51}{space 2} 7.379535{col 62}{space 1}   -0.95{col 71}{space 3}0.345{col 79}{space 4} -21.4447{col 92}{space 3} 7.497174
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 135.0214{col 51}{space 2} 53.10041{col 62}{space 1}    2.54{col 71}{space 3}0.011{col 79}{space 4} 30.89386{col 92}{space 3} 239.1489
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-2.192523{col 51}{space 2} 8.062224{col 62}{space 1}   -0.27{col 71}{space 3}0.786{col 79}{space 4}-18.00218{col 92}{space 3} 13.61714
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-8.916191{col 51}{space 2} 7.217371{col 62}{space 1}   -1.24{col 71}{space 3}0.217{col 79}{space 4}-23.06913{col 92}{space 3} 5.236748
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-5.809742{col 51}{space 2} 7.915315{col 62}{space 1}   -0.73{col 71}{space 3}0.463{col 79}{space 4}-21.33132{col 92}{space 3} 9.711835
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-13.67244{col 51}{space 2} 8.431738{col 62}{space 1}   -1.62{col 71}{space 3}0.105{col 79}{space 4} -30.2067{col 92}{space 3} 2.861814
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-16.52071{col 51}{space 2} 4.552562{col 62}{space 1}   -3.63{col 71}{space 3}0.000{col 79}{space 4}-25.44808{col 92}{space 3}-7.593342
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-19.18333{col 51}{space 2} 7.653839{col 62}{space 1}   -2.51{col 71}{space 3}0.012{col 79}{space 4}-34.19217{col 92}{space 3}-4.174499
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}  -15.577{col 51}{space 2} 10.89829{col 62}{space 1}   -1.43{col 71}{space 3}0.153{col 79}{space 4}-36.94805{col 92}{space 3} 5.794052
+{txt}{space 35}5  {c |}{col 39}{res}{space 2}-1.352887{col 51}{space 2} 11.23596{col 62}{space 1}   -0.12{col 71}{space 3}0.904{col 79}{space 4}-23.38609{col 92}{space 3} 20.68032
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 12.30576{col 51}{space 2} 5.670346{col 62}{space 1}    2.17{col 71}{space 3}0.030{col 79}{space 4} 1.186465{col 92}{space 3} 23.42505
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 23.33973{col 51}{space 2} 9.323203{col 62}{space 1}    2.50{col 71}{space 3}0.012{col 79}{space 4} 5.057349{col 92}{space 3} 41.62211
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      173{col 27}{space 1}        0{col 39}{result}{space 1}      173{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Muslim vs Forward Hindu
+Higher-ranking definition: Forward Hindu only
+------------------------------------------------------------------
+{res}N:     7,262
+LOO composition p25 / p50 / p75:  0.000    0.250    0.600
+{txt}
+{res}THREE-WAY interaction:    -25.57   p = 0.4848
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:    -10.58   SE =    12.28   p = 0.3891
+At p50 composition:    -16.97   SE =     9.07   p = 0.0615
+At p75 composition:    -25.92   SE =    16.36   p = 0.1132
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    10.24       3.69      -5.48
+Muslim, p25 / p50 / p75:    -0.34     -13.28     -31.40
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:    -31.16   p = 0.4576
+{txt}
+======================================================================
+REGION: Non EAG states
+======================================================================
+(380,330 missing values generated)
+(214,885 real changes made)
+(165,445 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(168,946 observations deleted)
+(78,685 observations deleted)
+(50,189 missing values generated)
+(18,425 real changes made)
+(31,764 real changes made)
+{res}{txt}(dropped 10 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    25,770
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   6716{txt}){col 67}= {res}      2.29
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0007
+{txt}{col 51}R-squared{col 67}= {res}    0.0412
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0261
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0179
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     6,717{txt}{col 51}Root MSE{col 67}= {res}  129.2746
+
+{txt}{ralign 107:(Std. err. adjusted for {res:6,717} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 33}Adivasi  {c |}{col 43}{res}{space 2} 18.62039{col 55}{space 2}  6.39094{col 66}{space 1}    2.91{col 75}{space 3}0.004{col 83}{space 4} 6.092117{col 96}{space 3} 31.14866
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2}-7.643746{col 55}{space 2} 6.564541{col 66}{space 1}   -1.16{col 75}{space 3}0.244{col 83}{space 4}-20.51233{col 96}{space 3} 5.224838
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 31}Adivasi#1  {c |}{col 43}{res}{space 2} 13.23271{col 55}{space 2} 9.712212{col 66}{space 1}    1.36{col 75}{space 3}0.173{col 83}{space 4}-5.806304{col 96}{space 3} 32.27173
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 14.44469{col 55}{space 2} 7.344219{col 66}{space 1}    1.97{col 75}{space 3}0.049{col 83}{space 4} .0476926{col 96}{space 3} 28.84169
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 33}Adivasi  {c |}{col 43}{res}{space 2}-21.07238{col 55}{space 2} 9.126291{col 66}{space 1}   -2.31{col 75}{space 3}0.021{col 83}{space 4} -38.9628{col 96}{space 3} -3.18195
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2} 3.841784{col 55}{space 2} 9.995198{col 66}{space 1}    0.38{col 75}{space 3}0.701{col 83}{space 4}-15.75198{col 96}{space 3} 23.43554
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 31}Adivasi#1  {c |}{col 43}{res}{space 2}-20.71015{col 55}{space 2} 16.24892{col 66}{space 1}   -1.27{col 75}{space 3}0.203{col 83}{space 4}-52.56319{col 96}{space 3}  11.1429
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 70.75492{col 55}{space 2} 32.73372{col 66}{space 1}    2.16{col 75}{space 3}0.031{col 83}{space 4} 6.586448{col 96}{space 3} 134.9234
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}-2.868356{col 55}{space 2} 3.307204{col 66}{space 1}   -0.87{col 75}{space 3}0.386{col 83}{space 4}-9.351526{col 96}{space 3} 3.614814
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 2.576795{col 55}{space 2} 2.530099{col 66}{space 1}    1.02{col 75}{space 3}0.308{col 83}{space 4}-2.383003{col 96}{space 3} 7.536592
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 2.732015{col 55}{space 2} 4.585854{col 66}{space 1}    0.60{col 75}{space 3}0.551{col 83}{space 4}-6.257714{col 96}{space 3} 11.72174
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 96.87673{col 55}{space 2} 34.90471{col 66}{space 1}    2.78{col 75}{space 3}0.006{col 83}{space 4} 28.45243{col 96}{space 3}  165.301
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2} 3.580328{col 55}{space 2} 5.362035{col 66}{space 1}    0.67{col 75}{space 3}0.504{col 83}{space 4}-6.930963{col 96}{space 3} 14.09162
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-5.940886{col 55}{space 2} 5.020228{col 66}{space 1}   -1.18{col 75}{space 3}0.237{col 83}{space 4}-15.78213{col 96}{space 3} 3.900353
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-6.922021{col 55}{space 2}   5.7714{col 66}{space 1}   -1.20{col 75}{space 3}0.230{col 83}{space 4} -18.2358{col 96}{space 3} 4.391755
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2} -11.2988{col 55}{space 2} 6.223363{col 66}{space 1}   -1.82{col 75}{space 3}0.069{col 83}{space 4}-23.49856{col 96}{space 3} .9009676
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-1.640829{col 55}{space 2} 2.918775{col 66}{space 1}   -0.56{col 75}{space 3}0.574{col 83}{space 4}-7.362554{col 96}{space 3} 4.080897
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-12.49383{col 55}{space 2} 3.835356{col 66}{space 1}   -3.26{col 75}{space 3}0.001{col 83}{space 4}-20.01234{col 96}{space 3}-4.975314
+{txt}{space 39}4  {c |}{col 43}{res}{space 2} 13.42685{col 55}{space 2} 10.07718{col 66}{space 1}    1.33{col 75}{space 3}0.183{col 83}{space 4}-6.327624{col 96}{space 3} 33.18131
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} 14.35202{col 55}{space 2} 13.29754{col 66}{space 1}    1.08{col 75}{space 3}0.280{col 83}{space 4}-11.71538{col 96}{space 3} 40.41942
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 3.673221{col 55}{space 2} 4.237775{col 66}{space 1}    0.87{col 75}{space 3}0.386{col 83}{space 4}-4.634162{col 96}{space 3}  11.9806
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2}  5.19031{col 55}{space 2}  7.57308{col 66}{space 1}    0.69{col 75}{space 3}0.493{col 83}{space 4}-9.655331{col 96}{space 3} 20.03595
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      381{col 27}{space 1}        0{col 39}{result}{space 1}      381{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}(dropped 10 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    25,931
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   6877{txt}){col 67}= {res}      2.23
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0010
+{txt}{col 51}R-squared{col 67}= {res}    0.0410
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0259
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0178
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     6,878{txt}{col 51}Root MSE{col 67}= {res}  128.9263
+
+{txt}{ralign 103:(Std. err. adjusted for {res:6,878} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 29}Adivasi  {c |}{col 39}{res}{space 2} 19.55301{col 51}{space 2} 7.415558{col 62}{space 1}    2.64{col 71}{space 3}0.008{col 79}{space 4} 5.016229{col 92}{space 3}  34.0898
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2}-9.355055{col 51}{space 2} 8.392466{col 62}{space 1}   -1.11{col 71}{space 3}0.265{col 79}{space 4}-25.80688{col 92}{space 3} 7.096772
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 27}Adivasi#1  {c |}{col 39}{res}{space 2} 14.74544{col 51}{space 2} 11.06499{col 62}{space 1}    1.33{col 71}{space 3}0.183{col 79}{space 4}-6.945362{col 92}{space 3} 36.43625
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 15.66247{col 51}{space 2} 8.919671{col 62}{space 1}    1.76{col 71}{space 3}0.079{col 79}{space 4}-1.822841{col 92}{space 3} 33.14778
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 29}Adivasi  {c |}{col 39}{res}{space 2}-21.69861{col 51}{space 2} 11.09275{col 62}{space 1}   -1.96{col 71}{space 3}0.050{col 79}{space 4}-43.44384{col 92}{space 3} .0466075
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2} 5.893511{col 51}{space 2} 11.95779{col 62}{space 1}    0.49{col 71}{space 3}0.622{col 79}{space 4}-17.54746{col 92}{space 3} 29.33448
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 27}Adivasi#1  {c |}{col 39}{res}{space 2} -25.0328{col 51}{space 2} 19.85551{col 62}{space 1}   -1.26{col 71}{space 3}0.207{col 79}{space 4}-63.95573{col 92}{space 3} 13.89013
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 71.10732{col 51}{space 2} 32.68044{col 62}{space 1}    2.18{col 71}{space 3}0.030{col 79}{space 4}  7.04356{col 92}{space 3} 135.1711
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}-2.787884{col 51}{space 2} 3.290037{col 62}{space 1}   -0.85{col 71}{space 3}0.397{col 79}{space 4}-9.237373{col 92}{space 3} 3.661605
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 2.590897{col 51}{space 2} 2.514525{col 62}{space 1}    1.03{col 71}{space 3}0.303{col 79}{space 4}-2.338348{col 92}{space 3} 7.520142
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 2.724584{col 51}{space 2} 4.563142{col 62}{space 1}    0.60{col 71}{space 3}0.550{col 79}{space 4}-6.220584{col 92}{space 3} 11.66975
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 96.95501{col 51}{space 2} 34.89826{col 62}{space 1}    2.78{col 71}{space 3}0.005{col 79}{space 4} 28.54365{col 92}{space 3} 165.3664
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2} 3.508777{col 51}{space 2} 5.342714{col 62}{space 1}    0.66{col 71}{space 3}0.511{col 79}{space 4}-6.964594{col 92}{space 3} 13.98215
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-6.009861{col 51}{space 2} 5.007447{col 62}{space 1}   -1.20{col 71}{space 3}0.230{col 79}{space 4}  -15.826{col 92}{space 3} 3.806283
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-6.995195{col 51}{space 2} 5.752068{col 62}{space 1}   -1.22{col 71}{space 3}0.224{col 79}{space 4}-18.27103{col 92}{space 3} 4.280637
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-11.51365{col 51}{space 2} 6.206923{col 62}{space 1}   -1.85{col 71}{space 3}0.064{col 79}{space 4}-23.68113{col 92}{space 3} .6538405
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-1.545747{col 51}{space 2} 2.902588{col 62}{space 1}   -0.53{col 71}{space 3}0.594{col 79}{space 4}-7.235717{col 92}{space 3} 4.144222
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-12.31335{col 51}{space 2} 3.811767{col 62}{space 1}   -3.23{col 71}{space 3}0.001{col 79}{space 4} -19.7856{col 92}{space 3}-4.841113
+{txt}{space 35}4  {c |}{col 39}{res}{space 2} 13.57669{col 51}{space 2} 10.06193{col 62}{space 1}    1.35{col 71}{space 3}0.177{col 79}{space 4}-6.147807{col 92}{space 3} 33.30119
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} 14.36359{col 51}{space 2} 13.26186{col 62}{space 1}    1.08{col 71}{space 3}0.279{col 79}{space 4}-11.63374{col 92}{space 3} 40.36092
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 3.684953{col 51}{space 2} 4.229944{col 62}{space 1}    0.87{col 71}{space 3}0.384{col 79}{space 4}-4.607043{col 92}{space 3} 11.97695
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 3.651339{col 51}{space 2} 8.399461{col 62}{space 1}    0.43{col 71}{space 3}0.664{col 79}{space 4} -12.8142{col 92}{space 3} 20.11688
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      382{col 27}{space 1}        0{col 39}{result}{space 1}      382{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Adivasi vs Forward Hindu
+Higher-ranking definition: OBC + Forward Hindu + Muslim
+------------------------------------------------------------------
+{res}N:    25,770
+LOO composition p25 / p50 / p75:  0.000    0.059    0.688
+{txt}
+{res}THREE-WAY interaction:    -20.71   p = 0.2025
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:     13.23   SE =     9.71   p = 0.1731
+At p50 composition:     12.01   SE =     9.03   p = 0.1833
+At p75 composition:     -1.01   SE =     7.65   p = 0.8954
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    -7.64      -7.42      -5.00
+Adivasi, p25 / p50 / p75:     5.59       4.60      -6.01
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:    -25.03   p = 0.2074
+{txt}(380,330 missing values generated)
+(214,885 real changes made)
+(165,445 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(168,946 observations deleted)
+(84,701 observations deleted)
+(44,173 missing values generated)
+(18,425 real changes made)
+(25,748 real changes made)
+{res}{txt}(dropped 6 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    22,366
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   6421{txt}){col 67}= {res}      2.87
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0364
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0191
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0176
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     6,422{txt}{col 51}Root MSE{col 67}= {res}  128.7691
+
+{txt}{ralign 107:(Std. err. adjusted for {res:6,422} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 35}Dalit  {c |}{col 43}{res}{space 2} 10.67173{col 55}{space 2} 5.425419{col 66}{space 1}    1.97{col 75}{space 3}0.049{col 83}{space 4} .0360982{col 96}{space 3} 21.30736
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2}-8.992897{col 55}{space 2} 6.150422{col 66}{space 1}   -1.46{col 75}{space 3}0.144{col 83}{space 4}-21.04978{col 96}{space 3} 3.063982
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 33}Dalit#1  {c |}{col 43}{res}{space 2} 9.359064{col 55}{space 2} 8.314768{col 66}{space 1}    1.13{col 75}{space 3}0.260{col 83}{space 4}-6.940654{col 96}{space 3} 25.65878
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 14.95598{col 55}{space 2}  7.01095{col 66}{space 1}    2.13{col 75}{space 3}0.033{col 83}{space 4} 1.212178{col 96}{space 3} 28.69978
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 35}Dalit  {c |}{col 43}{res}{space 2}-17.97916{col 55}{space 2} 8.416459{col 66}{space 1}   -2.14{col 75}{space 3}0.033{col 83}{space 4}-34.47823{col 96}{space 3}-1.480096
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2} 5.282806{col 55}{space 2} 9.619009{col 66}{space 1}    0.55{col 75}{space 3}0.583{col 83}{space 4}-13.57366{col 96}{space 3} 24.13927
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 33}Dalit#1  {c |}{col 43}{res}{space 2}-7.227062{col 55}{space 2} 13.14198{col 66}{space 1}   -0.55{col 75}{space 3}0.582{col 83}{space 4}-32.98972{col 96}{space 3}  18.5356
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2}  36.1207{col 55}{space 2} 17.75712{col 66}{space 1}    2.03{col 75}{space 3}0.042{col 83}{space 4} 1.310832{col 96}{space 3} 70.93057
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}-1.338176{col 55}{space 2} 2.692961{col 66}{space 1}   -0.50{col 75}{space 3}0.619{col 83}{space 4}-6.617277{col 96}{space 3} 3.940926
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 3.336302{col 55}{space 2} 2.141593{col 66}{space 1}    1.56{col 75}{space 3}0.119{col 83}{space 4}-.8619352{col 96}{space 3}  7.53454
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 4.124187{col 55}{space 2} 3.797581{col 66}{space 1}    1.09{col 75}{space 3}0.278{col 83}{space 4}-3.320337{col 96}{space 3} 11.56871
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 121.2674{col 55}{space 2}  28.8932{col 66}{space 1}    4.20{col 75}{space 3}0.000{col 83}{space 4}  64.6271{col 96}{space 3} 177.9077
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}-6.325948{col 55}{space 2} 4.547177{col 66}{space 1}   -1.39{col 75}{space 3}0.164{col 83}{space 4}-15.23993{col 96}{space 3} 2.588036
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-11.37203{col 55}{space 2}  4.34931{col 66}{space 1}   -2.61{col 75}{space 3}0.009{col 83}{space 4}-19.89813{col 96}{space 3}-2.845933
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2} -12.7615{col 55}{space 2} 4.676342{col 66}{space 1}   -2.73{col 75}{space 3}0.006{col 83}{space 4} -21.9287{col 96}{space 3}-3.594314
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-17.49431{col 55}{space 2} 4.991117{col 66}{space 1}   -3.51{col 75}{space 3}0.000{col 83}{space 4}-27.27856{col 96}{space 3}-7.710053
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-3.687754{col 55}{space 2}  2.40076{col 66}{space 1}   -1.54{col 75}{space 3}0.125{col 83}{space 4}-8.394044{col 96}{space 3} 1.018536
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-7.767871{col 55}{space 2}  3.92723{col 66}{space 1}   -1.98{col 75}{space 3}0.048{col 83}{space 4}-15.46655{col 96}{space 3}-.0691898
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-5.936039{col 55}{space 2} 6.593667{col 66}{space 1}   -0.90{col 75}{space 3}0.368{col 83}{space 4}-18.86183{col 96}{space 3} 6.989749
+{txt}{space 39}5  {c |}{col 43}{res}{space 2}  11.1393{col 55}{space 2} 12.62557{col 66}{space 1}    0.88{col 75}{space 3}0.378{col 83}{space 4}-13.61103{col 96}{space 3} 35.88963
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2}  2.18119{col 55}{space 2}   3.3738{col 66}{space 1}    0.65{col 75}{space 3}0.518{col 83}{space 4}-4.432584{col 96}{space 3} 8.794963
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 14.89826{col 55}{space 2} 5.991339{col 66}{space 1}    2.49{col 75}{space 3}0.013{col 83}{space 4} 3.153235{col 96}{space 3} 26.64328
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      376{col 27}{space 1}        0{col 39}{result}{space 1}      376{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}(dropped 8 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    22,556
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   6611{txt}){col 67}= {res}      2.73
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0363
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0190
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0175
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     6,612{txt}{col 51}Root MSE{col 67}= {res}  128.3797
+
+{txt}{ralign 103:(Std. err. adjusted for {res:6,612} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 31}Dalit  {c |}{col 39}{res}{space 2} 12.07906{col 51}{space 2} 6.606296{col 62}{space 1}    1.83{col 71}{space 3}0.068{col 79}{space 4}-.8714105{col 92}{space 3} 25.02954
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2} -10.9874{col 51}{space 2} 8.024067{col 62}{space 1}   -1.37{col 71}{space 3}0.171{col 79}{space 4}-26.71717{col 92}{space 3} 4.742358
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 29}Dalit#1  {c |}{col 39}{res}{space 2} 11.51767{col 51}{space 2} 9.767533{col 62}{space 1}    1.18{col 71}{space 3}0.238{col 79}{space 4}-7.629852{col 92}{space 3} 30.66519
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 16.78232{col 51}{space 2} 8.501685{col 62}{space 1}    1.97{col 71}{space 3}0.048{col 79}{space 4} .1162701{col 92}{space 3} 33.44837
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 31}Dalit  {c |}{col 39}{res}{space 2}-18.77663{col 51}{space 2} 10.22707{col 62}{space 1}   -1.84{col 71}{space 3}0.066{col 79}{space 4}-38.82499{col 92}{space 3} 1.271728
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2} 7.597883{col 51}{space 2} 11.59617{col 62}{space 1}    0.66{col 71}{space 3}0.512{col 79}{space 4}-15.13436{col 92}{space 3} 30.33012
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 29}Dalit#1  {c |}{col 39}{res}{space 2}-9.879256{col 51}{space 2} 15.95021{col 62}{space 1}   -0.62{col 71}{space 3}0.536{col 79}{space 4}-41.14681{col 92}{space 3}  21.3883
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 36.42598{col 51}{space 2} 17.71491{col 62}{space 1}    2.06{col 71}{space 3}0.040{col 79}{space 4} 1.699041{col 92}{space 3} 71.15292
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}-1.327025{col 51}{space 2} 2.675696{col 62}{space 1}   -0.50{col 71}{space 3}0.620{col 79}{space 4}-6.572252{col 92}{space 3} 3.918202
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 3.344694{col 51}{space 2} 2.122546{col 62}{space 1}    1.58{col 71}{space 3}0.115{col 79}{space 4}-.8161825{col 92}{space 3}  7.50557
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 4.108236{col 51}{space 2} 3.770701{col 62}{space 1}    1.09{col 71}{space 3}0.276{col 79}{space 4}-3.283556{col 92}{space 3} 11.50003
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 121.4488{col 51}{space 2} 28.88118{col 62}{space 1}    4.21{col 71}{space 3}0.000{col 79}{space 4} 64.83239{col 92}{space 3} 178.0653
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-6.436613{col 51}{space 2}  4.53175{col 62}{space 1}   -1.42{col 71}{space 3}0.156{col 79}{space 4}-15.32031{col 92}{space 3} 2.447081
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-11.47577{col 51}{space 2} 4.333171{col 62}{space 1}   -2.65{col 71}{space 3}0.008{col 79}{space 4}-19.97018{col 92}{space 3}-2.981352
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-12.89834{col 51}{space 2} 4.652407{col 62}{space 1}   -2.77{col 71}{space 3}0.006{col 79}{space 4}-22.01856{col 92}{space 3}-3.778122
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-17.36083{col 51}{space 2} 4.972207{col 62}{space 1}   -3.49{col 71}{space 3}0.000{col 79}{space 4}-27.10796{col 92}{space 3}  -7.6137
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-3.669652{col 51}{space 2} 2.381942{col 62}{space 1}   -1.54{col 71}{space 3}0.123{col 79}{space 4}-8.339028{col 92}{space 3} .9997243
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-7.746103{col 51}{space 2} 3.905889{col 62}{space 1}   -1.98{col 71}{space 3}0.047{col 79}{space 4}-15.40291{col 92}{space 3}-.0892994
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}-5.942573{col 51}{space 2} 6.562229{col 62}{space 1}   -0.91{col 71}{space 3}0.365{col 79}{space 4}-18.80666{col 92}{space 3} 6.921515
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} 11.16974{col 51}{space 2}  12.5972{col 62}{space 1}    0.89{col 71}{space 3}0.375{col 79}{space 4}-13.52484{col 92}{space 3} 35.86432
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 2.152833{col 51}{space 2} 3.359465{col 62}{space 1}    0.64{col 71}{space 3}0.522{col 79}{space 4}-4.432804{col 92}{space 3}  8.73847
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 12.84842{col 51}{space 2} 6.927503{col 62}{space 1}    1.85{col 71}{space 3}0.064{col 79}{space 4}-.7317273{col 92}{space 3} 26.42856
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      376{col 27}{space 1}        0{col 39}{result}{space 1}      376{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Dalit vs Forward Hindu
+Higher-ranking definition: OBC + Forward Hindu + Muslim
+------------------------------------------------------------------
+{res}N:    22,366
+LOO composition p25 / p50 / p75:  0.250    0.556    0.857
+{txt}
+{res}THREE-WAY interaction:     -7.23   p = 0.5824
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:      7.55   SE =     5.74   p = 0.1886
+At p50 composition:      5.34   SE =     4.26   p = 0.2097
+At p75 composition:      3.16   SE =     5.93   p = 0.5934
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    -7.67      -6.06      -4.46
+Dalit, p25 / p50 / p75:    -0.12      -0.71      -1.30
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     -9.88   p = 0.5357
+{txt}(380,330 missing values generated)
+(43,951 real changes made)
+(336,379 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(168,946 observations deleted)
+(76,626 observations deleted)
+(52,248 missing values generated)
+(18,425 real changes made)
+(33,823 real changes made)
+{res}{txt}(dropped 10 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    26,512
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   7023{txt}){col 67}= {res}      2.69
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0276
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0138
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0133
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     7,024{txt}{col 51}Root MSE{col 67}= {res}  126.6765
+
+{txt}{ralign 107:(Std. err. adjusted for {res:7,024} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 37}OBC  {c |}{col 43}{res}{space 2} 5.237122{col 55}{space 2} 4.271977{col 66}{space 1}    1.23{col 75}{space 3}0.220{col 83}{space 4}-3.137242{col 96}{space 3} 13.61149
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2}-5.888054{col 55}{space 2} 5.488247{col 66}{space 1}   -1.07{col 75}{space 3}0.283{col 83}{space 4}-16.64667{col 96}{space 3} 4.870566
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 35}OBC#1  {c |}{col 43}{res}{space 2} -1.51747{col 55}{space 2} 5.826047{col 66}{space 1}   -0.26{col 75}{space 3}0.795{col 83}{space 4}-12.93828{col 96}{space 3}  9.90334
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2} 7.784113{col 55}{space 2} 6.931253{col 66}{space 1}    1.12{col 75}{space 3}0.261{col 83}{space 4}-5.803235{col 96}{space 3} 21.37146
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 37}OBC  {c |}{col 43}{res}{space 2}-11.93143{col 55}{space 2} 10.11538{col 66}{space 1}   -1.18{col 75}{space 3}0.238{col 83}{space 4}-31.76062{col 96}{space 3} 7.897768
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2} 5.154649{col 55}{space 2} 10.73463{col 66}{space 1}    0.48{col 75}{space 3}0.631{col 83}{space 4}-15.88847{col 96}{space 3} 26.19776
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 35}OBC#1  {c |}{col 43}{res}{space 2} 10.38716{col 55}{space 2} 16.44741{col 66}{space 1}    0.63{col 75}{space 3}0.528{col 83}{space 4}-21.85472{col 96}{space 3} 42.62904
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 62.32586{col 55}{space 2} 20.94528{col 66}{space 1}    2.98{col 75}{space 3}0.003{col 83}{space 4} 21.26678{col 96}{space 3} 103.3849
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}-1.698216{col 55}{space 2} 2.327738{col 66}{space 1}   -0.73{col 75}{space 3}0.466{col 83}{space 4}-6.261286{col 96}{space 3} 2.864853
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2} 2.501708{col 55}{space 2} 1.991253{col 66}{space 1}    1.26{col 75}{space 3}0.209{col 83}{space 4}-1.401748{col 96}{space 3} 6.405165
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} 4.141619{col 55}{space 2} 3.418712{col 66}{space 1}    1.21{col 75}{space 3}0.226{col 83}{space 4}-2.560089{col 96}{space 3} 10.84333
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 92.08936{col 55}{space 2} 24.27549{col 66}{space 1}    3.79{col 75}{space 3}0.000{col 83}{space 4} 44.50207{col 96}{space 3} 139.6766
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}-3.456092{col 55}{space 2} 4.719787{col 66}{space 1}   -0.73{col 75}{space 3}0.464{col 83}{space 4} -12.7083{col 96}{space 3} 5.796116
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-7.665405{col 55}{space 2} 4.685985{col 66}{space 1}   -1.64{col 75}{space 3}0.102{col 83}{space 4}-16.85135{col 96}{space 3} 1.520539
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2} -9.39159{col 55}{space 2} 4.643543{col 66}{space 1}   -2.02{col 75}{space 3}0.043{col 83}{space 4}-18.49433{col 96}{space 3}-.2888447
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-14.20557{col 55}{space 2} 4.991047{col 66}{space 1}   -2.85{col 75}{space 3}0.004{col 83}{space 4}-23.98952{col 96}{space 3}-4.421606
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-3.552837{col 55}{space 2} 2.084124{col 66}{space 1}   -1.70{col 75}{space 3}0.088{col 83}{space 4}-7.638349{col 96}{space 3} .5326743
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-6.549765{col 55}{space 2} 3.458921{col 66}{space 1}   -1.89{col 75}{space 3}0.058{col 83}{space 4}-13.33029{col 96}{space 3} .2307637
+{txt}{space 39}4  {c |}{col 43}{res}{space 2}-4.248739{col 55}{space 2} 7.237972{col 66}{space 1}   -0.59{col 75}{space 3}0.557{col 83}{space 4}-18.43735{col 96}{space 3} 9.939871
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} 4.233892{col 55}{space 2} 12.17875{col 66}{space 1}    0.35{col 75}{space 3}0.728{col 83}{space 4}-19.64014{col 96}{space 3} 28.10793
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2} 5.587188{col 55}{space 2} 3.744928{col 66}{space 1}    1.49{col 75}{space 3}0.136{col 83}{space 4}-1.754001{col 96}{space 3} 12.92838
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 19.15873{col 55}{space 2} 6.096834{col 66}{space 1}    3.14{col 75}{space 3}0.002{col 83}{space 4} 7.207096{col 96}{space 3} 31.11037
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      350{col 27}{space 1}        0{col 39}{result}{space 1}      350{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}(dropped 11 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    26,765
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   7276{txt}){col 67}= {res}      2.72
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0000
+{txt}{col 51}R-squared{col 67}= {res}    0.0275
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0139
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0133
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     7,277{txt}{col 51}Root MSE{col 67}= {res}  126.1537
+
+{txt}{ralign 103:(Std. err. adjusted for {res:7,277} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 33}OBC  {c |}{col 39}{res}{space 2} 4.808513{col 51}{space 2} 5.344542{col 62}{space 1}    0.90{col 71}{space 3}0.368{col 79}{space 4}-5.668339{col 92}{space 3} 15.28536
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2}-7.709488{col 51}{space 2}  7.38113{col 62}{space 1}   -1.04{col 71}{space 3}0.296{col 79}{space 4}-22.17864{col 92}{space 3} 6.759668
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 31}OBC#1  {c |}{col 39}{res}{space 2} .2001578{col 51}{space 2} 7.600315{col 62}{space 1}    0.03{col 71}{space 3}0.979{col 79}{space 4}-14.69866{col 92}{space 3} 15.09898
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2} 5.840069{col 51}{space 2} 8.404878{col 62}{space 1}    0.69{col 71}{space 3}0.487{col 79}{space 4}-10.63593{col 92}{space 3} 22.31607
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 33}OBC  {c |}{col 39}{res}{space 2}-10.10729{col 51}{space 2} 12.40755{col 62}{space 1}   -0.81{col 71}{space 3}0.415{col 79}{space 4}-34.42969{col 92}{space 3}  14.2151
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2} 7.694021{col 51}{space 2} 12.77514{col 62}{space 1}    0.60{col 71}{space 3}0.547{col 79}{space 4}-17.34896{col 92}{space 3}   32.737
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 31}OBC#1  {c |}{col 39}{res}{space 2} 12.31661{col 51}{space 2} 19.75094{col 62}{space 1}    0.62{col 71}{space 3}0.533{col 79}{space 4}-26.40095{col 92}{space 3} 51.03418
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 62.51777{col 51}{space 2} 20.94045{col 62}{space 1}    2.99{col 71}{space 3}0.003{col 79}{space 4} 21.46841{col 92}{space 3} 103.5671
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}-1.681923{col 51}{space 2} 2.310804{col 62}{space 1}   -0.73{col 71}{space 3}0.467{col 79}{space 4}-6.211769{col 92}{space 3} 2.847923
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2} 2.408752{col 51}{space 2} 1.973123{col 62}{space 1}    1.22{col 71}{space 3}0.222{col 79}{space 4} -1.45914{col 92}{space 3} 6.276645
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} 4.149417{col 51}{space 2} 3.391265{col 62}{space 1}    1.22{col 71}{space 3}0.221{col 79}{space 4}-2.498445{col 92}{space 3} 10.79728
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 92.22712{col 51}{space 2}  24.2665{col 62}{space 1}    3.80{col 71}{space 3}0.000{col 79}{space 4} 44.65774{col 92}{space 3} 139.7965
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-3.342877{col 51}{space 2} 4.703292{col 62}{space 1}   -0.71{col 71}{space 3}0.477{col 79}{space 4}-12.56269{col 92}{space 3}  5.87694
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2}-7.636753{col 51}{space 2} 4.662811{col 62}{space 1}   -1.64{col 71}{space 3}0.102{col 79}{space 4}-16.77721{col 92}{space 3} 1.503709
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-9.381598{col 51}{space 2} 4.625509{col 62}{space 1}   -2.03{col 71}{space 3}0.043{col 79}{space 4}-18.44894{col 92}{space 3}-.3142586
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-14.16707{col 51}{space 2}  4.96518{col 62}{space 1}   -2.85{col 71}{space 3}0.004{col 79}{space 4}-23.90027{col 92}{space 3} -4.43388
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-3.471504{col 51}{space 2} 2.068957{col 62}{space 1}   -1.68{col 71}{space 3}0.093{col 79}{space 4} -7.52726{col 92}{space 3} .5842523
+{txt}{space 35}3  {c |}{col 39}{res}{space 2} -6.41374{col 51}{space 2} 3.423622{col 62}{space 1}   -1.87{col 71}{space 3}0.061{col 79}{space 4}-13.12503{col 92}{space 3} .2975532
+{txt}{space 35}4  {c |}{col 39}{res}{space 2}-4.260578{col 51}{space 2} 7.201008{col 62}{space 1}   -0.59{col 71}{space 3}0.554{col 79}{space 4}-18.37664{col 92}{space 3} 9.855486
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} 4.295702{col 51}{space 2} 12.17115{col 62}{space 1}    0.35{col 71}{space 3}0.724{col 79}{space 4}-19.56328{col 92}{space 3} 28.15468
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 5.726794{col 51}{space 2} 3.725388{col 62}{space 1}    1.54{col 71}{space 3}0.124{col 79}{space 4}-1.576046{col 92}{space 3} 13.02963
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 19.37368{col 51}{space 2} 6.941896{col 62}{space 1}    2.79{col 71}{space 3}0.005{col 79}{space 4} 5.765553{col 92}{space 3} 32.98181
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      350{col 27}{space 1}        0{col 39}{result}{space 1}      350{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+OBC vs Forward Hindu
+Higher-ranking definition: Forward Hindu only
+------------------------------------------------------------------
+{res}N:    26,512
+LOO composition p25 / p50 / p75:  0.000    0.000    0.400
+{txt}
+{res}THREE-WAY interaction:     10.39   p = 0.5277
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:     -1.52   SE =     5.83   p = 0.7945
+At p50 composition:     -1.52   SE =     5.83   p = 0.7945
+At p75 composition:      2.64   SE =     5.70   p = 0.6436
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    -5.89      -5.89      -3.83
+OBC, p25 / p50 / p75:    -7.41      -7.41      -1.19
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:     12.32   p = 0.5329
+{txt}(380,330 missing values generated)
+(43,951 real changes made)
+(336,379 real changes made)
+(951 missing values generated)
+(82,510 observations deleted)
+(168,946 observations deleted)
+(91,335 observations deleted)
+(37,539 missing values generated)
+(18,425 real changes made)
+(19,114 real changes made)
+{res}{txt}(dropped 15 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    18,978
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   5073{txt}){col 67}= {res}      1.89
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0082
+{txt}{col 51}R-squared{col 67}= {res}    0.0336
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0147
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0122
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     5,074{txt}{col 51}Root MSE{col 67}= {res}  121.3428
+
+{txt}{ralign 107:(Std. err. adjusted for {res:5,074} clusters in {res:psu})}
+{hline 42}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 43}{c |}{col 55}    Robust
+{col 1}                                      nnm{col 43}{c |} Coefficient{col 55}  std. err.{col 67}      t{col 75}   P>|t|{col 83}     [95% con{col 96}f. interval]
+{hline 42}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 31}comp_group {c |}
+{space 34}Muslim  {c |}{col 43}{res}{space 2} .8382027{col 55}{space 2} 5.923615{col 66}{space 1}    0.14{col 75}{space 3}0.887{col 83}{space 4}-10.77464{col 96}{space 3} 12.45105
+{txt}{space 32}1.private {c |}{col 43}{res}{space 2}-8.830623{col 55}{space 2} 5.866611{col 66}{space 1}   -1.51{col 75}{space 3}0.132{col 83}{space 4}-20.33171{col 96}{space 3} 2.670466
+{txt}{space 41} {c |}
+{space 23}comp_group#private {c |}
+{space 32}Muslim#1  {c |}{col 43}{res}{space 2} 7.515946{col 55}{space 2}  7.04544{col 66}{space 1}    1.07{col 75}{space 3}0.286{col 83}{space 4}-6.296159{col 96}{space 3} 21.32805
+{txt}{space 41} {c |}
+{space 21}higher_share_psu_loo {c |}{col 43}{res}{space 2}  2.28161{col 55}{space 2} 6.191481{col 66}{space 1}    0.37{col 75}{space 3}0.713{col 83}{space 4}-9.856365{col 96}{space 3} 14.41958
+{txt}{space 41} {c |}
+{space 8}comp_group#c.higher_share_psu_loo {c |}
+{space 34}Muslim  {c |}{col 43}{res}{space 2} 8.006811{col 55}{space 2} 15.06444{col 66}{space 1}    0.53{col 75}{space 3}0.595{col 83}{space 4}  -21.526{col 96}{space 3} 37.53962
+{txt}{space 41} {c |}
+{space 11}private#c.higher_share_psu_loo {c |}
+{space 39}1  {c |}{col 43}{res}{space 2} 8.383566{col 55}{space 2} 10.81294{col 66}{space 1}    0.78{col 75}{space 3}0.438{col 83}{space 4}-12.81447{col 96}{space 3}  29.5816
+{txt}{space 41} {c |}
+comp_group#private#c.higher_share_psu_loo {c |}
+{space 32}Muslim#1  {c |}{col 43}{res}{space 2}-21.15278{col 55}{space 2}   21.651{col 66}{space 1}   -0.98{col 75}{space 3}0.329{col 83}{space 4}-63.59808{col 96}{space 3} 21.29251
+{txt}{space 41} {c |}
+{space 34}1.prior {c |}{col 43}{res}{space 2} 88.83748{col 55}{space 2} 36.99156{col 66}{space 1}    2.40{col 75}{space 3}0.016{col 83}{space 4} 16.31806{col 96}{space 3} 161.3569
+{txt}{space 18}1.underweight_projected {c |}{col 43}{res}{space 2}-3.367125{col 55}{space 2} 3.015623{col 66}{space 1}   -1.12{col 75}{space 3}0.264{col 83}{space 4}-9.279049{col 96}{space 3} 2.544798
+{txt}{space 35}1.male {c |}{col 43}{res}{space 2}-.6893925{col 55}{space 2} 2.627454{col 66}{space 1}   -0.26{col 75}{space 3}0.793{col 83}{space 4}-5.840336{col 96}{space 3} 4.461551
+{txt}{space 29}1.momunder20 {c |}{col 43}{res}{space 2} .7525818{col 55}{space 2} 3.612648{col 66}{space 1}    0.21{col 75}{space 3}0.835{col 83}{space 4}-6.329767{col 96}{space 3} 7.834931
+{txt}{space 30}1.multiples {c |}{col 43}{res}{space 2} 75.10438{col 55}{space 2} 30.01341{col 66}{space 1}    2.50{col 75}{space 3}0.012{col 83}{space 4} 16.26515{col 96}{space 3} 133.9436
+{txt}{space 41} {c |}
+{space 37}v190 {c |}
+{space 34}poorer  {c |}{col 43}{res}{space 2}-1.031939{col 55}{space 2} 4.338412{col 66}{space 1}   -0.24{col 75}{space 3}0.812{col 83}{space 4}  -9.5371{col 96}{space 3} 7.473222
+{txt}{space 34}middle  {c |}{col 43}{res}{space 2}-7.401829{col 55}{space 2} 4.384029{col 66}{space 1}   -1.69{col 75}{space 3}0.091{col 83}{space 4}-15.99642{col 96}{space 3}  1.19276
+{txt}{space 34}richer  {c |}{col 43}{res}{space 2}-7.270516{col 55}{space 2}   5.4807{col 66}{space 1}   -1.33{col 75}{space 3}0.185{col 83}{space 4}-18.01505{col 96}{space 3} 3.474023
+{txt}{space 33}richest  {c |}{col 43}{res}{space 2}-12.17346{col 55}{space 2} 6.024164{col 66}{space 1}   -2.02{col 75}{space 3}0.043{col 83}{space 4}-23.98343{col 96}{space 3}-.3635017
+{txt}{space 41} {c |}
+{space 30}birth_order {c |}
+{space 39}2  {c |}{col 43}{res}{space 2}-.0830291{col 55}{space 2} 2.896854{col 66}{space 1}   -0.03{col 75}{space 3}0.977{col 83}{space 4}-5.762113{col 96}{space 3} 5.596055
+{txt}{space 39}3  {c |}{col 43}{res}{space 2}-9.042009{col 55}{space 2} 3.319643{col 66}{space 1}   -2.72{col 75}{space 3}0.006{col 83}{space 4}-15.54994{col 96}{space 3}-2.534076
+{txt}{space 39}4  {c |}{col 43}{res}{space 2} -3.30927{col 55}{space 2} 5.896245{col 66}{space 1}   -0.56{col 75}{space 3}0.575{col 83}{space 4}-14.86846{col 96}{space 3} 8.249915
+{txt}{space 39}5  {c |}{col 43}{res}{space 2} .4948168{col 55}{space 2} 9.712561{col 66}{space 1}    0.05{col 75}{space 3}0.959{col 83}{space 4}  -18.546{col 96}{space 3} 19.53563
+{txt}{space 41} {c |}
+{space 29}1.illiterate {c |}{col 43}{res}{space 2}   2.4373{col 55}{space 2} 3.503674{col 66}{space 1}    0.70{col 75}{space 3}0.487{col 83}{space 4}-4.431414{col 96}{space 3} 9.306014
+{txt}{space 34}5.round {c |}{col 43}{res}{space 2}        0{col 55}{txt}  (omitted)
+{space 36}_cons {c |}{col 43}{res}{space 2} 19.84816{col 55}{space 2} 6.523184{col 66}{space 1}    3.04{col 75}{space 3}0.002{col 83}{space 4}   7.0599{col 96}{space 3} 32.63641
+{txt}{hline 42}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      344{col 27}{space 1}        0{col 39}{result}{space 1}      344{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}(dropped 16 {browse "http://scorreia.com/research/singletons.pdf":singleton observations})
+{res}{txt}({browse "http://scorreia.com/research/hdfe.pdf":MWFE estimator} converged in 1 iterations)
+{res}{txt}note: {res}5bn.round{txt} is probably collinear with the fixed effects (all partialled-out values are close to zero; tol = 1.0e-09)
+{res}
+{txt}HDFE Linear regression{col 51}Number of obs{col 67}= {res}    19,080
+{txt}Absorbing 1 HDFE group{col 51}F({res}  21{txt},{res}   5175{txt}){col 67}= {res}      1.90
+{txt}Statistics robust to heteroskedasticity{col 51}Prob > F{col 67}= {res}    0.0077
+{txt}{col 51}R-squared{col 67}= {res}    0.0335
+{txt}{col 51}Adj R-squared{col 67}= {res}    0.0147
+{txt}{col 51}Within R-sq.{col 67}= {res}    0.0121
+{txt}{col 1}Number of clusters ({res}psu{txt}) {col 30}= {res}     5,176{txt}{col 51}Root MSE{col 67}= {res}  121.0865
+
+{txt}{ralign 103:(Std. err. adjusted for {res:5,176} clusters in {res:psu})}
+{hline 38}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 39}{c |}{col 51}    Robust
+{col 1}                                  nnm{col 39}{c |} Coefficient{col 51}  std. err.{col 63}      t{col 71}   P>|t|{col 79}     [95% con{col 92}f. interval]
+{hline 38}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 27}comp_group {c |}
+{space 30}Muslim  {c |}{col 39}{res}{space 2}-.4228296{col 51}{space 2} 6.853941{col 62}{space 1}   -0.06{col 71}{space 3}0.951{col 79}{space 4}-13.85945{col 92}{space 3} 13.01379
+{txt}{space 28}1.private {c |}{col 39}{res}{space 2}-11.12183{col 51}{space 2} 7.800445{col 62}{space 1}   -1.43{col 71}{space 3}0.154{col 79}{space 4}  -26.414{col 92}{space 3} 4.170336
+{txt}{space 37} {c |}
+{space 19}comp_group#private {c |}
+{space 28}Muslim#1  {c |}{col 39}{res}{space 2} 9.800255{col 51}{space 2} 8.709856{col 62}{space 1}    1.13{col 71}{space 3}0.261{col 79}{space 4}-7.274742{col 92}{space 3} 26.87525
+{txt}{space 37} {c |}
+{space 21}higher_share_psu {c |}{col 39}{res}{space 2}-.7557622{col 51}{space 2} 7.683338{col 62}{space 1}   -0.10{col 71}{space 3}0.922{col 79}{space 4}-15.81835{col 92}{space 3} 14.30683
+{txt}{space 37} {c |}
+{space 8}comp_group#c.higher_share_psu {c |}
+{space 30}Muslim  {c |}{col 39}{res}{space 2} 12.75932{col 51}{space 2} 18.05087{col 62}{space 1}    0.71{col 71}{space 3}0.480{col 79}{space 4}-22.62802{col 92}{space 3} 48.14666
+{txt}{space 37} {c |}
+{space 11}private#c.higher_share_psu {c |}
+{space 35}1  {c |}{col 39}{res}{space 2} 11.41377{col 51}{space 2} 12.88055{col 62}{space 1}    0.89{col 71}{space 3}0.376{col 79}{space 4}-13.83755{col 92}{space 3} 36.66509
+{txt}{space 37} {c |}
+comp_group#private#c.higher_share_psu {c |}
+{space 28}Muslim#1  {c |}{col 39}{res}{space 2}-25.66921{col 51}{space 2} 26.72479{col 62}{space 1}   -0.96{col 71}{space 3}0.337{col 79}{space 4}-78.06108{col 92}{space 3} 26.72266
+{txt}{space 37} {c |}
+{space 30}1.prior {c |}{col 39}{res}{space 2} 88.98373{col 51}{space 2} 36.93714{col 62}{space 1}    2.41{col 71}{space 3}0.016{col 79}{space 4} 16.57133{col 92}{space 3} 161.3961
+{txt}{space 14}1.underweight_projected {c |}{col 39}{res}{space 2}-3.362607{col 51}{space 2} 3.011175{col 62}{space 1}   -1.12{col 71}{space 3}0.264{col 79}{space 4}-9.265782{col 92}{space 3} 2.540568
+{txt}{space 31}1.male {c |}{col 39}{res}{space 2}-.6856644{col 51}{space 2} 2.615447{col 62}{space 1}   -0.26{col 71}{space 3}0.793{col 79}{space 4}-5.813045{col 92}{space 3} 4.441716
+{txt}{space 25}1.momunder20 {c |}{col 39}{res}{space 2} .7654051{col 51}{space 2} 3.586874{col 62}{space 1}    0.21{col 71}{space 3}0.831{col 79}{space 4}-6.266384{col 92}{space 3} 7.797194
+{txt}{space 26}1.multiples {c |}{col 39}{res}{space 2} 75.11618{col 51}{space 2} 30.00628{col 62}{space 1}    2.50{col 71}{space 3}0.012{col 79}{space 4}  16.2912{col 92}{space 3} 133.9412
+{txt}{space 37} {c |}
+{space 33}v190 {c |}
+{space 30}poorer  {c |}{col 39}{res}{space 2}-1.044715{col 51}{space 2} 4.332266{col 62}{space 1}   -0.24{col 71}{space 3}0.809{col 79}{space 4}-9.537787{col 92}{space 3} 7.448357
+{txt}{space 30}middle  {c |}{col 39}{res}{space 2} -7.32944{col 51}{space 2} 4.372814{col 62}{space 1}   -1.68{col 71}{space 3}0.094{col 79}{space 4}  -15.902{col 92}{space 3} 1.243123
+{txt}{space 30}richer  {c |}{col 39}{res}{space 2}-7.316475{col 51}{space 2}  5.46077{col 62}{space 1}   -1.34{col 71}{space 3}0.180{col 79}{space 4}-18.02189{col 92}{space 3} 3.388943
+{txt}{space 29}richest  {c |}{col 39}{res}{space 2}-12.34745{col 51}{space 2} 5.999966{col 62}{space 1}   -2.06{col 71}{space 3}0.040{col 79}{space 4}-24.10992{col 92}{space 3}-.5849849
+{txt}{space 37} {c |}
+{space 26}birth_order {c |}
+{space 35}2  {c |}{col 39}{res}{space 2}-.0215975{col 51}{space 2} 2.883884{col 62}{space 1}   -0.01{col 71}{space 3}0.994{col 79}{space 4}-5.675229{col 92}{space 3} 5.632034
+{txt}{space 35}3  {c |}{col 39}{res}{space 2}-8.828331{col 51}{space 2} 3.304867{col 62}{space 1}   -2.67{col 71}{space 3}0.008{col 79}{space 4}-15.30727{col 92}{space 3}-2.349396
+{txt}{space 35}4  {c |}{col 39}{res}{space 2} -3.25276{col 51}{space 2} 5.884263{col 62}{space 1}   -0.55{col 71}{space 3}0.580{col 79}{space 4} -14.7884{col 92}{space 3}  8.28288
+{txt}{space 35}5  {c |}{col 39}{res}{space 2} .5772576{col 51}{space 2} 9.698074{col 62}{space 1}    0.06{col 71}{space 3}0.953{col 79}{space 4}-18.43507{col 92}{space 3} 19.58958
+{txt}{space 37} {c |}
+{space 25}1.illiterate {c |}{col 39}{res}{space 2} 2.367588{col 51}{space 2} 3.501089{col 62}{space 1}    0.68{col 71}{space 3}0.499{col 79}{space 4}-4.496027{col 92}{space 3} 9.231203
+{txt}{space 30}5.round {c |}{col 39}{res}{space 2}        0{col 51}{txt}  (omitted)
+{space 32}_cons {c |}{col 39}{res}{space 2} 21.11296{col 51}{space 2} 7.486604{col 62}{space 1}    2.82{col 71}{space 3}0.005{col 79}{space 4}  6.43605{col 92}{space 3} 35.78986
+{txt}{hline 38}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}
+{txt}Absorbed degrees of freedom:
+{res}{col 1}{text}{hline 13}{c TT}{hline 12}{hline 12}{hline 14}{hline 1}{c TRC}
+{col 1}{text} Absorbed FE{col 14}{c |} Categories{col 27} - Redundant{col 39}  = Num. Coefs{col 54}{c |}
+{res}{col 1}{text}{hline 13}{c +}{hline 12}{hline 12}{hline 14}{hline 1}{c RT}
+{col 1}{text}       sdist{col 14}{c |}{space 1}      344{col 27}{space 1}        0{col 39}{result}{space 1}      344{col 53}{text} {col 54}{c |}
+{res}{col 1}{text}{hline 13}{c BT}{hline 12}{hline 12}{hline 14}{hline 1}{c BRC}
+{res}{txt}
+------------------------------------------------------------------
+Muslim vs Forward Hindu
+Higher-ranking definition: Forward Hindu only
+------------------------------------------------------------------
+{res}N:    18,978
+LOO composition p25 / p50 / p75:  0.000    0.073    0.500
+{txt}
+{res}THREE-WAY interaction:    -21.15   p = 0.3286
+{txt}
+Difference in private-public gap:
+  (comparison group minus Forward Hindu)
+{res}At p25 composition:      7.52   SE =     7.05   p = 0.2861
+At p50 composition:      5.98   SE =     6.29   p = 0.3422
+At p75 composition:     -3.06   SE =     8.99   p = 0.7335
+{txt}
+Private-public gap within each group:
+{res}Forward Hindu, p25 / p50 / p75:    -8.83      -8.22      -4.64
+Muslim, p25 / p50 / p75:    -1.31      -2.24      -7.70
+{txt}
+Sensitivity: non-LOO composition
+{res}Three-way interaction:    -25.67   p = 0.3368
+{txt}
+{com}. 
+. 
+. di as text ""
+{res}{txt}
+
+{com}. di as text "======================================================================"
+{res}{txt}======================================================================
+
+{com}. di as text "DONE"
+{res}{txt}DONE
+
+{com}. di as text "======================================================================"
+{res}{txt}======================================================================
+
+{com}. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}/Users/sidhpandit/Documents/GitHub/nnm-disparities-and-facility-type/anotha.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 1 Oct 2026, 16:39:58
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}

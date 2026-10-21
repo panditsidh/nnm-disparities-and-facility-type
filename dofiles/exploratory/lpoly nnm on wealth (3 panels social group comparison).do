@@ -1,0 +1,113 @@
+/********************************************************************
+PRIVATE-FACILITY NNM ACROSS WEALTH
+
+Rural Uttar Pradesh + Bihar
+NFHS-4 and NFHS-5
+
+Each panel compares one social group with Forward Hindus.
+
+X-axis: Wealth PCA
+Y-axis: Neonatal mortality
+********************************************************************/
+
+
+*------------------------------------------------------------*
+* 1. LOAD DATA
+*------------------------------------------------------------*
+
+do "$paths"
+use "$dataset", clear
+
+keep if inlist(round,4,5)
+keep if rural==1
+keep if up_bihar==1
+keep if private==1
+keep if inlist(group,1,2,3,4,5)
+
+drop if missing(nnm)
+drop if missing(wealth_pca)
+
+
+*------------------------------------------------------------*
+* 2. LABEL GROUPS
+*------------------------------------------------------------*
+
+label define group_lbl ///
+    1 "Adivasi" ///
+    2 "Dalit" ///
+    3 "OBC" ///
+    4 "Forward Hindu" ///
+    5 "Muslim", replace
+
+label values group group_lbl
+
+
+*------------------------------------------------------------*
+* 3. ADIVASI VS FORWARD
+*------------------------------------------------------------*
+
+twoway ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==1) ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==4), ///
+    title("Adivasi vs Forward Hindu") ///
+    xtitle("Wealth PCA score") ///
+    ytitle("Neonatal mortality") ///
+    legend(order(2 "Adivasi" 4 "Forward Hindu") pos(6)) ///
+    name(g_adivasi, replace)
+
+
+*------------------------------------------------------------*
+* 4. DALIT VS FORWARD
+*------------------------------------------------------------*
+
+twoway ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==2) ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==4), ///
+    title("Dalit vs Forward Hindu") ///
+    xtitle("Wealth PCA score") ///
+    ytitle("Neonatal mortality") ///
+    legend(order(2 "Dalit" 4 "Forward Hindu") pos(6)) ///
+    name(g_dalit, replace)
+
+
+*------------------------------------------------------------*
+* 5. OBC VS FORWARD
+*------------------------------------------------------------*
+
+twoway ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==3) ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==4), ///
+    title("OBC vs Forward Hindu") ///
+    xtitle("Wealth PCA score") ///
+    ytitle("Neonatal mortality") ///
+    legend(order(2 "OBC" 4 "Forward Hindu") pos(6)) ///
+    name(g_obc, replace)
+
+
+*------------------------------------------------------------*
+* 6. MUSLIM VS FORWARD
+*------------------------------------------------------------*
+
+twoway ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==5) ///
+    (lpolyci nnm wealth_pca [aw=v005] if group==4), ///
+    title("Muslim vs Forward Hindu") ///
+    xtitle("Wealth PCA score") ///
+    ytitle("Neonatal mortality") ///
+    legend(order(2 "Muslim" 4 "Forward Hindu") pos(6)) ///
+    name(g_muslim, replace)
+
+
+*------------------------------------------------------------*
+* 7. COMBINE
+*------------------------------------------------------------*
+
+graph combine ///
+    g_dalit ///
+    g_obc ///
+    g_muslim, ///
+    cols(3) ///
+    ycommon ///
+    xcommon ///
+    title("Private-facility neonatal mortality across household wealth") ///
+    subtitle("Rural Uttar Pradesh and Bihar")

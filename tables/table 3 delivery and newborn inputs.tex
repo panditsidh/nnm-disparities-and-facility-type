@@ -1,0 +1,55 @@
+{
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\begin{tabular}{l*{5}{c}}
+\toprule
+            &\multicolumn{3}{c}{Newborn care practices}                       &\multicolumn{2}{c}{Delivery circumstances} \\\cmidrule(lr){2-4}\cmidrule(lr){5-6}
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+\midrule
+\textit{Baseline}&                     &                     &                     &                     &                     \\
+\addlinespace
+Intercept: Public, Q5, Forward Hindu&       0.175\sym{***}&       0.792\sym{***}&       0.447\sym{***}&       0.454\sym{***}&       0.232\sym{***}\\
+            &     (0.007)         &     (0.010)         &     (0.009)         &     (0.009)         &     (0.007)         \\
+\addlinespace
+Private     &       0.007         &      -0.104\sym{***}&      -0.110\sym{***}&      -0.016         &       0.311\sym{***}\\
+            &     (0.010)         &     (0.019)         &     (0.013)         &     (0.014)         &     (0.012)         \\
+\addlinespace
+\textit{Wealth}&                     &                     &                     &                     &                     \\
+\addlinespace
+Private $\times$ quintile 1&       0.027\sym{**} &      -0.067\sym{***}&      -0.007         &       0.040\sym{***}&       0.083\sym{***}\\
+            &     (0.010)         &     (0.020)         &     (0.013)         &     (0.015)         &     (0.014)         \\
+\addlinespace
+Private $\times$ quintile 2&       0.014         &      -0.042\sym{**} &       0.002         &       0.008         &       0.065\sym{***}\\
+            &     (0.009)         &     (0.019)         &     (0.012)         &     (0.014)         &     (0.012)         \\
+\addlinespace
+Private $\times$ quintile 3&       0.010         &      -0.009         &       0.005         &      -0.006         &       0.040\sym{***}\\
+            &     (0.009)         &     (0.017)         &     (0.012)         &     (0.013)         &     (0.012)         \\
+\addlinespace
+Private $\times$ quintile 4&      -0.000         &      -0.027         &       0.005         &      -0.011         &       0.028\sym{**} \\
+            &     (0.009)         &     (0.023)         &     (0.012)         &     (0.013)         &     (0.013)         \\
+\addlinespace
+\textit{Social group}&                     &                     &                     &                     &                     \\
+\addlinespace
+Private $\times$ Dalit&      -0.015\sym{*}  &      -0.004         &       0.021\sym{*}  &       0.002         &       0.009         \\
+            &     (0.009)         &     (0.014)         &     (0.011)         &     (0.013)         &     (0.011)         \\
+\addlinespace
+Private $\times$ Muslim&      -0.007         &       0.010         &       0.033\sym{**} &      -0.014         &       0.020         \\
+            &     (0.011)         &     (0.016)         &     (0.014)         &     (0.015)         &     (0.014)         \\
+\addlinespace
+Private $\times$ OBC&      -0.006         &      -0.001         &       0.011         &       0.008         &      -0.008         \\
+            &     (0.007)         &     (0.012)         &     (0.010)         &     (0.011)         &     (0.011)         \\
+\addlinespace
+Private $\times$ Adivasi&      -0.006         &       0.030         &       0.028\sym{*}  &       0.015         &      -0.041\sym{***}\\
+            &     (0.012)         &     (0.019)         &     (0.017)         &     (0.017)         &     (0.015)         \\
+\midrule
+Mean of outcome&       0.166         &       0.787         &       0.442         &       0.433         &       0.184         \\
+Observations&      211371         &      146557         &      268841         &      216892         &      284683         \\
+\bottomrule
+\multicolumn{6}{l}{\footnotesize Standard errors clustered by PSU appear in parentheses.}\\
+\multicolumn{6}{l}{\footnotesize All models include wealth-quintile and social-group main effects, maternal and birth controls, interactions of maternal and birth controls with Private, NFHS round fixed effects, and PSU fixed effects.}\\
+\multicolumn{6}{l}{\footnotesize Public facility birth, wealth quintile 5, and Forward Hindu are the omitted categories.}\\
+\multicolumn{6}{l}{\footnotesize Maternal and birth controls include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, multiple birth, birth order, and maternal illiteracy.}\\
+\multicolumn{6}{l}{\footnotesize Postnatal care is defined as a check within 24 hours of birth; EIBF is breastfeeding initiated within one hour.}\\
+\multicolumn{6}{l}{\footnotesize $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.}\\
+\end{tabular}
+}

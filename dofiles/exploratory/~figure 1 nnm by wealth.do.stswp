@@ -1,0 +1,76 @@
+/********************************************************************
+LPOLYCI: NNM BY WEALTH PCA
+PRIVATE VS PUBLIC
+
+Rural India
+NFHS-4 and NFHS-5
+********************************************************************/
+
+do "$paths"
+use "$dataset", clear
+
+keep if inlist(round,4,5)
+keep if rural==1
+// keep if up_bihar==1
+keep if public==1 | private==1
+
+drop if missing(nnm)
+drop if missing(wealth_pca)
+
+count
+
+
+*------------------------------------------------------------*
+* WEIGHTED MEAN X AND Y FOR PRIVATE / PUBLIC
+*------------------------------------------------------------*
+
+quietly summarize wealth_pca [aw=v005] if private==1
+local private_mean_x = r(mean)
+
+quietly summarize nnm [aw=v005] if private==1
+local private_mean_y = r(mean)
+
+quietly summarize wealth_pca [aw=v005] if public==1
+local public_mean_x = r(mean)
+
+quietly summarize nnm [aw=v005] if public==1
+local public_mean_y = r(mean)
+
+
+gen double mean_x_private = .
+gen double mean_y_private = .
+gen double mean_x_public  = .
+gen double mean_y_public  = .
+
+replace mean_x_private = `private_mean_x' in 1
+replace mean_y_private = `private_mean_y' in 1
+
+replace mean_x_public = `public_mean_x' in 1
+replace mean_y_public = `public_mean_y' in 1
+
+
+*------------------------------------------------------------*
+* GRAPH
+*------------------------------------------------------------*
+
+twoway ///
+    (lpolyci nnm wealth_pca [aw=v005] if private==1, ///
+        bwidth(.4) ///
+        ciplot(rarea)) ///
+    (lpolyci nnm wealth_pca [aw=v005] if public==1, ///
+        bwidth(.4) ///
+        ciplot(rarea)) ///
+    (scatter mean_y_private mean_x_private, ///
+        mcolor(blue) ///
+        msymbol(O) ///
+        msize(medlarge)) ///
+    (scatter mean_y_public mean_x_public, ///
+        mcolor(green) ///
+        msymbol(O) ///
+        msize(medlarge)), ///
+    xtitle("Wealth principal component") ///
+    ytitle("Neonatal mortality") ///
+    legend(order(2 "Private" 3 "Public" ///
+                 4 "Private mean" 5 "Public mean"))
+
+graph export "figures/figure 1 nnm by wealth.pdf", as(pdf) replace

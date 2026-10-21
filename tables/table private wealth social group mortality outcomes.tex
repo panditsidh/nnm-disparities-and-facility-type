@@ -1,0 +1,71 @@
+{
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\begin{tabular}{l*{5}{c}}
+\toprule
+            &\multicolumn{3}{c}{Neonatal mortality}                           &\multicolumn{1}{c}{Early neonatal mortality}&\multicolumn{1}{c}{Late neonatal mortality}\\\cmidrule(lr){2-4}\cmidrule(lr){5-5}\cmidrule(lr){6-6}
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+            &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+\midrule
+Private     &        -3.5         &        -9.6\sym{***}&       -10.3\sym{**} &       -10.3\sym{***}&         0.2         \\
+            &       (2.7)         &       (3.4)         &       (4.0)         &       (3.7)         &       (1.5)         \\
+\addlinespace
+Private $\times$ quintile 1&        20.5\sym{***}&        14.1\sym{***}&        15.5\sym{***}&        16.0\sym{***}&        -0.3         \\
+            &       (3.9)         &       (4.1)         &       (4.7)         &       (4.4)         &       (1.6)         \\
+\addlinespace
+Private $\times$ quintile 2&        14.2\sym{***}&        10.7\sym{***}&        11.4\sym{***}&        11.8\sym{***}&        -0.3         \\
+            &       (3.2)         &       (3.3)         &       (3.7)         &       (3.4)         &       (1.4)         \\
+\addlinespace
+Private $\times$ quintile 3&         1.8         &        -0.1         &         0.7         &         1.7         &        -0.9         \\
+            &       (2.8)         &       (2.8)         &       (3.3)         &       (3.0)         &       (1.3)         \\
+\addlinespace
+Private $\times$ quintile 4&         1.6         &         1.0         &         1.5         &         2.7         &        -1.1         \\
+            &       (2.8)         &       (2.7)         &       (3.1)         &       (2.9)         &       (1.3)         \\
+\addlinespace
+Quintile 1  &        11.7\sym{***}&        13.0\sym{***}&        10.5\sym{***}&         8.3\sym{***}&         2.0\sym{*}  \\
+            &       (1.9)         &       (1.9)         &       (2.6)         &       (2.3)         &       (1.1)         \\
+\addlinespace
+Quintile 2  &         9.6\sym{***}&        10.3\sym{***}&         9.4\sym{***}&         7.3\sym{***}&         2.0\sym{**} \\
+            &       (1.8)         &       (1.8)         &       (2.3)         &       (2.1)         &       (1.0)         \\
+\addlinespace
+Quintile 3  &         5.9\sym{***}&         6.3\sym{***}&         8.5\sym{***}&         6.8\sym{***}&         1.5\sym{*}  \\
+            &       (1.8)         &       (1.8)         &       (2.3)         &       (2.0)         &       (0.9)         \\
+\addlinespace
+Quintile 4  &         3.5\sym{*}  &         3.7\sym{**} &         5.5\sym{**} &         4.2\sym{**} &         1.2         \\
+            &       (1.9)         &       (1.9)         &       (2.3)         &       (2.1)         &       (0.9)         \\
+\addlinespace
+Private $\times$ Dalit&        11.5\sym{***}&        10.5\sym{***}&         9.7\sym{**} &         7.8\sym{**} &         1.7         \\
+            &       (3.3)         &       (3.3)         &       (3.8)         &       (3.6)         &       (1.4)         \\
+\addlinespace
+Private $\times$ Muslim&         4.7         &         1.8         &         1.1         &         3.6         &        -2.4         \\
+            &       (3.4)         &       (3.4)         &       (4.2)         &       (3.9)         &       (1.6)         \\
+\addlinespace
+Private $\times$ OBC&         0.9         &         0.2         &        -0.2         &         0.6         &        -1.0         \\
+            &       (2.5)         &       (2.5)         &       (3.1)         &       (2.8)         &       (1.1)         \\
+\addlinespace
+Private $\times$ Adivasi&        -2.0         &        -2.5         &         0.2         &         0.2         &        -0.3         \\
+            &       (4.0)         &       (4.0)         &       (5.0)         &       (4.8)         &       (1.6)         \\
+\addlinespace
+Dalit       &         1.8         &         2.1         &         3.8\sym{*}  &         3.5\sym{*}  &         0.4         \\
+            &       (1.5)         &       (1.5)         &       (2.1)         &       (1.9)         &       (0.7)         \\
+\addlinespace
+Muslim      &        -0.8         &        -0.2         &         0.2         &        -0.8         &         1.0         \\
+            &       (1.9)         &       (1.9)         &       (2.8)         &       (2.6)         &       (1.1)         \\
+\addlinespace
+OBC         &         1.0         &         1.3         &         0.5         &         0.2         &         0.6         \\
+            &       (1.4)         &       (1.4)         &       (1.9)         &       (1.8)         &       (0.7)         \\
+\addlinespace
+Adivasi     &        -0.8         &        -0.8         &         4.5\sym{*}  &         4.3\sym{*}  &         0.6         \\
+            &       (1.8)         &       (1.8)         &       (2.6)         &       (2.4)         &       (0.9)         \\
+\midrule
+Public mean outcome&        26.7         &        26.7         &        26.8         &        22.2         &         4.5         \\
+Maternal/birth risk controls $\times$ Private&          No         &         Yes         &         Yes         &         Yes         &         Yes         \\
+PSU fixed effects&          No         &          No         &         Yes         &         Yes         &         Yes         \\
+Observations&      286562         &      286562         &      284683         &      284660         &      284660         \\
+\bottomrule
+\multicolumn{6}{l}{\footnotesize Standard errors clustered by PSU in parentheses.}\\
+\multicolumn{6}{l}{\footnotesize All models include NFHS round fixed effects.}\\
+\multicolumn{6}{l}{\footnotesize Reference categories are public facility, Forward Hindu, and wealth quintile 5.}\\
+\multicolumn{6}{l}{\footnotesize Maternal/birth risk controls are prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, multiple birth, birth order, and maternal illiteracy.}\\
+\multicolumn{6}{l}{\footnotesize $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.}\\
+\end{tabular}
+}

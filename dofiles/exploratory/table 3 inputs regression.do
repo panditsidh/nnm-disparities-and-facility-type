@@ -1,0 +1,506 @@
+/********************************************************************
+TABLE 3:
+DELIVERY CIRCUMSTANCES AND NEWBORN HEALTH INPUTS
+
+EAG states, rural India
+NFHS-4 and NFHS-5
+
+OUTCOMES:
+    (1) Postnatal check within 24 hours
+    (2) Skin-to-skin contact
+    (3) Early initiation of breastfeeding
+    (4) Prolonged labor
+    (5) C-section
+
+Each column uses the same preferred specification:
+    Wealth quintile main effects
+    Social-group main effects
+    Private × wealth quintile
+    Private × social group
+    Maternal and birth controls
+    Maternal and birth controls × Private
+    PSU fixed effects
+    NFHS round fixed effects
+
+Standard errors clustered by PSU.
+
+REFERENCE CATEGORIES:
+    Public facility
+    Forward Hindu
+    Wealth quintile 5
+********************************************************************/
+
+
+*------------------------------------------------------------*
+* LOAD DATA
+*------------------------------------------------------------*
+
+do "$paths"
+use "$dataset", clear
+
+gen eag = inlist(state, ///
+    104, /// Uttarakhand
+    107, /// Rajasthan
+    108, /// Uttar Pradesh
+    109, /// Bihar
+    119, /// Jharkhand
+    120, /// Odisha
+    121, /// Chhattisgarh
+    122)   // Madhya Pradesh
+
+label define eag_lbl ///
+    0 "Non-EAG" ///
+    1 "EAG"
+
+label values eag eag_lbl
+label variable eag "EAG state"
+
+
+*------------------------------------------------------------*
+* POSTNATAL CHECK WITHIN 24 HOURS
+*
+* m70 = whether baby received PNC within 2 months
+* m71 = timing of PNC
+*
+* 100       immediately / first hour
+* 101-123   1-23 hours
+*
+* Later checks are coded 0.
+* Unknown timing in hours is coded missing.
+*------------------------------------------------------------*
+
+capture drop pnc_24h
+
+gen byte pnc_24h = 0 if inlist(m70,0,1)
+
+replace pnc_24h = 1 ///
+    if inrange(m71,100,123)
+
+* Cannot determine whether check occurred within 24 hours
+replace pnc_24h = . if m70==8
+
+replace pnc_24h = . ///
+    if m70==1 & inlist(m71,199,998)
+
+replace pnc_24h = . ///
+    if m70==1 & missing(m71)
+
+label variable pnc_24h ///
+    "Postnatal check within 24 hours"
+
+
+*------------------------------------------------------------*
+* SAMPLE
+*------------------------------------------------------------*
+
+keep if inlist(round,4,5)
+keep if rural==1
+// keep if eag==1
+
+* Facility births only
+keep if public==1 | private==1
+
+* Main five social groups only
+keep if inlist(group,1,2,3,4,5)
+
+replace prior = 0 if missing(prior)
+
+drop if missing(v005)
+drop if missing(psu)
+drop if missing(state)
+
+
+*------------------------------------------------------------*
+* SOCIAL GROUP LABELS
+*------------------------------------------------------------*
+
+label define group_lbl ///
+    1 "Adivasi" ///
+    2 "Dalit" ///
+    3 "OBC" ///
+    4 "Forward Hindu" ///
+    5 "Muslim", replace
+
+label values group group_lbl
+
+
+*------------------------------------------------------------*
+* UNIQUE PSU ACROSS SURVEY ROUNDS
+*------------------------------------------------------------*
+
+capture drop psu_id
+
+egen psu_id = group(round state psu)
+
+
+*------------------------------------------------------------*
+* CHECK OUTCOMES
+*------------------------------------------------------------*
+
+foreach y in ///
+    pnc_24h ///
+    skin ///
+    eibf ///
+    prolongedlabour ///
+    csection {
+
+    capture confirm variable `y'
+
+    if _rc {
+        di as error "Variable `y' not found."
+        exit 111
+    }
+}
+
+
+*------------------------------------------------------------*
+* COMMON COVARIATE SAMPLE
+*------------------------------------------------------------*
+
+capture drop miss_reg reg_base
+
+egen miss_reg = rowmiss( ///
+    private ///
+    group ///
+    v190 ///
+    prior ///
+    underweight_projected ///
+    male ///
+    momunder20 ///
+    multiples ///
+    birth_order ///
+    illiterate ///
+    round ///
+    v005 ///
+    psu_id ///
+)
+
+gen byte reg_base = (miss_reg==0)
+
+
+*------------------------------------------------------------*
+* MODEL COMPONENTS
+*
+* Reference groups:
+*   Facility: Public
+*   Wealth: Quintile 5
+*   Social group: Forward Hindu
+*------------------------------------------------------------*
+
+local wealth_group_terms ///
+    i.private ///
+    ib5.v190 ///
+    ib4.group ///
+    i.private#ib5.v190 ///
+    i.private#ib4.group
+
+
+* Main maternal/birth controls
+local risk_main ///
+    i.prior ///
+    i.underweight_projected ///
+    i.male ///
+    i.momunder20 ///
+    i.multiples ///
+    c.birth_order ///
+    i.illiterate
+
+
+* Maternal/birth controls × Private
+local risk_private ///
+    i.private#i.prior ///
+    i.private#i.underweight_projected ///
+    i.private#i.male ///
+    i.private#i.momunder20 ///
+    i.private#i.multiples ///
+    i.private#c.birth_order ///
+    i.private#i.illiterate
+
+
+*------------------------------------------------------------*
+* CLEAR STORED ESTIMATES
+*------------------------------------------------------------*
+
+estimates clear
+eststo clear
+
+
+/********************************************************************
+COLUMN 1
+POSTNATAL CHECK WITHIN 24 HOURS
+********************************************************************/
+
+reghdfe pnc_24h ///
+    `wealth_group_terms' ///
+    `risk_main' ///
+    `risk_private' ///
+    i.round ///
+    [aw=v005] ///
+    if reg_base==1 & !missing(pnc_24h), ///
+    absorb(psu_id) ///
+    vce(cluster psu_id)
+
+quietly summarize pnc_24h [aw=v005] ///
+    if e(sample), meanonly
+
+estadd scalar outcome_mean = r(mean)
+
+estimates store m1
+
+
+
+/********************************************************************
+COLUMN 2
+SKIN-TO-SKIN CONTACT
+********************************************************************/
+
+reghdfe skin ///
+    `wealth_group_terms' ///
+    `risk_main' ///
+    `risk_private' ///
+    i.round ///
+    [aw=v005] ///
+    if reg_base==1 & !missing(skin), ///
+    absorb(psu_id) ///
+    vce(cluster psu_id)
+
+quietly summarize skin [aw=v005] ///
+    if e(sample), meanonly
+
+estadd scalar outcome_mean = r(mean)
+
+estimates store m2
+
+
+
+/********************************************************************
+COLUMN 3
+EARLY INITIATION OF BREASTFEEDING
+********************************************************************/
+
+reghdfe eibf ///
+    `wealth_group_terms' ///
+    `risk_main' ///
+    `risk_private' ///
+    i.round ///
+    [aw=v005] ///
+    if reg_base==1 & !missing(eibf), ///
+    absorb(psu_id) ///
+    vce(cluster psu_id)
+
+quietly summarize eibf [aw=v005] ///
+    if e(sample), meanonly
+
+estadd scalar outcome_mean = r(mean)
+
+estimates store m3
+
+
+
+/********************************************************************
+COLUMN 4
+PROLONGED LABOR
+********************************************************************/
+
+reghdfe prolongedlabour ///
+    `wealth_group_terms' ///
+    `risk_main' ///
+    `risk_private' ///
+    i.round ///
+    [aw=v005] ///
+    if reg_base==1 & !missing(prolongedlabour), ///
+    absorb(psu_id) ///
+    vce(cluster psu_id)
+
+quietly summarize prolongedlabour [aw=v005] ///
+    if e(sample), meanonly
+
+estadd scalar outcome_mean = r(mean)
+
+estimates store m4
+
+
+
+/********************************************************************
+COLUMN 5
+C-SECTION
+********************************************************************/
+
+reghdfe csection ///
+    `wealth_group_terms' ///
+    `risk_main' ///
+    `risk_private' ///
+    i.round ///
+    [aw=v005] ///
+    if reg_base==1 & !missing(csection), ///
+    absorb(psu_id) ///
+    vce(cluster psu_id)
+
+quietly summarize csection [aw=v005] ///
+    if e(sample), meanonly
+
+estadd scalar outcome_mean = r(mean)
+
+estimates store m5
+
+
+
+/********************************************************************
+DISPLAY TABLE IN STATA
+********************************************************************/
+
+esttab m1 m2 m3 m4 m5, ///
+    b(3) se(3) ///
+    star(* 0.10 ** 0.05 *** 0.01) ///
+    keep( ///
+        _cons ///
+        1.private ///
+        1.private#1.v190 ///
+        1.private#2.v190 ///
+        1.private#3.v190 ///
+        1.private#4.v190 ///
+        1.private#2.group ///
+        1.private#5.group ///
+        1.private#3.group ///
+        1.private#1.group ///
+    ) ///
+    order( ///
+        _cons ///
+        1.private ///
+        1.private#1.v190 ///
+        1.private#2.v190 ///
+        1.private#3.v190 ///
+        1.private#4.v190 ///
+        1.private#2.group ///
+        1.private#5.group ///
+        1.private#3.group ///
+        1.private#1.group ///
+    ) ///
+    coeflabels( ///
+        _cons "Intercept: Public, Q5, Forward Hindu" ///
+        1.private "Private" ///
+        1.private#1.v190 "Private x quintile 1" ///
+        1.private#2.v190 "Private x quintile 2" ///
+        1.private#3.v190 "Private x quintile 3" ///
+        1.private#4.v190 "Private x quintile 4" ///
+        1.private#2.group "Private x Dalit" ///
+        1.private#5.group "Private x Muslim" ///
+        1.private#3.group "Private x OBC" ///
+        1.private#1.group "Private x Adivasi" ///
+    ) ///
+    refcat( ///
+        _cons "BASELINE" ///
+        1.private#1.v190 "WEALTH" ///
+        1.private#2.group "SOCIAL GROUP", ///
+        nolabel ///
+    ) ///
+    mtitles( ///
+        "PNC <=24h" ///
+        "Skin-to-skin" ///
+        "EIBF" ///
+        "Prolonged labor" ///
+        "C-section" ///
+    ) ///
+    stats( ///
+        outcome_mean ///
+        N, ///
+        labels( ///
+            "Mean of outcome" ///
+            "Observations" ///
+        ) ///
+        fmt(3 0) ///
+    )
+
+
+
+/********************************************************************
+EXPORT LATEX TABLE
+********************************************************************/
+
+esttab m1 m2 m3 m4 m5 using ///
+    "tables/table 3 delivery and newborn inputs.tex", ///
+    replace ///
+    booktabs ///
+    b(3) se(3) ///
+    star(* 0.10 ** 0.05 *** 0.01) ///
+    keep( ///
+        _cons ///
+        1.private ///
+        1.private#1.v190 ///
+        1.private#2.v190 ///
+        1.private#3.v190 ///
+        1.private#4.v190 ///
+        1.private#2.group ///
+        1.private#5.group ///
+        1.private#3.group ///
+        1.private#1.group ///
+    ) ///
+    order( ///
+        _cons ///
+        1.private ///
+        1.private#1.v190 ///
+        1.private#2.v190 ///
+        1.private#3.v190 ///
+        1.private#4.v190 ///
+        1.private#2.group ///
+        1.private#5.group ///
+        1.private#3.group ///
+        1.private#1.group ///
+    ) ///
+    coeflabels( ///
+        _cons "Intercept: Public, Q5, Forward Hindu" ///
+        1.private "Private" ///
+        1.private#1.v190 "Private $\times$ quintile 1" ///
+        1.private#2.v190 "Private $\times$ quintile 2" ///
+        1.private#3.v190 "Private $\times$ quintile 3" ///
+        1.private#4.v190 "Private $\times$ quintile 4" ///
+        1.private#2.group "Private $\times$ Dalit" ///
+        1.private#5.group "Private $\times$ Muslim" ///
+        1.private#3.group "Private $\times$ OBC" ///
+        1.private#1.group "Private $\times$ Adivasi" ///
+    ) ///
+    refcat( ///
+        _cons "\textit{Baseline}" ///
+        1.private#1.v190 "\textit{Wealth}" ///
+        1.private#2.group "\textit{Social group}", ///
+        nolabel ///
+    ) ///
+    mtitles( ///
+        "(1)" ///
+        "(2)" ///
+        "(3)" ///
+        "(4)" ///
+        "(5)" ///
+    ) ///
+    mgroups( ///
+        "Newborn care practices" ///
+        "Delivery circumstances", ///
+        pattern(1 0 0 1 0) ///
+        span ///
+        prefix(\multicolumn{@span}{c}{) ///
+        suffix(}) ///
+        erepeat(\cmidrule(lr){@span}) ///
+    ) ///
+    stats( ///
+        outcome_mean ///
+        N, ///
+        labels( ///
+            "Mean of outcome" ///
+            "Observations" ///
+        ) ///
+        fmt(3 0) ///
+    ) ///
+    nonotes ///
+    addnotes( ///
+        "Standard errors clustered by PSU appear in parentheses." ///
+        "All models include wealth-quintile and social-group main effects, maternal and birth controls, interactions of maternal and birth controls with Private, NFHS round fixed effects, and PSU fixed effects." ///
+        "Public facility birth, wealth quintile 5, and Forward Hindu are the omitted categories." ///
+        "Maternal and birth controls include prior neonatal death, projected maternal prepregnancy underweight, child sex, maternal age under 20, multiple birth, birth order, and maternal illiteracy." ///
+        "Postnatal care is defined as a check within 24 hours of birth; EIBF is breastfeeding initiated within one hour." ///
+        "$^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$." ///
+    )
+
+
+/********************************************************************
+END
+********************************************************************/

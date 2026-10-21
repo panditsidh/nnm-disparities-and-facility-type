@@ -14,6 +14,54 @@ replace nnm =. if child_age_mo>60
 drop if missing(nnm)
 
 
+************************************ Early and late neonatal mortality ************************************
+
+capture drop early_nnm late_nnm
+
+* Start at zero for births that survived beyond the neonatal period
+gen early_nnm = 0 if child_age_mo > 0
+gen late_nnm  = 0 if child_age_mo > 0
+
+* Early neonatal death: days 0-6
+replace early_nnm = 1000 ///
+    if child_age_mo > 0 ///
+    & inrange(b6,100,106)
+
+* Late neonatal death: days 7-27
+replace late_nnm = 1000 ///
+    if child_age_mo > 0 ///
+    & inrange(b6,107,127)
+
+
+*------------------------------------------------------------*
+* Neonatal deaths with timing that cannot be classified
+* cleanly into days 0-6 or 7-27
+*------------------------------------------------------------*
+
+replace early_nnm = . ///
+    if nnm==1000 ///
+    & !inrange(b6,100,127)
+
+replace late_nnm = . ///
+    if nnm==1000 ///
+    & !inrange(b6,100,127)
+
+
+* Infants interviewed before completing one month have not
+* experienced the full neonatal risk period
+replace early_nnm = . if child_age_mo==0
+replace late_nnm  = . if child_age_mo==0
+
+* Match existing five-year restriction
+replace early_nnm = . if child_age_mo>60
+replace late_nnm  = . if child_age_mo>60
+
+
+label variable early_nnm ///
+    "Early neonatal mortality, deaths 0-6 days per 1,000 live births"
+
+label variable late_nnm ///
+    "Late neonatal mortality, deaths 7-27 days per 1,000 live births"
 
 
 ************************************ Facility type ************************************
@@ -458,6 +506,147 @@ label val roof roof
 gen illiterate = (v155 == 0)
 
 
+/********************************************************************
+WEALTH PCA
+
+Constructed from variables already available in the birth recode.
+
+PCA is estimated:
+    - separately within NFHS-4 and NFHS-5
+    - using one observation per household
+    - on the broad birth-recode household distribution
+
+Score is standardized within survey round.
+Higher wealth_pca = richer.
+********************************************************************/
+
+
+capture drop wealth_pca wealth_tmp hh_tag_wealth
+capture drop floor_finished wall_finished roof_finished
+
+
+*------------------------------------------------------------*
+* 1. CLEAN DURABLE ASSETS
+*------------------------------------------------------------*
+
+foreach v in v119 v120 v121 v122 v123 v124 v125 {
+    replace `v' = . if !inlist(`v',0,1)
+}
+
+
+*------------------------------------------------------------*
+* 2. HOUSING MATERIALS
+*------------------------------------------------------------*
+
+gen byte floor_finished = ///
+    inrange(v127,30,39) if !missing(v127)
+
+replace floor_finished = . ///
+    if inlist(v127,96,97,99)
+
+
+gen byte wall_finished = ///
+    inrange(v128,30,39) if !missing(v128)
+
+replace wall_finished = . ///
+    if inlist(v128,96,97,99)
+
+
+gen byte roof_finished = ///
+    inrange(v129,30,39) if !missing(v129)
+
+replace roof_finished = . ///
+    if inlist(v129,96,97,99)
+
+
+*------------------------------------------------------------*
+* 3. VARIABLES USED IN PCA
+*------------------------------------------------------------*
+
+local wealthvars ///
+    v119 ///
+    v120 ///
+    v121 ///
+    v122 ///
+    v123 ///
+    v124 ///
+    v125 ///
+    floor_finished ///
+    wall_finished ///
+    roof_finished
+
+
+*------------------------------------------------------------*
+* 4. ONE OBSERVATION PER HOUSEHOLD FOR PCA ESTIMATION
+*------------------------------------------------------------*
+
+bysort round v001 v002: ///
+    gen byte hh_tag_wealth = (_n==1)
+
+
+*------------------------------------------------------------*
+* 5. ESTIMATE PCA SEPARATELY BY ROUND
+*------------------------------------------------------------*
+
+gen double wealth_pca = .
+
+foreach r in 4 5 {
+
+    di as text ""
+    di as text "================ WEALTH PCA: NFHS-`r' ================"
+
+    pca `wealthvars' ///
+        if round==`r' & hh_tag_wealth==1, ///
+        components(1)
+
+    * Predict score for all observations in that round
+    predict double wealth_tmp ///
+        if round==`r', score
+
+    * Orient score so higher = richer
+    quietly correlate wealth_tmp v122 ///
+        if round==`r' & hh_tag_wealth==1
+
+    matrix C = r(C)
+
+    if C[1,2] < 0 {
+        replace wealth_tmp = -wealth_tmp ///
+            if round==`r'
+    }
+
+    * Standardize using household-level distribution
+    quietly summarize wealth_tmp ///
+        if round==`r' & hh_tag_wealth==1
+
+    replace wealth_pca = ///
+        (wealth_tmp - r(mean)) / r(sd) ///
+        if round==`r'
+
+    drop wealth_tmp
+}
+
+
+label variable wealth_pca ///
+    "Asset wealth PCA score, standardized within NFHS round"
+
+
+*------------------------------------------------------------*
+* 6. CHECKS
+*------------------------------------------------------------*
+
+di as text ""
+di as text "================ WEALTH PCA CHECK ================"
+
+tabstat wealth_pca ///
+    if hh_tag_wealth==1 & inlist(round,4,5), ///
+    by(round) ///
+    stat(n mean sd p10 p25 p50 p75 p90)
+
+capture noisily corr wealth_pca v190 ///
+    if hh_tag_wealth==1 & inlist(round,4,5)
+
+
+
 ************************************ Care at birth variables ************************************
 
 cap drop prelac
@@ -473,6 +662,7 @@ if !_rc {
 	replace prelac = 1 if prelac_any==1
 	replace prelac = 0 if prelac_any==0
 	drop prelac_any
+
 	
 	
 
